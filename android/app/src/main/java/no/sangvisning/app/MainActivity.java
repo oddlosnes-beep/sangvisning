@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.*;
@@ -28,6 +30,18 @@ public class MainActivity extends Activity {
         wv.setBackgroundColor(0xFF000000);
         FrameLayout root = new FrameLayout(this);
         root.addView(wv, new FrameLayout.LayoutParams(-1, -1));
+        View hot = new View(this);
+        int hs = (int) (110 * getResources().getDisplayMetrics().density);
+        hot.setOnTouchListener((v, e) -> {
+            if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                long n = System.currentTimeMillis();
+                taps = (n - lastTap < 1500) ? taps + 1 : 1;
+                lastTap = n;
+                if (taps >= 3) { taps = 0; visOppsett(); }
+            }
+            return false;
+        });
+        root.addView(hot, new FrameLayout.LayoutParams(hs, hs, Gravity.TOP | Gravity.START));
         byggPanel(root);
         setContentView(root);
         WebSettings s = wv.getSettings();
@@ -54,7 +68,7 @@ public class MainActivity extends Activity {
     void lesIntent(Intent i) {
         Uri d = i == null ? null : i.getData();
         if (d != null && "sangvisning".equals(d.getScheme()) && d.getAuthority() != null && !d.getAuthority().isEmpty()) {
-            sp.edit().putString("adr", d.getAuthority()).apply();
+            husk(d.getAuthority());
         }
         start();
     }
@@ -70,7 +84,9 @@ public class MainActivity extends Activity {
     ScrollView panel;
     TextView pTitle, pMsg;
     EditText pAdr;
-    Button pOk, pRetry;
+    Button pOk, pRetry, pBack;
+    LinearLayout pList;
+    int taps = 0; long lastTap = 0;
 
     void byggPanel(FrameLayout root) {
         panel = new ScrollView(this);
@@ -87,7 +103,10 @@ public class MainActivity extends Activity {
         pRetry = new Button(this); pRetry.setText("Prøv igjen"); pRetry.setTextSize(18);
         pOk.setOnClickListener(v -> lagre(pAdr.getText().toString()));
         pRetry.setOnClickListener(v -> start());
-        l.addView(pTitle); l.addView(pMsg); l.addView(pAdr); l.addView(pOk); l.addView(pRetry);
+        pBack = new Button(this); pBack.setText("Tilbake"); pBack.setTextSize(18);
+        pBack.setOnClickListener(v -> start());
+        pList = new LinearLayout(this); pList.setOrientation(LinearLayout.VERTICAL);
+        l.addView(pTitle); l.addView(pMsg); l.addView(pAdr); l.addView(pOk); l.addView(pRetry); l.addView(pBack); l.addView(pList);
         panel.addView(l);
         root.addView(panel, new FrameLayout.LayoutParams(-1, -1));
         panel.setVisibility(View.GONE);
@@ -97,9 +116,23 @@ public class MainActivity extends Activity {
         String a = sp.getString("adr", "");
         pTitle.setText(feil ? "Får ikke kontakt" : "Sangvisning");
         pMsg.setText(feil ? "Fant ikke Sangvisning på " + a + ".\nSjekk at programmet kjører på PC-en og at nettbrettet er på samme wifi. Du kan også rette adressen under."
-                : "Skriv inn adressen til PC-en. Den står i Sangvisning på PC-en under Mer ▸ Mobil og nettbrett. Eller skann QR-koden der.");
+                : "Skriv inn adressen til PC-en. Den står i Sangvisning på PC-en under Mer ▸ Mobil og nettbrett. Eller skann QR-koden der. Du kommer hit igjen ved å trykke tre ganger raskt i øvre venstre hjørne.");
         pAdr.setText(a);
         pRetry.setVisibility(feil ? View.VISIBLE : View.GONE);
+        pBack.setVisibility(!feil && !a.isEmpty() ? View.VISIBLE : View.GONE);
+        pList.removeAllViews();
+        String lst = sp.getString("liste", "");
+        if (!lst.isEmpty()) {
+            TextView t = new TextView(this); t.setText("Tidligere brukte PC-er:"); t.setTextColor(0xFFC8C8D0); t.setTextSize(16); t.setPadding(0, 40, 0, 0);
+            pList.addView(t);
+            for (String x : lst.split("\\|")) {
+                if (x.isEmpty()) continue;
+                final String xa = x;
+                Button b = new Button(this); b.setText(xa); b.setAllCaps(false); b.setTextSize(18);
+                b.setOnClickListener(v -> lagre(xa));
+                pList.addView(b);
+            }
+        }
         panel.setVisibility(View.VISIBLE);
         getWindow().getDecorView().setSystemUiVisibility(0);
     }
@@ -107,13 +140,23 @@ public class MainActivity extends Activity {
     void visOppsett() { visPanel(false); }
     void visFeil() { visPanel(true); }
 
+    void husk(String a) {
+        StringBuilder sb = new StringBuilder(a);
+        int n = 1;
+        for (String x : sp.getString("liste", "").split("\\|")) {
+            if (x.isEmpty() || x.equals(a) || n >= 6) continue;
+            sb.append('|').append(x); n++;
+        }
+        sp.edit().putString("adr", a).putString("liste", sb.toString()).apply();
+    }
+
     void lagre(String adr) {
         String a = adr == null ? "" : adr.trim().replace("http://", "").replace("https://", "");
         int sl = a.indexOf('/');
         if (sl >= 0) a = a.substring(0, sl);
         if (a.isEmpty()) { Toast.makeText(this, "Skriv inn adressen først", Toast.LENGTH_SHORT).show(); return; }
         if (!a.contains(":")) a = a + ":5000";
-        sp.edit().putString("adr", a).apply();
+        husk(a);
         start();
     }
 
