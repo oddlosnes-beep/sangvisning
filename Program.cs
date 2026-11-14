@@ -193,7 +193,11 @@ app.Use(async (ctx, next) =>
 });
 
 app.UseDefaultFiles();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    // Siden skal alltid sjekkes på nytt mot programmet, så en oppdatering vises med en gang.
+    OnPrepareResponse = ctx => { ctx.Context.Response.Headers["Cache-Control"] = "no-cache"; }
+});
 
 app.MapGet("/api/data", () =>
     Results.Text(File.Exists(file) ? File.ReadAllText(file) : "{}", "application/json"));
