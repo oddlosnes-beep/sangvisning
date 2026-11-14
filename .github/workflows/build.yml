@@ -9,10 +9,38 @@ permissions:
   contents: write
 
 jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Bygg Android-appen
+        run: gradle -p android assembleRelease -Pvcode=${{ github.run_number }} --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: android/app/build/outputs/apk/release/app-release.apk
+
   build:
+    needs: android
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: apk
+          path: apk
+
+      - name: Legg Android-appen i programmet
+        shell: bash
+        run: cp apk/app-release.apk wwwroot/sangvisning.apk
 
       - uses: actions/setup-dotnet@v4
         with:
@@ -45,6 +73,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "v$VERSION" installer/Output/Sangvisning-Setup.exe \
+          cp apk/app-release.apk Sangvisning-Android.apk
+          gh release create "v$VERSION" installer/Output/Sangvisning-Setup.exe Sangvisning-Android.apk \
             --title "Sangvisning $VERSION" \
             --notes "Last ned Sangvisning-Setup.exe, dobbeltklikk og følg veiviseren."

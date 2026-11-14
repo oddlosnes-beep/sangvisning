@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="no"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sangvisning-app</title>
+<style>
+:root{--bg:#f4f4f6;--panel:#fff;--line:#d8d8de;--text:#1d1d22;--mute:#6b6b76;--acc:#2f6fed;color-scheme:light dark}
+@media(prefers-color-scheme:dark){:root{--bg:#15161a;--panel:#1f2026;--line:#33343c;--text:#ececf1;--mute:#9a9aa6;--acc:#6b9bff}}
+body{margin:0;background:var(--bg);color:var(--text);font:17px/1.45 system-ui,sans-serif;padding:20px;max-width:560px;margin:auto}
+h1{font-size:22px}.st{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0}
+a.b{display:block;text-align:center;background:var(--acc);color:#fff;text-decoration:none;padding:15px;border-radius:12px;font-weight:600;margin-top:8px}
+.h{color:var(--mute);font-size:14px}
+</style></head><body>
+<h1>Sangvisning for Android</h1>
+<div class="st"><b>1. Last ned appen</b>
+<a class="b" id="dl" href="/sangvisning.apk">Last ned Sangvisning</a>
+<p class="h">Åpne filen når den er lastet ned. Tillat «installer fra denne kilden» hvis Android spør. Meldingen om at filen kan skade enheten kan ignoreres, appen kommer fra din egen PC.</p></div>
+<div class="st"><b>2. Åpne appen og koble til</b>
+<a class="b" id="op" href="#">Åpne Sangvisning</a>
+<p class="h">Dette setter adressen til PC-en automatisk. Appen går i fullskjerm og holder skjermen våken. Neste gang starter du den fra ikonet.</p></div>
+<script>document.getElementById('op').href='sangvisning://'+location.host+'/';</script>
+</body></html>
