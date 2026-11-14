@@ -1375,6 +1375,14 @@ function renderOrder(){
       const l=S2.list.slice(), [m]=l.splice(from,1); if(from<pos) pos--; l.splice(pos,0,m); setOrder(l); };
     box.append(c);
   });
+  if(S2.explicit){
+    const miss=S2.names.filter(n=>!S2.list.some(x=>x.toLowerCase()===n.toLowerCase()));
+    if(miss.length){ const w=document.createElement('div'); w.className='hint'; w.style.cssText='flex:1 0 100%;color:#b45309;margin-top:4px';
+      w.append('Ikke med i rekkefølgen, og vises derfor ikke: '+miss.join(', ')+'. ');
+      const bt=document.createElement('button'); bt.textContent='Legg til'; bt.onclick=()=>setOrder(S2.list.concat(miss)); w.append(bt);
+      const b2=document.createElement('button'); b2.textContent='Slik står teksten'; b2.style.marginLeft='6px'; b2.onclick=()=>setOrder([]); w.append(b2);
+      box.append(w); }
+  }
   const add=$('eAdd'); add.replaceChildren();
   S2.names.forEach(n=>{ const b=document.createElement('button'); b.textContent='+ '+n; b.onclick=()=>setOrder(S2.list.concat([n])); add.append(b); });
 }
@@ -1471,7 +1479,7 @@ function openEditor(id){
   if(s){ try{ const nat=textToVerses($('eText').value).order; if(JSON.stringify(nat)===JSON.stringify(s.order)) $('eOrder').value=''; }catch(e){} }
   $('eTheme').replaceChildren(new Option('Standard (følger valgt tema)',''),...S.themes.map(t=>new Option(t.name,t.id))); $('eTheme').value=(s&&s.theme&&themeOf(s.theme))?s.theme:'';
   $('eDel').hidden=!s; $('eAuto').checked=false; $('eAbout').open=false; $('eHelp').hidden=true; eAboutSum(); updInfo(); $('eErr').textContent='';
-  dlg.showModal(); $('eTitle').focus();
+  ordNat=natOrder()||[]; dlg.showModal(); $('eTitle').focus();
 }
 function saveEditor(){
   const err=m=>{$('eErr').textContent=m;};
@@ -2298,7 +2306,16 @@ $('q').addEventListener('keydown',e=>{
 addEventListener('keydown',e=>{
   if(e.key==='/'&&!['INPUT','TEXTAREA'].includes(e.target.tagName)&&!document.querySelector("dialog[open]")){ e.preventDefault(); $('q').focus(); $('q').select(); }
 });
-$('eText').addEventListener('input',()=>updInfo());
+let ordNat=[];
+function natOrder(){ try{ return textToVerses($('eText').value).order; }catch(e){ return null; } }
+$('eText').addEventListener('input',()=>{
+  updInfo();
+  // Har du ikke laget en egen rekkefølge (den er lik teksten), følger den med når du legger til eller fjerner vers.
+  const nn=natOrder(); if(!nn) return;
+  const o=$('eOrder').value.trim();
+  if(o && JSON.stringify(o.split(',').map(x=>x.trim().toLowerCase()).filter(Boolean))===JSON.stringify(ordNat.map(x=>x.toLowerCase()))){ $('eOrder').value=''; renderOrder(); }
+  ordNat=nn;
+});
 $('eText').addEventListener('paste',e=>{
   let t=(e.clipboardData||window.clipboardData).getData('text');
   const cl=cleanLines(t).join('\n'), changed=cl!==t.split(/\r?\n/).map(l=>l.trim()).join('\n');
