@@ -183,7 +183,7 @@ setInterval(()=>{
     st:ready?player.getPlayerState():-2, t:ready?player.getCurrentTime():0, d:ready?player.getDuration():0});
 },500);
 
-if(VIEW){ note.textContent='Trykk i vinduet for fullskjerm. Skjermen følger programmet automatisk.'; setTimeout(()=>{ note.style.display='none'; },6000); }
+if(VIEW){ note.textContent='Trykk i vinduet for fullskjerm. For å gå tilbake: trykk ‹ Meny (kommer når du trykker), eller dra ned mot venstre.'; setTimeout(()=>{ note.style.display='none'; },9000); }
 if(RELAY){ note.textContent='Trykk Esc for å lukke projektorvinduet'; setTimeout(()=>{ note.style.display='none'; },5000);
   addEventListener('keydown',e=>{ if(e.key==='Escape'){ fetch('/api/output/close',{method:'POST'}).catch(()=>{}); setTimeout(()=>window.close(),300); } }); }
 addEventListener('resize',fit);
@@ -191,6 +191,19 @@ addEventListener('click',()=>{
   document.body.classList.add('act'); note.style.display='none';
   if(!TEST&&!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
 });
+if(VIEW){
+  // Vei tilbake til menyen: knapp som vises ved trykk, og en trekk-bevegelse ned mot venstre.
+  const back=document.createElement('button'); back.id='vBack'; back.textContent='‹ Meny';
+  back.style.cssText='position:fixed;left:max(12px,env(safe-area-inset-left));top:max(12px,env(safe-area-inset-top));z-index:50;font:600 18px system-ui,sans-serif;padding:12px 18px;border-radius:12px;border:1px solid #fff6;background:#000b;color:#fff;display:none';
+  document.body.append(back);
+  let bt; const showBack=()=>{ back.style.display='block'; clearTimeout(bt); bt=setTimeout(()=>{ back.style.display='none'; },4500); };
+  const leave=()=>{ try{ if(document.fullscreenElement) document.exitFullscreen(); }catch(e){} location.href='/menu.html'; };
+  back.addEventListener('click',e=>{ e.stopPropagation(); leave(); });
+  addEventListener('click',showBack);
+  let sx=null,sy=null;
+  addEventListener('touchstart',e=>{ sx=e.touches[0].clientX; sy=e.touches[0].clientY; },{passive:true});
+  addEventListener('touchend',e=>{ if(sx===null) return; const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy; sx=null; if(dy>90&&dx<-90) leave(); },{passive:true});
+}
 if(TEST){ note.textContent='Prøvevindu. Lukk med Esc, eller med ✕ i programmet.'; note.style.display='block'; setTimeout(()=>{ note.style.display='none'; },5000);
   addEventListener('keydown',e=>{ if(e.key==='Escape') window.close(); }); }
 ch.postMessage({hello:1});
