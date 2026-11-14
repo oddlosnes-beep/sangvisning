@@ -78,4 +78,5 @@ $('paste').onclick=()=>{ card({}); const t=document.querySelector('#results .car
 card({}); 
 // Vis PIN-feltet på andre enheter enn PC-en bare hvis det mangler
 fetch('/api/settings').then(r=>{ if(!r.ok) $('pinRow').hidden=false; }).catch(()=>{ $('pinRow').hidden=false; });
-</script></body></html>
+</script><script src="/nosleep.js"></script>
+</body></html>
