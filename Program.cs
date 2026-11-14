@@ -1085,6 +1085,7 @@ async Task<(string tag, string assetUrl, string page)?> SisteUtgave()
         if ((a.GetProperty("name").GetString() ?? "") == "Sangvisning-Setup.exe") asset = a.GetProperty("browser_download_url").GetString() ?? "";
     return (tag, asset, r.GetProperty("html_url").GetString() ?? "");
 }
+app.MapGet("/api/version", (HttpContext ctx) => IsLocal(ctx) ? Results.Json(new { version = appVersion.ToString(3), installed = installert, dataDir = dir }) : Results.StatusCode(403));
 app.MapGet("/api/update/check", async (HttpContext ctx) =>
 {
     if (!IsLocal(ctx)) return Results.StatusCode(403);

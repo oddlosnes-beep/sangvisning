@@ -252,7 +252,7 @@ header button,header .btn{min-height:30px}
   <span id="moreWrap" style="position:relative"><button id="bMore">⋯ Mer</button><div id="moreMenu" hidden>
     <button id="bHelp">📖 Hjelp og veiledning (F1)</button><button id="bSet">⚙ Innstillinger …</button><button id="bCloud">☁ Sky og overføring …</button><button id="bBak">Sikkerhetskopi</button>
     <button id="bUse" hidden>Bruksrapport (logg) …</button><button id="bTrash">Papirkurv …</button><button id="bStage">Mobil og nettbrett (QR)</button>
-    <button id="bTestVid">Test videoer på forhånd</button><button id="bUpd" title="Sjekker GitHub om det finnes en nyere versjon">Se etter ny versjon</button><button id="bQuit" title="Stopper programmet helt. Brukes når du er ferdig for dagen.">⏻ Avslutt programmet</button>
+    <button id="bTestVid">Test videoer på forhånd</button><button id="bAbout">Om Sangvisning …</button><button id="bUpd" title="Sjekker GitHub om det finnes en nyere versjon">Se etter ny versjon</button><button id="bQuit" title="Stopper programmet helt. Brukes når du er ferdig for dagen.">⏻ Avslutt programmet</button>
     <button id="bSample" hidden>+ 40 eksempelsanger</button><button id="bClearSamples" hidden>Fjern eksempelsanger</button>
     <button id="bTh" hidden>Temaer …</button><button id="bScr" hidden>Skjermer</button><button id="bCredit" hidden>Kreditt på skjermen: av</button><button id="bLayReset" hidden>Nullstill layout</button>
   </div></span></div>
@@ -636,6 +636,23 @@ header button,header .btn{min-height:30px}
   <div class="bar" style="margin-bottom:0"><button id="eDel" style="color:#d6334a">Slett sang</button><span class="sp"></span>
   <button id="eCancel">Avbryt</button><button id="eSave" class="pri">Lagre (Ctrl+Enter)</button></div>
   <datalist id="dlPeople"></datalist>
+</dialog>
+<dialog id="abDlg" style="width:min(520px,94vw)">
+  <div style="display:flex;gap:14px;align-items:center"><div id="abLogo" style="flex:none"></div><div><h2 style="margin:0">Sangvisning</h2><div class="hint" id="abVer">Versjon …</div></div></div>
+  <p style="margin:12px 0 4px">Lokalt program for sangtekster, videoer og lysbilder på projektor i møter og gudstjenester. Alt kjører på denne PC-en. Sangene dine lagres bare her og sendes ikke noe sted.</p>
+  <label for="abBy">Laget av (vises her, valgfritt)</label><input id="abBy" placeholder="For eksempel navn eller gruppe">
+  <p style="margin:12px 0 2px"><b>Laget sammen med Claude</b> (Anthropic).</p>
+  <p class="hint" style="margin:2px 0">Prosjektside og nyeste versjon: <a href="https://github.com/oddlosnes-beep/sangvisning" target="_blank" rel="noopener">github.com/oddlosnes-beep/sangvisning</a></p>
+  <p class="hint" style="margin:2px 0">Sangene ligger i: <span id="abDir" style="user-select:all"></span></p>
+  <h3 style="font-size:14px;margin:14px 0 4px">Åpen kildekode i programmet</h3>
+  <ul class="hint" style="margin:0;padding-left:20px">
+    <li><a href="https://mozilla.github.io/pdf.js/" target="_blank" rel="noopener">pdf.js</a> (Mozilla), Apache License 2.0</li>
+    <li><a href="https://github.com/jstedfast/MailKit" target="_blank" rel="noopener">MailKit og MimeKit</a>, MIT-lisens</li>
+    <li><a href="https://dotnet.microsoft.com/" target="_blank" rel="noopener">.NET</a> (Microsoft), MIT-lisens</li>
+  </ul>
+  <h3 style="font-size:14px;margin:14px 0 4px">Rettigheter</h3>
+  <p class="hint" style="margin:0">Sangtekster og musikk er beskyttet av opphavsrett. Programmet gir ingen rettigheter til sangene du legger inn. Sørg selv for at dere har de avtalene som trengs for bruk i møtene.</p>
+  <div class="bar"><span class="sp"></span><button id="abClose" class="pri">Lukk</button></div>
 </dialog>
 <script>
 const bcRaw = new BroadcastChannel('sangvisning');
@@ -3166,6 +3183,15 @@ async function setLoad(){
     $('setPortInfo').textContent='Nå i bruk: port '+(d.activePort||d.port)+(d.activePort&&d.port&&d.activePort!==d.port?' (valgt port '+d.port+' var opptatt)':'')+'.'; }catch(e){ $('setPortInfo').textContent='Krever oppdatert Program.cs.'; }
   $('setCredit').checked=!!S.settings.credit;
 }
+$('bAbout').onclick=async()=>{
+  $('moreMenu').hidden=true;
+  const lg=document.querySelector('header .logo'); $('abLogo').innerHTML=lg?lg.outerHTML.replace(/width="\d+"/,'width="56"').replace(/height="\d+"/,'height="56"'):'';
+  $('abBy').value=(S.settings&&S.settings.aboutBy)||'';
+  try{ const d=await (await fetch('/api/version')).json(); $('abVer').textContent='Versjon '+d.version+(d.installed?'':' (kjører fra utviklermappen)'); $('abDir').textContent=d.dataDir||''; }catch(e){ $('abVer').textContent='Versjon ukjent'; }
+  $('abDlg').showModal();
+};
+$('abBy').onchange=()=>{ S.settings=S.settings||{}; S.settings.aboutBy=$('abBy').value.trim(); save(); };
+$('abClose').onclick=()=>$('abDlg').close();
 async function updCheck(manual){
   try{
     const d=await (await fetch('/api/update/check')).json();
