@@ -20,8 +20,7 @@ SolidCompression=yes
 WizardStyle=modern
 ShowLanguageDialog=no
 DisableProgramGroupPage=yes
-CloseApplications=yes
-CloseApplicationsFilter=Sangvisning.exe
+CloseApplications=no
 
 [Languages]
 Name: "norwegian"; MessagesFile: "compiler:Languages\Norwegian.isl"
@@ -39,3 +38,23 @@ Name: "{autodesktop}\Sangvisning"; Filename: "{app}\Sangvisning.exe"; WorkingDir
 [Run]
 Filename: "{app}\Sangvisning.exe"; WorkingDir: "{app}"; Description: "Start Sangvisning nå"; Flags: nowait postinstall skipifsilent
 Filename: "{app}\Sangvisning.exe"; WorkingDir: "{app}"; Flags: nowait; Check: WizardSilent
+
+[Code]
+procedure StoppSangvisning();
+var R: Integer;
+begin
+  Exec(ExpandConstant('{sys}\taskkill.exe'), '/F /IM Sangvisning.exe', '', SW_HIDE, ewWaitUntilTerminated, R);
+  Sleep(800);
+end;
+
+function InitializeSetup(): Boolean;
+begin
+  StoppSangvisning();
+  Result := True;
+end;
+
+function InitializeUninstall(): Boolean;
+begin
+  StoppSangvisning();
+  Result := True;
+end;
