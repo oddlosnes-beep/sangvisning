@@ -168,7 +168,7 @@ bool IsLocal(HttpContext c)
     return false;
 }
 
-bool PinOk(HttpContext c) => IsLocal(c) || (!string.IsNullOrEmpty(pin) && c.Request.Headers["X-Pin"].ToString() == pin);
+bool PinOk(HttpContext c) => IsLocal(c) || string.IsNullOrEmpty(pin) || c.Request.Headers["X-Pin"].ToString() == pin;
 
 app.Use(async (ctx, next) =>
 {
@@ -1030,7 +1030,7 @@ app.MapGet("/api/remote/plan", () => Results.Text(planInfo, "application/json"))
 
 app.MapPost("/api/remote", async (HttpContext ctx) =>
 {
-    if (!PinOk(ctx)) { await Task.Delay(800); return Results.Json(new { error = "Feil eller manglende PIN. Sett en PIN under Utkast i programmet." }, statusCode: 401); }
+    if (!PinOk(ctx)) { await Task.Delay(800); return Results.Json(new { error = "Feil eller manglende PIN." }, statusCode: 401); }
     using var reader = new StreamReader(ctx.Request.Body);
     var body = await reader.ReadToEndAsync();
     lock (ctrlClients) foreach (var c in ctrlClients) c.Writer.TryWrite(body);
