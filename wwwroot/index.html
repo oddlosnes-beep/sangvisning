@@ -295,7 +295,7 @@ header button,header .btn{min-height:30px}
         <label class="btn" title="Sangfiler du har eksportert fra et annet sangprogram (OpenLyrics, .xml). Velg én eller flere filer.">📄 Sangfiler fra annet program (.xml) …<input id="impXml" type="file" accept=".xml,.xmll" multiple hidden></label>
         <label class="btn" title="Samme type sangfiler som over, men du velger hele mappen i stedet for filer.">📁 Hel mappe med sangfiler …<input id="impDir" type="file" webkitdirectory multiple hidden></label>
         <button id="impPdf" title="Lim inn tekst, eller velg en PDF, Word-fil eller tekstfil. Du kan rette før noe legges i biblioteket.">✎ Tekst, PDF eller Word …</button>
-        <button id="impDraft" title="Sanger sendt inn fra mobil">✉ Utkast fra mobil</button>
+        <button id="impDraft" title="QR-kode til mobilsiden, og sanger som er sendt inn derfra">📱 Fra mobil: QR og utkast</button>
       </div></div><p class="hint" id="libHint">Eller slipp sangfiler her.</p></section>
   <section id="pvSec"><h2>Forhåndsvisning <button class="qm" data-help="Klikk på et vers for å se det her.&#10;Dobbeltklikk, eller ▶ Fremvisning, sender det til skjermen.&#10;Piltaster blar mellom vers." title="Tips">?</button></h2>
     <div id="pvBar" hidden><div class="bar" style="margin:0 0 6px"><b id="pvTitle" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></b><button id="pvLive" class="pri" title="Send til fremvisning (dobbeltklikk på et vers starter derfra)">▶ Fremvisning</button><button id="pvAdd">+ Møteplan</button></div></div>
@@ -345,15 +345,24 @@ header button,header .btn{min-height:30px}
   <div id="rWrap"><table id="rTab"></table></div>
   <datalist id="dlTags"></datalist><datalist id="dlBooks"></datalist>
 </dialog>
-<dialog id="drDlg" style="width:min(680px,96vw)">
-  <div class="rh"><h2 style="margin:0;font-size:16px">Utkast – sanger fra mobil</h2><button class="qm" data-help="Sanger sendt fra mobilen havner her, så du kan kontrollere dem før de legges i biblioteket.&#10;Tips for sangeren: ta bilde av teksten, bruk mobilens egen tekstgjenkjenning (iPhone: hold på teksten og velg Kopier alle. Android: Google Lens, Kopier tekst), og lim inn på mobilsiden.&#10;Programmet fjerner akkorder og noterester og forsøker å dele i vers.&#10;Sjekk alltid æ, ø, å og tegn som er byttet.">?</button><span class="sp"></span><button id="drClose" class="pri">Lukk</button></div>
-  <p class="hint">Sanger sendt inn fra mobilen havner her, så du kan kontrollere dem før de legges i biblioteket.</p>
-  <div id="drList" style="max-height:34vh;overflow:auto"></div>
-  <h3 style="font-size:14px;margin:14px 0 4px">Sanger fra mobilen</h3>
-  <p class="hint" style="margin:0 0 6px">Åpne adressen under på mobilen (samme wifi som PC-en). Siden har en egen veiledning for å hente tekst fra et bilde med mobilens egen tekstgjenkjenning (gratis og uten nett), så limer du teksten inn og sender.</p>
-  <div id="drUrls"></div>
-  <div class="row" style="margin-top:6px"><div><label>PIN for mobilsiden</label><input id="drPin" inputmode="numeric" autocomplete="off"></div></div></div>
-  <div class="bar"><button id="drSave" class="pri">Lagre PIN</button><button id="drOpen">Åpne siden her</button><span class="hint" id="drInfo"></span></div>
+<dialog id="drDlg" style="width:min(640px,96vw)">
+  <div class="rh"><h2 style="margin:0;font-size:16px">Sanger fra mobil</h2><span class="sp"></span><button id="drClose" class="pri">Lukk</button></div>
+  <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:10px">
+    <canvas id="drQr" width="10" height="10" style="border:1px solid var(--line);border-radius:10px;max-width:100%;flex:none" hidden></canvas>
+    <div style="flex:1;min-width:230px">
+      <div style="font-weight:700;font-size:15px">Skann koden med mobilen</div>
+      <div class="hint" style="margin:2px 0 8px">Mobilen må være på samme wifi som denne PC-en. Du kommer rett til siden der sangeren limer inn teksten og sender.</div>
+      <div id="drUrls"></div>
+      <a href="/hjelp.html#mobil" target="_blank" rel="noopener" style="font-size:14px">Slik gjør du: bilde av teksten → kopier tekst → send ›</a>
+    </div>
+  </div>
+  <h3 style="font-size:14px;margin:16px 0 4px">Mottatt fra mobil <span class="hint" id="drCnt"></span></h3>
+  <div id="drList" style="max-height:30vh;overflow:auto"></div>
+  <details style="margin-top:12px"><summary style="cursor:pointer;font-size:14px">PIN-kode for mobilsiden (valgfritt)</summary>
+    <p class="hint" style="margin:6px 0">Har du en PIN, må den skrives inn på mobilen før en sang kan sendes. La feltet stå tomt hvis ikke.</p>
+    <div class="row"><div><input id="drPin" inputmode="numeric" autocomplete="off" placeholder="Ingen PIN"></div><div><button id="drSave" class="pri">Lagre PIN</button> <span class="hint" id="drInfo"></span></div></div>
+  </details>
+  <div class="bar"><button id="drOpen" title="Åpner mobilsiden i et eget vindu her på PC-en, så du kan prøve den">Prøv mobilsiden her</button></div>
 </dialog>
 <dialog id="stDlg" style="width:min(560px,96vw)">
   <div class="rh"><h2 style="margin:0;font-size:16px">Mobil og nettbrett</h2><span class="sp"></span><button id="stClose" class="pri">Lukk</button></div>
@@ -2106,12 +2115,12 @@ async function fetchDrafts(){
   try{ const r=await fetch('/api/drafts'); if(!r.ok) throw 0; drafts=await r.json(); }catch(e){ drafts=[]; }
   $('bDraft').textContent='✉ Utkast'+(drafts.length?' ('+drafts.length+')':'');
   $('bBulk').textContent='⇪ Importer sanger'+(drafts.length?' ('+drafts.length+' utkast)':'')+' ▾'; $('bBulk').classList.toggle('dr',drafts.length>0);
-  $('impDraft').textContent='✉ Utkast fra mobil'+(drafts.length?' ('+drafts.length+')':''); $('impDraft').classList.toggle('dr',drafts.length>0);
+  $('impDraft').textContent='📱 Fra mobil: QR og utkast'+(drafts.length?' ('+drafts.length+')':''); $('impDraft').classList.toggle('dr',drafts.length>0);
   if($('drDlg').open) drRender();
 }
 function drRender(){
-  const box=$('drList'); box.replaceChildren();
-  if(!drafts.length){ box.textContent='Ingen utkast.'; box.className='hint'; return; }
+  const box=$('drList'); box.replaceChildren(); $('drCnt').textContent=drafts.length?'('+drafts.length+')':'';
+  if(!drafts.length){ box.textContent='Ingen utkast ennå. Det som sendes fra mobilen dukker opp her, og du kontrollerer det før det legges i biblioteket.'; box.className='hint'; return; }
   box.className='';
   for(const d of drafts.slice().reverse()){
     const row=document.createElement('div'); row.className='item';
@@ -2152,13 +2161,17 @@ function openDraft(d){
 $('bDraft').onclick=async()=>{
   $('drDlg').showModal(); $('drInfo').textContent=''; drRender(); fetchDrafts();
   try{ const r=await fetch('/api/settings'); const d=await r.json(); $('drPin').value=d.pin||''; }catch(e){}
-  const box=$('drUrls'); box.replaceChildren();
+  const box=$('drUrls'); box.replaceChildren(); $('drQr').hidden=true;
   try{
     const r=await fetch('/api/info'); const d=await r.json();
-    for(const ip of d.ips){ const u='http://'+ip+':'+d.port+'/add.html'; const row=document.createElement('div'); row.className='item';
-      const sp=document.createElement('span'); sp.textContent=u; sp.style.fontWeight='600'; sp.style.userSelect='all';
+    if(!d.ips.length){ box.textContent='Fant ingen nettverkstilkobling. Koble PC-en til wifi eller nettverk.'; box.className='hint'; return; }
+    box.className='';
+    d.ips.forEach((ip,i)=>{ const u='http://'+ip+':'+d.port+'/add.html';
+      if(i===0){ try{ drawQr($('drQr'),u,190); $('drQr').hidden=false; }catch(e){} }
+      const row=document.createElement('div'); row.className='item'; row.style.padding='2px 0';
+      const sp=document.createElement('span'); sp.textContent=u; sp.style.cssText='font-weight:600;font-size:14px;user-select:all';
       const b=document.createElement('button'); b.textContent='Kopier'; b.onclick=async()=>{ try{ await navigator.clipboard.writeText(u); b.textContent='Kopiert'; setTimeout(()=>b.textContent='Kopier',1500); }catch(e){ alert(u); } };
-      row.append(sp,b); box.append(row); }
+      row.append(sp,b); box.append(row); });
   }catch(e){ box.textContent='Krever oppdatert Program.cs og omstart av serveren.'; box.className='hint'; }
 };
 $('drClose').onclick=()=>$('drDlg').close();
