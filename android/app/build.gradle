@@ -6,7 +6,7 @@ android {
         applicationId 'no.sangvisning.app'
         minSdk 24
         targetSdk 34
-        versionCode (project.findProperty('vcode') ?: '1').toInteger()
+        versionCode = Integer.parseInt((project.findProperty('vcode') ?: '1').toString())
         versionName '1.0'
     }
     signingConfigs { rel { storeFile file('../sangvisning.keystore'); storePassword 'sangvisning'; keyAlias 'sangvisning'; keyPassword 'sangvisning' } }
