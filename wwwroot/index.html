@@ -3278,26 +3278,27 @@ async function updCheck(manual){
 $('updLater').onclick=()=>{ $('updBar').hidden=true; };
 $('bUpd').onclick=()=>{ $('moreMenu').hidden=true; updCheck(true); };
 $('updDo').onclick=async()=>{
-  if(!confirm('Oppdatere nå?\nProgrammet lukkes og starter på nytt av seg selv etter et halvt minutt. Projektorvinduet slukkes en stund. Sangene dine blir ikke rørt.')) return;
-  $('updMsg').textContent='Laster ned og installerer … vent litt.'; $('updDo').disabled=true;
-  try{
-    const r=await fetch('/api/update/install',{method:'POST'}); if(!r.ok) throw new Error(await r.text());
-    const fromV=window.__updFrom||''; let sawDown=false, tries=0;
-    document.body.innerHTML='<div id="updScreen" style="min-height:90vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;font:20px system-ui,sans-serif;color:var(--text)"><div id="updBig">Oppdaterer Sangvisning …</div><div class="hint" id="updSmall">Vent litt, programmet starter på nytt av seg selv.</div></div>';
-    const poll=async()=>{
-      tries++;
-      try{
-        const d=await (await fetch('/api/version',{cache:'no-store'})).json();
-        if(sawDown||d.version!==fromV){
-          $('updBig').textContent='✓ Oppdatert til versjon '+d.version; $('updSmall').textContent='';
-          setTimeout(()=>location.reload(),2200); return;
-        }
-      }catch(e){ sawDown=true; }
-      if(tries>80){ $('updBig').textContent='Dette tok lengre tid enn vanlig'; $('updSmall').textContent='Start Sangvisning fra ikonet på skrivebordet.'; return; }
-      setTimeout(poll,1500);
-    };
-    setTimeout(poll,2500);
-  }catch(e){ $('updMsg').textContent='Oppdateringen feilet: '+e.message; $('updDo').disabled=false; }
+  if(!confirm('Oppdatere nå?\nProgrammet starter på nytt av seg selv etter et halvt minutt. Projektorvinduet slukkes en stund. Sangene dine blir ikke rørt.')) return;
+  const fromV=window.__updFrom||'';
+  document.body.innerHTML='<div id="updScreen" style="min-height:90vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;font:20px system-ui,sans-serif;color:var(--text);padding:20px"><div id="updBig">Oppdaterer Sangvisning …</div><div style="width:min(420px,80vw);height:14px;border-radius:8px;background:var(--line,#8884);overflow:hidden"><div id="updFill" style="height:100%;width:3%;background:var(--acc,#2a7);transition:width .4s"></div></div><div class="hint" id="updSmall">Starter …</div></div>';
+  const setP=(pct,big,small)=>{ $('updFill').style.width=pct+'%'; if(big) $('updBig').textContent=big; if(small!==undefined) $('updSmall').textContent=small; };
+  const fail=m=>{ $('updFill').style.background='#c33'; setP(100,'Oppdateringen stoppet',m+' – Start Sangvisning fra ikonet på skrivebordet, så virker det som før.'); };
+  try{ const r=await fetch('/api/update/install',{method:'POST'}); if(!r.ok) throw new Error(await r.text()); }catch(e){ fail(e.message); return; }
+  let sawDown=false, tries=0, installAt=0;
+  const poll=async()=>{
+    tries++;
+    try{
+      const d=await (await fetch('/api/version',{cache:'no-store'})).json();
+      if(sawDown||d.version!==fromV){ setP(100,'✓ Oppdatert til versjon '+d.version,''); setTimeout(()=>location.reload(),2200); return; }
+      const st=await (await fetch('/api/update/status',{cache:'no-store'})).json();
+      if(st.stage==='download'){ const p=st.total?Math.round(st.done*100/st.total):0; setP(Math.max(4,Math.round(p*0.6)),'Laster ned … '+(st.total?p+' %':''),'Trinn 1 av 3'); }
+      else if(st.stage==='install'){ if(!installAt) installAt=Date.now(); const sec=(Date.now()-installAt)/1000; setP(Math.min(95,60+sec*1.2),'Installerer …','Trinn 2 av 3 – programmet starter på nytt snart'); }
+      else if(st.stage==='error'){ fail(st.error); return; }
+    }catch(e){ sawDown=true; setP(97,'Starter på nytt …','Trinn 3 av 3'); }
+    if(tries>150){ fail('Dette tok lengre tid enn vanlig.'); return; }
+    setTimeout(poll,800);
+  };
+  poll();
 };
 setTimeout(()=>updCheck(false),5000);
 $('bQuit').onclick=async()=>{

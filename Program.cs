@@ -1105,30 +1105,49 @@ app.MapGet("/api/update/check", async (HttpContext ctx) =>
         return Results.Json(new { current = appVersion.ToString(3), latest = "", newer = false, canInstall = false, page = "", error = true });
     }
 });
+string updStage = "idle", updErr = "";
+long updDone = 0, updTotal = 0;
+app.MapGet("/api/update/status", (HttpContext ctx) => IsLocal(ctx) ? Results.Json(new { stage = updStage, done = updDone, total = updTotal, error = updErr }) : Results.StatusCode(403));
 app.MapPost("/api/update/install", async (HttpContext ctx) =>
 {
     if (!IsLocal(ctx)) return Results.StatusCode(403);
     if (!installert) return Results.BadRequest("Oppdatering fra programmet virker bare i den installerte versjonen.");
-    try
+    if (updStage == "download" || updStage == "install") return Results.Ok();
+    updStage = "download"; updDone = 0; updTotal = 0; updErr = "";
+    _ = Task.Run(async () =>
     {
-        var u = await SisteUtgave();
-        var dl = u?.assetUrl ?? "";
-        if (!dl.StartsWith("https://github.com/oddlosnes-beep/sangvisning/releases/download/")) return Results.BadRequest("Fant ikke installasjonsfilen.");
-        var tmp = Path.Combine(Path.GetTempPath(), "Sangvisning-Setup-ny.exe");
-        using (var http = new HttpClient { Timeout = TimeSpan.FromMinutes(5) })
+        try
         {
-            http.DefaultRequestHeaders.UserAgent.ParseAdd("Sangvisning-oppdatering");
-            using var resp = await http.GetAsync(dl, HttpCompletionOption.ResponseHeadersRead);
-            resp.EnsureSuccessStatusCode();
-            await using var fs = File.Create(tmp);
-            await resp.Content.CopyToAsync(fs);
+            var u = await SisteUtgave();
+            var dl = u?.assetUrl ?? "";
+            if (!dl.StartsWith("https://github.com/oddlosnes-beep/sangvisning/releases/download/")) throw new Exception("Fant ikke installasjonsfilen.");
+            var tmp = Path.Combine(Path.GetTempPath(), "Sangvisning-Setup-ny.exe");
+            using (var http = new HttpClient { Timeout = TimeSpan.FromMinutes(10) })
+            {
+                http.DefaultRequestHeaders.UserAgent.ParseAdd("Sangvisning-oppdatering");
+                using var resp = await http.GetAsync(dl, HttpCompletionOption.ResponseHeadersRead);
+                resp.EnsureSuccessStatusCode();
+                updTotal = resp.Content.Headers.ContentLength ?? 0;
+                await using var src = await resp.Content.ReadAsStreamAsync();
+                await using var fs = File.Create(tmp);
+                var buf = new byte[81920]; int n;
+                while ((n = await src.ReadAsync(buf)) > 0) { await fs.WriteAsync(buf.AsMemory(0, n)); updDone += n; }
+            }
+            if (new FileInfo(tmp).Length < 5_000_000) throw new Exception("Nedlastingen ble ufullstendig.");
+            updStage = "install";
+            var log = Path.Combine(Path.GetTempPath(), "Sangvisning-oppdatering.log");
+            var pr = Process.Start(new ProcessStartInfo(tmp, $"/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /LOG=\"{log}\"") { UseShellExecute = true });
+            if (pr != null)
+            {
+                await pr.WaitForExitAsync();
+                // Kommer vi hit, ble ikke programmet stoppet av installasjonen: da gikk noe galt.
+                if (pr.ExitCode != 0) { updErr = "Installasjonen avsluttet med feilkode " + pr.ExitCode + ". Logg: " + log; updStage = "error"; }
+                else updStage = "done";
+            }
         }
-        if (new FileInfo(tmp).Length < 5_000_000) return Results.BadRequest("Nedlastingen ble ufullstendig.");
-        Process.Start(new ProcessStartInfo(tmp, "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS") { UseShellExecute = true });
-        _ = Task.Run(async () => { await Task.Delay(800); app.Lifetime.StopApplication(); });
-        return Results.Ok();
-    }
-    catch (Exception e) { return Results.Problem(e.Message); }
+        catch (Exception e) { updErr = e.Message; updStage = "error"; }
+    });
+    return Results.Ok();
 });
 
 app.MapPost("/api/quit", (HttpContext ctx) =>
