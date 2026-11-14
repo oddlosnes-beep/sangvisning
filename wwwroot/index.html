@@ -368,9 +368,9 @@ header button,header .btn{min-height:30px}
   <div class="rh"><h2 style="margin:0;font-size:16px">Mobil og nettbrett</h2><span class="sp"></span><button id="stClose" class="pri">Lukk</button></div>
   <p class="hint">Skann QR-koden med kameraet på mobilen, eller skriv inn adressen. Menyen har knapper til sangerskjerm, møteplan og innlegging av sanger. De må være på samme wifi som denne PC-en. Det fungerer uten internett. Mobilen viser verset som står på skjermen, og neste vers under. De kan selv endre tekststørrelse og lys eller mørk visning.</p>
   <div id="stUrls"></div>
-  <h3 style="font-size:14px;margin:14px 0 4px">Android-nettbrett: egen app (fullskjerm og våken skjerm)</h3>
-  <p class="hint" style="margin:0 0 6px">Skann denne med nettbrettet. Siden som åpnes laster ned appen og kobler den til denne PC-en.</p>
-  <canvas id="stAppQr" style="display:block;margin:4px auto 10px;border:1px solid var(--line);border-radius:8px;max-width:100%" hidden></canvas>
+  <details style="margin:14px 0 6px"><summary style="cursor:pointer;font-weight:700;font-size:14px">Android-nettbrett: egen app (fullskjerm og våken skjerm)</summary>
+  <p class="hint" style="margin:6px 0">Skann denne med nettbrettet. Siden som åpnes laster ned appen og kobler den til denne PC-en.</p>
+  <canvas id="stAppQr" style="display:block;margin:4px auto 10px;border:1px solid var(--line);border-radius:8px;max-width:100%" hidden></canvas></details>
   <div class="bar"><button id="stOpen">Åpne her for å teste</button></div>
   <p class="hint" id="stNote"></p>
 </dialog>
@@ -2102,7 +2102,7 @@ $('bStage').onclick=async()=>{
         const b=document.createElement('button'); b.textContent='Kopier';
         b.onclick=async()=>{ try{ await navigator.clipboard.writeText(u); b.textContent='Kopiert'; setTimeout(()=>b.textContent='Kopier',1500); }catch(e){ alert(u); } };
         row.append(lab,sp,b); box.append(row);
-        const cv=document.createElement('canvas'); cv.id='stQr'; cv.style.cssText='display:block;margin:4px auto 10px;border:1px solid var(--line);border-radius:8px;max-width:100%'; try{ drawQr(cv,u,250); box.append(cv); }catch(e){}
+        const cv=document.createElement('canvas'); cv.id='stQr'; cv.style.cssText='display:block;margin:4px auto 10px;border:1px solid var(--line);border-radius:8px;max-width:100%'; try{ drawQr(cv,u,250); const dt=document.createElement('details'); dt.style.margin='2px 0 10px'; const sm=document.createElement('summary'); sm.textContent='Vis QR-kode'; sm.style.cssText='cursor:pointer;font-size:14px;color:var(--mute)'; dt.append(sm,cv); box.append(dt); }catch(e){}
       }
     }
     if(d.ips.length){ try{ drawQr($('stAppQr'),'http://'+d.ips[0]+':'+d.port+'/app.html',250); $('stAppQr').hidden=false; }catch(e){} }
