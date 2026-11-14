@@ -1160,6 +1160,22 @@ app.MapPost("/api/quit", (HttpContext ctx) =>
     return Results.Ok();
 });
 
+// Svarer når Android-appen spør «hvor er Sangvisning?» på nettverket (UDP 45678).
+if (lan) _ = Task.Run(async () =>
+{
+    try
+    {
+        using var udp = new UdpClient(new IPEndPoint(IPAddress.Any, 45678));
+        var svar = Encoding.UTF8.GetBytes($"SANGVISNING:{port}:{Environment.MachineName}");
+        while (true)
+        {
+            var r = await udp.ReceiveAsync();
+            if (Encoding.UTF8.GetString(r.Buffer).StartsWith("SANGVISNING?")) await udp.SendAsync(svar, svar.Length, r.RemoteEndPoint);
+        }
+    }
+    catch { }
+});
+
 app.Lifetime.ApplicationStarted.Register(() =>
 {
     try { File.WriteAllText(Path.Combine(appDataDir, "port.txt"), port.ToString()); } catch { }
