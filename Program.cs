@@ -10,6 +10,29 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+
+// --- Start: én kjørende kopi, feillogg og «avslutt»-støtte (programmet har ikke eget vindu når det er installert) ---
+var appDataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Sangvisning");
+Directory.CreateDirectory(appDataDir);
+AppDomain.CurrentDomain.UnhandledException += (_, e) => { try { File.AppendAllText(Path.Combine(appDataDir, "feil.txt"), DateTime.Now + "\n" + e.ExceptionObject + "\n\n"); } catch { } };
+using var enInstans = new Mutex(true, "Local\\Sangvisning-en-instans", out var forsteInstans);
+if (!forsteInstans)
+{
+    // Programmet kjører allerede: åpne bare vinduet mot det som kjører.
+    try
+    {
+        var pt = File.ReadAllText(Path.Combine(appDataDir, "port.txt")).Trim();
+        var ad = $"http://127.0.0.1:{pt}/index.html";
+        var ok = false;
+        foreach (var nl in new[] { "chrome", "msedge" })
+        {
+            try { Process.Start(new ProcessStartInfo(nl, $"--app={ad} --start-maximized") { UseShellExecute = true }); ok = true; break; } catch { }
+        }
+        if (!ok) Process.Start(new ProcessStartInfo(ad) { UseShellExecute = true });
+    }
+    catch { }
+    return;
+}
 using System.Text.RegularExpressions;
 using System.Threading.Channels;
 
@@ -1046,8 +1069,16 @@ app.MapGet("/api/info", () =>
     return Results.Json(new { port, lan, ips });
 });
 
+app.MapPost("/api/quit", (HttpContext ctx) =>
+{
+    if (!IsLocal(ctx)) return Results.StatusCode(403);
+    _ = Task.Run(async () => { await Task.Delay(300); app.Lifetime.StopApplication(); });
+    return Results.Ok();
+});
+
 app.Lifetime.ApplicationStarted.Register(() =>
 {
+    try { File.WriteAllText(Path.Combine(appDataDir, "port.txt"), port.ToString()); } catch { }
     if (portNote != "") Console.WriteLine(portNote);
     Console.WriteLine($"Sangvisning kjører på {url}{(lan ? " (sangerskjerm også på nettverket)" : "")}\nData: {file}\nKopier: {bdir}\nLukk dette vinduet for å avslutte.");
     // Åpner som eget programvindu (uten adresselinje og faner): Chrome, ellers Edge, ellers vanlig nettleser.

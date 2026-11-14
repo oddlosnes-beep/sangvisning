@@ -251,7 +251,7 @@ header button,header .btn{min-height:30px}
   <span id="moreWrap" style="position:relative"><button id="bMore">⋯ Mer</button><div id="moreMenu" hidden>
     <button id="bHelp">📖 Hjelp og veiledning (F1)</button><button id="bSet">⚙ Innstillinger …</button><button id="bCloud">☁ Sky og overføring …</button><button id="bBak">Sikkerhetskopi</button>
     <button id="bUse" hidden>Bruksrapport (logg) …</button><button id="bTrash">Papirkurv …</button><button id="bStage">Mobil og nettbrett (QR)</button>
-    <button id="bTestVid">Test videoer på forhånd</button>
+    <button id="bTestVid">Test videoer på forhånd</button><button id="bQuit" title="Stopper programmet helt. Brukes når du er ferdig for dagen.">⏻ Avslutt programmet</button>
     <button id="bSample" hidden>+ 40 eksempelsanger</button><button id="bClearSamples" hidden>Fjern eksempelsanger</button>
     <button id="bTh" hidden>Temaer …</button><button id="bScr" hidden>Skjermer</button><button id="bCredit" hidden>Kreditt på skjermen: av</button><button id="bLayReset" hidden>Nullstill layout</button>
   </div></span></div>
@@ -3164,6 +3164,12 @@ async function setLoad(){
     $('setPortInfo').textContent='Nå i bruk: port '+(d.activePort||d.port)+(d.activePort&&d.port&&d.activePort!==d.port?' (valgt port '+d.port+' var opptatt)':'')+'.'; }catch(e){ $('setPortInfo').textContent='Krever oppdatert Program.cs.'; }
   $('setCredit').checked=!!S.settings.credit;
 }
+$('bQuit').onclick=async()=>{
+  if(!confirm('Avslutte Sangvisning helt?\nProjektorvinduet og alle andre sider som er koblet til slutter å virke.')) return;
+  try{ await fetch('/api/quit',{method:'POST'}); }catch(e){}
+  document.body.innerHTML='<div style="font:18px system-ui;padding:40px;text-align:center">Sangvisning er avsluttet.<br>Du kan lukke dette vinduet.</div>';
+  setTimeout(()=>{ try{ window.close(); }catch(e){} },400);
+};
 $('bHelp').onclick=()=>window.open('/hjelp.html','_blank');
 addEventListener('keydown',e=>{ if(e.key==='F1'){ e.preventDefault(); window.open('/hjelp.html','_blank'); } });
 $('bSet').onclick=()=>{ $('setDlg').showModal(); setLoad(); msSay(''); mailLoad(); };

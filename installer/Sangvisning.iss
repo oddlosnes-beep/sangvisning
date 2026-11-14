@@ -21,6 +21,8 @@ WizardStyle=modern
 ShowLanguageDialog=no
 DisableProgramGroupPage=yes
 CloseApplications=yes
+CloseApplicationsFilter=Sangvisning.exe
+ForceCloseApplications=yes
 
 [Languages]
 Name: "norwegian"; MessagesFile: "compiler:Languages\Norwegian.isl"
