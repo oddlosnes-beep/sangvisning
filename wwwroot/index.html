@@ -292,10 +292,9 @@ header button,header .btn{min-height:30px}
     <div id="lib"></div>
     <div class="bar" style="margin:6px 0 4px;flex:none;position:relative"><button id="bBulk" style="flex:1" title="Importer sanger fra filer, mappe, PDF, Word eller innlimt tekst">⇪ Importer sanger ▾</button>
       <div id="impMenu" hidden>
-        <label class="btn">📁 Mappe med sangfiler (OpenLyrics) …<input id="impDir" type="file" webkitdirectory multiple hidden></label>
-        <label class="btn">📄 Sangfiler (OpenLyrics .xml) …<input id="impXml" type="file" accept=".xml,.xmll" multiple hidden></label>
-        <button id="impPdf">📕 PDF, Word eller tekstfil med mange sanger …</button>
-        <button id="impPaste">✎ Lim inn tekst …</button>
+        <label class="btn" title="Sangfiler du har eksportert fra et annet sangprogram (OpenLyrics, .xml). Velg én eller flere filer.">📄 Sangfiler fra annet program (.xml) …<input id="impXml" type="file" accept=".xml,.xmll" multiple hidden></label>
+        <label class="btn" title="Samme type sangfiler som over, men du velger hele mappen i stedet for filer.">📁 Hel mappe med sangfiler …<input id="impDir" type="file" webkitdirectory multiple hidden></label>
+        <button id="impPdf" title="Lim inn tekst, eller velg en PDF, Word-fil eller tekstfil. Du kan rette før noe legges i biblioteket.">✎ Tekst, PDF eller Word …</button>
         <button id="impDraft" title="Sanger sendt inn fra mobil">✉ Utkast fra mobil</button>
       </div></div><p class="hint" id="libHint">Eller slipp sangfiler her.</p></section>
   <section id="pvSec"><h2>Forhåndsvisning <button class="qm" data-help="Klikk på et vers for å se det her.&#10;Dobbeltklikk, eller ▶ Fremvisning, sender det til skjermen.&#10;Piltaster blar mellom vers." title="Tips">?</button></h2>
@@ -2809,8 +2808,7 @@ $('bBulk').onclick=e=>{ e.stopPropagation(); $('impMenu').hidden=!$('impMenu').h
 document.addEventListener('click',e=>{ if(!e.target.closest('#impMenu')&&e.target!==$('bBulk')) impHide(); else if(e.target.closest('#impMenu')) setTimeout(impHide,50); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') impHide(); });
 function openBulk(){ $('bkStep1').hidden=false; $('bkStep2').hidden=true; $('bkFileInfo').textContent=''; $('bulkDlg').showModal(); }
-$('impPaste').onclick=()=>openBulk();
-$('impPdf').onclick=()=>{ openBulk(); $('bkFile').click(); };
+$('impPdf').onclick=()=>openBulk();
 async function olReview(fileList){
   const files=[...fileList].filter(f=>/\.(xml|xmll)$/i.test(f.name));
   if(!files.length){ $('libHint').textContent='Fant ingen sangfiler (.xml) der.'; return; }
