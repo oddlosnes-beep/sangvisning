@@ -10,6 +10,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
+using System.Threading.Channels;
 
 // --- Start: én kjørende kopi, feillogg og «avslutt»-støtte (programmet har ikke eget vindu når det er installert) ---
 var appDataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Sangvisning");
@@ -33,8 +35,6 @@ if (!forsteInstans)
     catch { }
     return;
 }
-using System.Text.RegularExpressions;
-using System.Threading.Channels;
 
 // Programmet åpnes på denne maskinen. Sangerskjermen (stage.html) kan i tillegg åpnes fra mobiler på samme nettverk.
 // Alt annet (kontrollsiden, sanger, sikkerhetskopier) er låst til denne maskinen.
