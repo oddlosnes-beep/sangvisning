@@ -94,6 +94,7 @@ async function keepAwake(){ try{ if(navigator.wakeLock&&!wl){ wl=await navigator
 addEventListener('click',keepAwake); document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') keepAwake(); });
 addEventListener('resize',render); addEventListener('orientationchange',()=>setTimeout(render,200));
 
+try{ if('serviceWorker' in navigator && window.isSecureContext) navigator.serviceWorker.register('/sw.js'); }catch(e){}
 // Fullskjerm: automatisk ved første trykk der nettleseren tillater det. På iPad finnes ikke dette,
 // der legger man siden på hjemmeskjermen (Del ▸ Legg til på Hjemmeskjerm), så åpner den uten nettleserfelt.
 (function(){
