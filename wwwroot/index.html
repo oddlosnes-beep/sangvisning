@@ -18,6 +18,23 @@ header h1{font-size:16px;margin:0 8px 0 0}
 header h1+.hg{border-left:0}
 #cloudBar{flex:1 0 100%;display:flex;gap:8px;align-items:center;background:var(--accbg);border:1px solid var(--acc);border-radius:8px;padding:5px 10px;font-size:13px}
 #cloudBar[hidden]{display:none}
+.mg{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--mute);padding:6px 8px 0;margin-top:2px;border-top:1px solid var(--line)}
+#moreMenu .mg:first-child{border-top:0;margin-top:0}
+#moreMenu{max-height:calc(100vh - 70px);overflow:auto}
+:root[data-skin="lys"]{--bg:#f4f4f6;--panel:#fff;--line:#d8d8de;--text:#1d1d22;--mute:#6b6b76;--acc:#2f6fed;--accbg:#e4edff;color-scheme:light}
+:root[data-skin="mork"]{--bg:#15161a;--panel:#1f2026;--line:#33343c;--text:#ececf1;--mute:#9a9aa6;--acc:#6b9bff;--accbg:#26324f;color-scheme:dark}
+:root[data-skin="hav"]{--bg:#0e1a2b;--panel:#15263d;--line:#26415f;--text:#e6eef8;--mute:#8fa6c2;--acc:#2a7bd0;--accbg:#1b3550;color-scheme:dark}
+:root[data-skin="skog"]{--bg:#eef3ee;--panel:#fbfdfb;--line:#cfdccf;--text:#1b2a1d;--mute:#5d7461;--acc:#2f7d4f;--accbg:#dcefe2;color-scheme:light}
+:root[data-skin="varm"]{--bg:#f6f0e6;--panel:#fffaf2;--line:#e3d6c2;--text:#2b2217;--mute:#7a6a55;--acc:#b4571f;--accbg:#f6e1cd;color-scheme:light}
+:root[data-skin="kontrast"]{--bg:#000;--panel:#000;--line:#fff;--text:#fff;--mute:#ddd;--acc:#ffd400;--accbg:#2a2a2a;color-scheme:dark}
+:root[data-skin="kontrast"] button.pri,:root[data-skin="kontrast"] button.on{color:#000}
+.skG{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:10px}
+.skB{display:flex;flex-direction:column;gap:6px;align-items:stretch;text-align:left;padding:8px}
+.skB i{display:block;height:34px;border-radius:6px;border:1px solid #8884;position:relative}
+.skB i::after{content:'';position:absolute;left:8px;right:34px;top:13px;height:8px;border-radius:4px;background:currentColor;opacity:.5}
+.skB i::before{content:'';position:absolute;right:8px;top:9px;width:18px;height:16px;border-radius:5px;background:var(--c)}
+.skB.cur{outline:2px solid var(--acc)}
+
 #updBar{flex:1 0 100%;display:flex;gap:8px;align-items:center;background:var(--accbg);border:1px solid var(--acc);border-radius:8px;padding:5px 10px;font-size:13px}#updBar[hidden]{display:none}#updBar span{flex:1}
 #cloudBar span{flex:1}
 header button,header .btn{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;box-sizing:border-box}
@@ -250,9 +267,16 @@ header button,header .btn{min-height:30px}
   <span id="st" class="hint" style="margin-left:auto"></span>
   <div class="hg"><button id="bLibT" title="Skjul eller vis biblioteket, så blir fremvisningen større">▤ Bibliotek</button><button id="bFull" title="Fullskjerm (Esc avslutter)">⛶ Fullskjerm</button>
   <span id="moreWrap" style="position:relative"><button id="bMore">⋯ Mer</button><div id="moreMenu" hidden>
-    <button id="bHelp">📖 Hjelp og veiledning (F1)</button><button id="bSet">⚙ Innstillinger …</button><button id="bCloud">☁ Sky og overføring …</button><button id="bBak">Sikkerhetskopi</button>
-    <button id="bUse" hidden>Bruksrapport (logg) …</button><button id="bTrash">Papirkurv …</button><button id="bStage">Mobil og nettbrett (QR)</button>
-    <button id="bTestVid">Test videoer på forhånd</button><button id="bAbout">Om Sangvisning …</button><button id="bUpd" title="Sjekker GitHub om det finnes en nyere versjon">Se etter ny versjon</button><button id="bQuit" title="Stopper programmet helt. Brukes når du er ferdig for dagen.">⏻ Avslutt programmet</button>
+    <div class="mg">Hjelp</div>
+    <button id="bHelp">📖 Hjelp og veiledning (F1)</button><button id="bAbout">Om Sangvisning …</button>
+    <div class="mg">Oppsett</div>
+    <button id="bSet">⚙ Innstillinger …</button><button id="bSkin">🎨 Utseende …</button>
+    <div class="mg">Data</div>
+    <button id="bBak">Sikkerhetskopi</button><button id="bCloud">☁ Sky og overføring …</button><button id="bTrash">Papirkurv …</button><button id="bUse" hidden>Bruksrapport (logg) …</button>
+    <div class="mg">Verktøy</div>
+    <button id="bStage">Mobil og nettbrett (QR)</button><button id="bTestVid">Test videoer på forhånd</button>
+    <div class="mg">Program</div>
+    <button id="bUpd" title="Sjekker GitHub om det finnes en nyere versjon">Se etter ny versjon</button><button id="bQuit" title="Stopper programmet helt. Brukes når du er ferdig for dagen.">⏻ Avslutt programmet</button>
     <button id="bSample" hidden>+ 40 eksempelsanger</button><button id="bClearSamples" hidden>Fjern eksempelsanger</button>
     <button id="bTh" hidden>Temaer …</button><button id="bScr" hidden>Skjermer</button><button id="bCredit" hidden>Kreditt på skjermen: av</button><button id="bLayReset" hidden>Nullstill layout</button>
   </div></span></div>
@@ -636,6 +660,12 @@ header button,header .btn{min-height:30px}
   <div class="bar" style="margin-bottom:0"><button id="eDel" style="color:#d6334a">Slett sang</button><span class="sp"></span>
   <button id="eCancel">Avbryt</button><button id="eSave" class="pri">Lagre (Ctrl+Enter)</button></div>
   <datalist id="dlPeople"></datalist>
+</dialog>
+<dialog id="skDlg" style="width:min(520px,94vw)">
+  <h2>Utseende</h2>
+  <p class="hint" style="margin:0">Fargene på selve programmet. Dette endrer ikke tekstskjermen på projektoren, den styres av «Temaer».</p>
+  <div class="skG" id="skG"></div>
+  <div class="bar"><span class="sp"></span><button id="skClose" class="pri">Lukk</button></div>
 </dialog>
 <dialog id="abDlg" style="width:min(520px,94vw)">
   <div style="display:flex;gap:14px;align-items:center"><div id="abLogo" style="flex:none"></div><div><h2 style="margin:0">Sangvisning</h2><div class="hint" id="abVer">Versjon …</div></div></div>
@@ -3183,6 +3213,24 @@ async function setLoad(){
     $('setPortInfo').textContent='Nå i bruk: port '+(d.activePort||d.port)+(d.activePort&&d.port&&d.activePort!==d.port?' (valgt port '+d.port+' var opptatt)':'')+'.'; }catch(e){ $('setPortInfo').textContent='Krever oppdatert Program.cs.'; }
   $('setCredit').checked=!!S.settings.credit;
 }
+const SKINS=[
+  {id:'',name:'Følg systemet',bg:'#f4f4f6',tx:'#1d1d22',c:'#2f6fed'},
+  {id:'lys',name:'Lys',bg:'#ffffff',tx:'#1d1d22',c:'#2f6fed'},
+  {id:'mork',name:'Mørk',bg:'#1f2026',tx:'#ececf1',c:'#6b9bff'},
+  {id:'hav',name:'Havblå',bg:'#15263d',tx:'#e6eef8',c:'#2a7bd0'},
+  {id:'skog',name:'Skog',bg:'#fbfdfb',tx:'#1b2a1d',c:'#2f7d4f'},
+  {id:'varm',name:'Varm',bg:'#fffaf2',tx:'#2b2217',c:'#b4571f'},
+  {id:'kontrast',name:'Høy kontrast',bg:'#000000',tx:'#ffffff',c:'#ffd400'}
+];
+function applySkin(id){ if(id&&SKINS.some(s=>s.id===id)) document.documentElement.setAttribute('data-skin',id); else document.documentElement.removeAttribute('data-skin'); try{ localStorage.setItem('sv-skin',id||''); }catch(e){} }
+function skDraw(){
+  const cur=(S.settings&&S.settings.skin)||''; $('skG').innerHTML='';
+  for(const s of SKINS){ const b=document.createElement('button'); b.className='skB'+(s.id===cur?' cur':''); b.style.cssText='background:'+s.bg+';color:'+s.tx+';--c:'+s.c;
+    b.innerHTML='<i style="background:'+s.bg+';color:'+s.tx+'"></i><span>'+s.name+(s.id===cur?' ✓':'')+'</span>';
+    b.onclick=()=>{ S.settings=S.settings||{}; S.settings.skin=s.id; applySkin(s.id); save(); skDraw(); }; $('skG').append(b); }
+}
+$('bSkin').onclick=()=>{ $('moreMenu').hidden=true; skDraw(); $('skDlg').showModal(); };
+$('skClose').onclick=()=>$('skDlg').close();
 $('bAbout').onclick=async()=>{
   $('moreMenu').hidden=true;
   const lg=document.querySelector('header .logo'); $('abLogo').innerHTML=lg?lg.outerHTML.replace(/width="\d+"/,'width="56"').replace(/height="\d+"/,'height="56"'):'';
@@ -3383,7 +3431,7 @@ const dz=$('drop');
 dz.ondragover=e=>e.preventDefault();
 dz.ondrop=e=>{e.preventDefault(); olReview(e.dataTransfer.files);};
 
-load().then(()=>{ credDraw(); applyLayout(); fillThSel(); render(); send(); fetchDrafts(); fillOutSel(); initScreens(); pushPlanInfo(); syncCheck().then(h=>{ if(!h) cloudCheck(); }); });
+load().then(()=>{ applySkin((S.settings&&S.settings.skin)||''); credDraw(); applyLayout(); fillThSel(); render(); send(); fetchDrafts(); fillOutSel(); initScreens(); pushPlanInfo(); syncCheck().then(h=>{ if(!h) cloudCheck(); }); });
 </script>
 </body>
 </html>
