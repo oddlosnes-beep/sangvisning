@@ -27,7 +27,7 @@ a.big b{display:block;font-size:18px}.hint{color:var(--mute);font-size:13px}
 .v.on{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc) inset}
 #pinRow{margin-bottom:10px}input{width:100%;font:inherit;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text)}
 </style>
-<div class="hd"><a class="home" href="/menu.html">‹ Meny</a><b>Møteplanen</b></div>
+<div class="hd"><a class="home" href="/menu.html">‹ Meny</a><b>Møteplanen</b><button id="fsBtn" title="Fullskjerm" style="margin-left:auto;width:auto;flex:none;font-size:14px;font:inherit;padding:6px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--text)" hidden>⛶ Fullskjerm</button></div>
 <div id="pinRow" hidden><span class="hint">PIN (samme som under Utkast i programmet)</span><input id="pin" type="password" inputmode="numeric" autocomplete="off"></div>
 <div class="top"><button id="prev">◀ Forrige</button><button id="next">Neste ▶</button><button id="blank">Svart skjerm</button><button id="hideT">Skjul tekst</button><button id="prevS" class="s">⏮ Forrige sang</button><button id="nextS" class="s">Neste sang ⏭</button></div>
 <div id="msg" class="hint"></div>
@@ -66,4 +66,19 @@ async function load(){
 function mark(){ document.querySelectorAll('.v').forEach(b=>b.classList.toggle('on',b.dataset.k===on)); }
 $('prevS').onclick=()=>cmd({cmd:'prevsong'}); $('nextS').onclick=()=>cmd({cmd:'nextsong'}); $('prev').onclick=()=>cmd({cmd:'prev'}); $('next').onclick=()=>cmd({cmd:'next'}); $('blank').onclick=()=>cmd({cmd:'blank'}); $('hideT').onclick=()=>cmd({cmd:'hidetext'});
 load();
+
+// Fullskjerm: første trykk går i fullskjerm der nettleseren tillater det, og knappen øverst slår det av og på.
+(function(){
+  const de=document.documentElement, rq=de.requestFullscreen||de.webkitRequestFullscreen;
+  const isFs=()=>!!(document.fullscreenElement||document.webkitFullscreenElement);
+  const standalone=matchMedia('(display-mode: fullscreen)').matches||matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+  if(!rq||standalone) return;
+  const btn=document.getElementById('fsBtn'); btn.hidden=false;
+  const ex=document.exitFullscreen||document.webkitExitFullscreen;
+  btn.addEventListener('click',e=>{ e.stopPropagation(); try{ isFs()?ex.call(document):rq.call(de); }catch(err){} });
+  let tried=false;
+  addEventListener('pointerdown',()=>{ if(tried||isFs()) return; tried=true; try{ rq.call(de); }catch(err){} },true);
+  const sync=()=>{ btn.textContent=isFs()?'✕ Avslutt fullskjerm':'⛶ Fullskjerm'; };
+  document.addEventListener('fullscreenchange',sync); document.addEventListener('webkitfullscreenchange',sync); sync();
+})();
 </script></body></html>
