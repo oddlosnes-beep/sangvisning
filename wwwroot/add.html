@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="no"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ny sang</title>
+<style>
+:root{--bg:#f4f4f6;--panel:#fff;--line:#d8d8de;--text:#1d1d22;--mute:#6b6b76;--acc:#2f6fed;color-scheme:light dark}
+@media(prefers-color-scheme:dark){:root{--bg:#15161a;--panel:#1f2026;--line:#33343c;--text:#ececf1;--mute:#9a9aa6;--acc:#6b9bff}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;padding:max(12px,env(safe-area-inset-top)) 14px 40px}
+.hd{display:flex;gap:12px;align-items:center;margin:4px 0 12px;font-size:18px}
+.home{padding:10px 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);text-decoration:none;font-size:17px;font-weight:600}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px}
+label{display:block;font-size:13px;color:var(--mute);margin:8px 0 3px}
+input,textarea{width:100%;font:inherit;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text)}
+textarea{min-height:240px;font-family:ui-monospace,Consolas,monospace;font-size:14px}
+button,.btn{display:inline-block;font:inherit;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer}
+.pri{background:var(--acc);color:#fff;border-color:var(--acc)}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.hint{color:var(--mute);font-size:13px}
+.err{color:#d6334a}.ok{color:#1a8f4a}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+details.card summary{font-weight:600;cursor:pointer;font-size:16px}details.card h4{margin:12px 0 4px;font-size:14px}details.card ol,details.card ul{margin:4px 0 0;padding-left:20px}details.card li{margin:3px 0}
+</style><link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACm0lEQVR4AeyWzWtTQRTFz4yYSCJIu6kIJhRbbeMHlVINDWIUkbqoxYVgSVy4cFcQXJgu/APapSC4cFFa1LrTKoggWCELQbFUTLVFMZhoMVIVpAmJL+l07usHeXnJJCQvWXXgJm/u3Ht+JzNJGI780XbO7uoMhlyewGN3Z/Cr2xMUloTUIk3ShmTkIzcN7PUET7i2N39gDCMMbAAMrfmFNT1LLdIkbWIQa0NPN+DuCPYygVeMsXbUeRCDWK4DAR+heEvLZafgmGAMuhk0YOisbWyc2NzWlLvIgH0N4BoQxLQ15/o548xrWGnghIF7OYPZwJ7dTbgSOIWhq32WBGmRJgqGPAo/h0BHft7hsOHpwxBC1wYsgdOHIK0nk8NwOuz5KBCbg8GQ9fsOycIdxkILZjuddpz0HTQqSTY3ZoCl3/8KU5bNi2mbDFhGq1Boy4ByB7TvYSyHb9YUWuyl8jDUBhZfI7c0V1NoidnqDTiO3cCuC49qCkfP9eoNKDstWlQegUUMpcyWAdMOzM3HsZzMKLetmsVkKo3IfMzUajKQTGVwfnAEo7emcPvuc0uCtPovjSKV+l/eAFUs/vyLsfvTJeHPXsxQmSEoV8owaZGmoWF9YtqB9bzy7ezpLtNdoe/MUWVPqcWKDXQdacX4nSFMyOjt2Y83774Ywtvdrq9RzfHutlI8U55DiAVTtkgiq2XxdkZCywTVpDNaEYUiKcnmAlD/WWNtRD7FS34nCs/+feTbWlOZV2LLHUBFBlCPITDL05mVMXk7TNRDX60pEsTmv6KTiWxODAqBFXWDdavEIiax9V/Bj4UH04LBL4T4bB2muBIxiEVMqtAN0EP8471wTPtzWLobFhBT8s4epXytofcLREmTtIlBLD0PYBUAAP//wcdZcQAAAAZJREFUAwD6ReGeeTquaAAAAABJRU5ErkJggg=="><link rel="icon" type="image/png" sizes="16x16" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABMklEQVR4AZxOu0oDURA9cy0st7HNozDFrkUKH4QUFv6AbKFN1hcWIlrkP7RU7CSmEiIkFn6DqKgBsRBSaG0ssoWaQsa5CXuTJWHZzTBnzzBzztmrAFDK8XYyjtfM2N6vMEeir2mmbW8TUirllPYk5VzmPAjTwtHd1+SJcJG2S2WlGGVMWES0rQDKQqqwkEPl9ADVs8NIaM1y0RaHNHNWBc/e3VhBYTGHpfnZSGjNulsUtzSRpYR6/dn2exzn4/vfRmYC9Oav/YrO9Ro6dXc85KY1WhsgFBAsk3AoYGpmDtZqDZZbHw+5ac3wD0IBw4e4swl4fnnH3WMrFu6fWibfBNQat9jaP4mFxs3DaIDZJBwUmD8SegZy5jfFRJXBJtkk3kv1g+4xg6+SWSEPR7X7RUf/AAAA//8s0vNIAAAABklEQVQDAO+wnJmpByrmAAAAAElFTkSuQmCC"><link rel="apple-touch-icon" href="/icon-180.png">
+</head>
+<body>
+<div class="hd"><a class="home" href="/menu.html">‹ Meny</a><b>Legg inn sang</b></div>
+<div class="card">
+  <div id="pinRow" hidden><label>PIN (fra programmet på PC-en)</label><input id="pin" type="password" inputmode="numeric" autocomplete="off"></div>
+  <label>Sangbok (valgfritt)</label><input id="book" placeholder="f.eks. Rop det ut">
+  <div class="bar"><button id="paste" class="pri">+ Ny sang</button></div>
+  <p class="hint">Lim inn teksten, gjerne med en blank linje mellom versene. Deling i vers og refreng gjøres på PC-en. Har du bare et bilde? Se rådene under.</p>
+  <div id="status" class="hint"></div>
+</div>
+<details class="card" id="how" open>
+  <summary>📷 Har du bilde av sangen? Slik får du teksten inn</summary>
+  <p class="hint" style="margin:6px 0 0">Mobilen din kan lese tekst fra bilder helt gratis og uten nett. Du kopierer teksten fra bildet og limer den inn her.</p>
+  <h4>iPhone</h4>
+  <ol><li>Åpne bildet i Bilder-appen. Eller pek kameraet på teksten.</li><li>Trykk og hold på en tekstlinje, og velg «Merk alt», deretter «Kopier». Eller trykk på tekstikonet nede i hjørnet og velg «Kopier alle».</li></ol>
+  <h4>Android</h4>
+  <ol><li>Åpne bildet i Google Bilder og trykk på «Lens». Velg «Tekst», «Merk alt» og «Kopier tekst».</li><li>Samsung: åpne bildet i Galleri, trykk på tekstikonet (T) i hjørnet og velg «Kopier».</li></ol>
+  <h4>Så limer du inn her</h4>
+  <ol><li>Trykk i tekstfeltet under, hold fingeren nede og velg «Lim inn».</li><li>Skriv tittel og trykk «Send til biblioteket».</li></ol>
+  <h4>Tips for et godt bilde</h4>
+  <ul><li>Godt lys, og hold mobilen rett ovenfra så teksten ikke blir skrå.</li><li>Ta bare med teksten: unngå noter og akkorder hvis du kan.</li><li>Én sang om gangen, og zoom så teksten fyller bildet.</li><li>To spalter på siden? Ta én spalte om gangen.</li></ul>
+  <h4>Hva skjer videre</h4>
+  <p class="hint" style="margin:4px 0 0">På PC-en rydder programmet teksten: fjerner akkordlinjer og noterester, setter sammen ord som er delt med bindestrek, og forsøker å dele i vers og refreng. Du kontrollerer alltid sangen under «Utkast» før den legges i biblioteket. Se spesielt etter æ, ø, å og tegn som er byttet (for eksempel l og 1).</p>
+</details>
+<div id="results"></div>
+<script>
+const $=id=>document.getElementById(id);
+const ls={ get:k=>{ try{ return localStorage.getItem(k)||''; }catch(e){ return ''; } }, set:(k,v)=>{ try{ localStorage.setItem(k,v); }catch(e){} } };
+$('book').value=ls.get('book'); $('pin').value=ls.get('pin');
+$('book').onchange=()=>ls.set('book',$('book').value.trim());
+$('pin').onchange=()=>ls.set('pin',$('pin').value.trim());
+const headers=()=>({'X-Pin':$('pin').value.trim()});
+try{ if(ls.get('howClosed')==='1') $('how').open=false; $('how').addEventListener('toggle',()=>ls.set('howClosed',$('how').open?'':'1')); }catch(e){}
+function status(t,cls){ const s=$('status'); s.textContent=t; s.className='hint '+(cls||''); }
+
+function card(d){
+  const c=document.createElement('div'); c.className='card';
+  c.innerHTML='<label>Tittel</label><input class="t"><div class="row"><div><label>Nummer</label><input class="n"></div><div><label>Forfatter</label><input class="a"></div></div><label>Tekst – trykk i feltet og hold fingeren nede, velg «Lim inn»</label><textarea class="x"></textarea><div class="bar"><button class="pri send">Send til biblioteket</button><button class="del">Forkast</button><span class="msg hint"></span></div>';
+  c.querySelector('.t').value=d.title||''; c.querySelector('.n').value=d.number||''; c.querySelector('.a').value=d.authors||''; c.querySelector('.x').value=d.text||'';
+  c.querySelector('.del').onclick=()=>c.remove();
+  c.querySelector('.send').onclick=async()=>{
+    const msg=c.querySelector('.msg'), body={title:c.querySelector('.t').value.trim(),number:c.querySelector('.n').value.trim(),authors:c.querySelector('.a').value.trim(),book:$('book').value.trim(),text:c.querySelector('.x').value};
+    if(!body.title&&!body.text.trim()){ msg.textContent='Tittel og tekst mangler.'; msg.className='msg hint err'; return; }
+    msg.textContent='Sender …'; msg.className='msg hint';
+    try{
+      const r=await fetch('/api/drafts',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},headers()),body:JSON.stringify(body)});
+      if(r.status===401){ $('pinRow').hidden=false; throw new Error('Feil eller manglende PIN.'); }
+      if(!r.ok) throw new Error('Feil '+r.status);
+      msg.textContent='Sendt ✓ – ligger som utkast i programmet'; msg.className='msg hint ok'; c.querySelector('.send').disabled=true;
+    }catch(e){ msg.textContent=e.message; msg.className='msg hint err'; }
+  };
+  $('results').prepend(c);
+}
+$('paste').onclick=()=>{ card({}); const t=document.querySelector('#results .card .x'); if(t){ t.focus(); } status(''); };
+card({}); 
+// Vis PIN-feltet på andre enheter enn PC-en bare hvis det mangler
+fetch('/api/settings').then(r=>{ if(!r.ok) $('pinRow').hidden=false; }).catch(()=>{ $('pinRow').hidden=false; });
+</script></body></html>

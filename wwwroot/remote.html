@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="no"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Møteplan</title>
+<style>
+:root{--bg:#f4f4f6;--panel:#fff;--line:#d8d8de;--text:#1d1d22;--mute:#6b6b76;--acc:#2f6fed;color-scheme:light dark}
+@media(prefers-color-scheme:dark){:root{--bg:#15161a;--panel:#1f2026;--line:#33343c;--text:#ececf1;--mute:#9a9aa6;--acc:#6b9bff}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;padding:max(12px,env(safe-area-inset-top)) 14px 40px}
+h1{font-size:20px;margin:6px 0 12px}
+a.big,button{display:block;width:100%;font:inherit;text-align:left;padding:16px;margin-bottom:10px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:var(--text);text-decoration:none;cursor:pointer}
+a.big b{display:block;font-size:18px}.hint{color:var(--mute);font-size:13px}
+.err{color:#d6334a}.ok{color:#1a8f4a}
+</style><link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACm0lEQVR4AeyWzWtTQRTFz4yYSCJIu6kIJhRbbeMHlVINDWIUkbqoxYVgSVy4cFcQXJgu/APapSC4cFFa1LrTKoggWCELQbFUTLVFMZhoMVIVpAmJL+l07usHeXnJJCQvWXXgJm/u3Ht+JzNJGI780XbO7uoMhlyewGN3Z/Cr2xMUloTUIk3ShmTkIzcN7PUET7i2N39gDCMMbAAMrfmFNT1LLdIkbWIQa0NPN+DuCPYygVeMsXbUeRCDWK4DAR+heEvLZafgmGAMuhk0YOisbWyc2NzWlLvIgH0N4BoQxLQ15/o548xrWGnghIF7OYPZwJ7dTbgSOIWhq32WBGmRJgqGPAo/h0BHft7hsOHpwxBC1wYsgdOHIK0nk8NwOuz5KBCbg8GQ9fsOycIdxkILZjuddpz0HTQqSTY3ZoCl3/8KU5bNi2mbDFhGq1Boy4ByB7TvYSyHb9YUWuyl8jDUBhZfI7c0V1NoidnqDTiO3cCuC49qCkfP9eoNKDstWlQegUUMpcyWAdMOzM3HsZzMKLetmsVkKo3IfMzUajKQTGVwfnAEo7emcPvuc0uCtPovjSKV+l/eAFUs/vyLsfvTJeHPXsxQmSEoV8owaZGmoWF9YtqB9bzy7ezpLtNdoe/MUWVPqcWKDXQdacX4nSFMyOjt2Y83774Ywtvdrq9RzfHutlI8U55DiAVTtkgiq2XxdkZCywTVpDNaEYUiKcnmAlD/WWNtRD7FS34nCs/+feTbWlOZV2LLHUBFBlCPITDL05mVMXk7TNRDX60pEsTmv6KTiWxODAqBFXWDdavEIiax9V/Bj4UH04LBL4T4bB2muBIxiEVMqtAN0EP8471wTPtzWLobFhBT8s4epXytofcLREmTtIlBLD0PYBUAAP//wcdZcQAAAAZJREFUAwD6ReGeeTquaAAAAABJRU5ErkJggg=="><link rel="icon" type="image/png" sizes="16x16" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABMklEQVR4AZxOu0oDURA9cy0st7HNozDFrkUKH4QUFv6AbKFN1hcWIlrkP7RU7CSmEiIkFn6DqKgBsRBSaG0ssoWaQsa5CXuTJWHZzTBnzzBzztmrAFDK8XYyjtfM2N6vMEeir2mmbW8TUirllPYk5VzmPAjTwtHd1+SJcJG2S2WlGGVMWES0rQDKQqqwkEPl9ADVs8NIaM1y0RaHNHNWBc/e3VhBYTGHpfnZSGjNulsUtzSRpYR6/dn2exzn4/vfRmYC9Oav/YrO9Ro6dXc85KY1WhsgFBAsk3AoYGpmDtZqDZZbHw+5ac3wD0IBw4e4swl4fnnH3WMrFu6fWibfBNQat9jaP4mFxs3DaIDZJBwUmD8SegZy5jfFRJXBJtkk3kv1g+4xg6+SWSEPR7X7RUf/AAAA//8s0vNIAAAABklEQVQDAO+wnJmpByrmAAAAAElFTkSuQmCC"><link rel="apple-touch-icon" href="/icon-180.png">
+</head>
+<body>
+<style>
+.hd{display:flex;gap:12px;align-items:center;margin-bottom:10px;font-size:18px}
+.home{padding:10px 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);text-decoration:none;font-size:17px;font-weight:600}
+.top{display:flex;flex-wrap:wrap;gap:8px;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:2}
+.top button{margin:0;text-align:center;padding:14px 6px;flex:1 0 28%;font-size:17px;font-weight:600}
+.top button.s{flex:1 0 45%;font-size:15px;font-weight:500;padding:10px 6px}
+.v img{display:block;width:100%;border-radius:6px;margin-top:4px}
+.song{padding:0;overflow:hidden}.song>.h{padding:14px 16px;font-weight:600;display:flex;justify-content:space-between}
+.vs{display:none;padding:0 8px 8px}.song.open .vs{display:block}
+.v{margin:6px 0 0;padding:12px;font-size:15px;white-space:pre-line}.v small{display:block;color:var(--mute);margin-bottom:2px}
+.v.on{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc) inset}
+#pinRow{margin-bottom:10px}input{width:100%;font:inherit;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text)}
+</style>
+<div class="hd"><a class="home" href="/menu.html">‹ Meny</a><b>Møteplanen</b></div>
+<div id="pinRow" hidden><span class="hint">PIN (samme som under Utkast i programmet)</span><input id="pin" type="password" inputmode="numeric" autocomplete="off"></div>
+<div class="top"><button id="prev">◀ Forrige</button><button id="next">Neste ▶</button><button id="blank">Svart skjerm</button><button id="hideT">Skjul tekst</button><button id="prevS" class="s">⏮ Forrige sang</button><button id="nextS" class="s">Neste sang ⏭</button></div>
+<div id="msg" class="hint"></div>
+<div id="list"></div>
+<script>
+const $=id=>document.getElementById(id);
+const ls={get:k=>{try{return localStorage.getItem(k)||''}catch(e){return ''}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+$('pin').value=ls.get('pin'); $('pin').onchange=()=>ls.set('pin',$('pin').value.trim());
+let on='';
+function msg(t,c){ $('msg').textContent=t; $('msg').className='hint '+(c||''); }
+async function cmd(o){
+  try{
+    const r=await fetch('/api/remote',{method:'POST',headers:{'Content-Type':'application/json','X-Pin':$('pin').value.trim()},body:JSON.stringify(o)});
+    if(r.status===401){ $('pinRow').hidden=false; let d={}; try{d=await r.json()}catch(e){} throw new Error(d.error||'Feil PIN'); }
+    if(!r.ok) throw new Error('Feil '+r.status); msg('');
+  }catch(e){ msg(e.message,'err'); return false; }
+  return true;
+}
+async function load(){
+  try{
+    const d=await (await fetch('/api/remote/plan')).json(), box=$('list'); box.replaceChildren();
+    if(!d.items.length){ msg('Ingen sanger i møteplanen ennå. Legg dem til i programmet på PC-en (og kontroller at programmet er åpent).'); return; }
+    for(const it of d.items){
+      const c=document.createElement('div'); c.className='song';
+      c.style.cssText='background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:10px';
+      const h=document.createElement('div'); h.className='h'; h.textContent=(it.number?it.number+'  ':'')+it.title; h.onclick=()=>c.classList.toggle('open');
+      const vs=document.createElement('div'); vs.className='vs';
+      it.slides.forEach((s,i)=>{ const b=document.createElement('button'); b.className='v'; b.dataset.k=it.id+':'+i;
+        b.innerHTML='<small></small><span></span>'; b.firstChild.textContent=s.name; b.lastChild.textContent=s.text; if(s.img){ const im=document.createElement('img'); im.loading='lazy'; im.src=s.img; b.append(im); }
+        b.onclick=async()=>{ if(await cmd({cmd:'go',id:it.id,idx:i})){ on=b.dataset.k; mark(); } };
+        vs.append(b); });
+      c.append(h,vs); box.append(c);
+    }
+  }catch(e){ msg('Fikk ikke kontakt med programmet.','err'); }
+}
+function mark(){ document.querySelectorAll('.v').forEach(b=>b.classList.toggle('on',b.dataset.k===on)); }
+$('prevS').onclick=()=>cmd({cmd:'prevsong'}); $('nextS').onclick=()=>cmd({cmd:'nextsong'}); $('prev').onclick=()=>cmd({cmd:'prev'}); $('next').onclick=()=>cmd({cmd:'next'}); $('blank').onclick=()=>cmd({cmd:'blank'}); $('hideT').onclick=()=>cmd({cmd:'hidetext'});
+load();
+</script></body></html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="no"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hjelp og veiledning</title>
+<style>
+:root{--bg:#f6f6f8;--panel:#fff;--line:#d9d9e0;--text:#1d1d22;--mute:#666673;--acc:#2f6fed;--tip:#eef4ff;--warn:#fff4e5;color-scheme:light dark}
+@media(prefers-color-scheme:dark){:root{--bg:#14151a;--panel:#1e1f26;--line:#34353e;--text:#ececf1;--mute:#a0a0ad;--acc:#7aa5ff;--tip:#1b2742;--warn:#3a2d16}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{display:grid;grid-template-columns:260px minmax(0,820px);gap:28px;max-width:1160px;margin:0 auto;padding:18px 16px 60px}
+nav{position:sticky;top:12px;align-self:start;max-height:calc(100vh - 24px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
+nav b{display:block;margin:0 0 6px}
+nav a{display:block;padding:4px 6px;border-radius:6px;color:var(--text);text-decoration:none;font-size:14px}
+nav a:hover{background:var(--tip)}
+#q{width:100%;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);margin:0 0 8px}
+main h1{font-size:28px;margin:6px 0 4px}
+.lead{color:var(--mute);margin:0 0 16px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px 18px 14px;margin:0 0 14px}
+section h2{font-size:20px;margin:14px 0 6px}
+section h3{font-size:16px;margin:16px 0 4px}
+p{margin:6px 0}ul,ol{margin:6px 0;padding-left:22px}li{margin:3px 0}
+kbd{font:13px ui-monospace,Consolas,monospace;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;background:var(--bg)}
+.tip,.warn{border-radius:10px;padding:8px 12px;margin:10px 0;font-size:15px}
+.tip{background:var(--tip)}.warn{background:var(--warn)}
+table{border-collapse:collapse;width:100%;margin:8px 0;font-size:15px}
+th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+th{background:var(--bg)}
+details{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:12px 0;background:var(--panel)}details>summary{cursor:pointer;padding:4px 0}details[open]>summary{margin-bottom:6px}
+.btn{display:inline-block;border:1px solid var(--line);border-radius:7px;padding:0 7px;background:var(--bg);font-size:14px;white-space:nowrap}
+.hid{display:none}
+#none{display:none;color:var(--mute)}
+@media(max-width:860px){.wrap{grid-template-columns:1fr}nav{position:static;max-height:none}}
+@media print{nav,#q{display:none}.wrap{display:block;padding:0}section{break-inside:avoid;border:none;padding:0}body{background:#fff;color:#000}}
+</style><link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACm0lEQVR4AeyWzWtTQRTFz4yYSCJIu6kIJhRbbeMHlVINDWIUkbqoxYVgSVy4cFcQXJgu/APapSC4cFFa1LrTKoggWCELQbFUTLVFMZhoMVIVpAmJL+l07usHeXnJJCQvWXXgJm/u3Ht+JzNJGI780XbO7uoMhlyewGN3Z/Cr2xMUloTUIk3ShmTkIzcN7PUET7i2N39gDCMMbAAMrfmFNT1LLdIkbWIQa0NPN+DuCPYygVeMsXbUeRCDWK4DAR+heEvLZafgmGAMuhk0YOisbWyc2NzWlLvIgH0N4BoQxLQ15/o548xrWGnghIF7OYPZwJ7dTbgSOIWhq32WBGmRJgqGPAo/h0BHft7hsOHpwxBC1wYsgdOHIK0nk8NwOuz5KBCbg8GQ9fsOycIdxkILZjuddpz0HTQqSTY3ZoCl3/8KU5bNi2mbDFhGq1Boy4ByB7TvYSyHb9YUWuyl8jDUBhZfI7c0V1NoidnqDTiO3cCuC49qCkfP9eoNKDstWlQegUUMpcyWAdMOzM3HsZzMKLetmsVkKo3IfMzUajKQTGVwfnAEo7emcPvuc0uCtPovjSKV+l/eAFUs/vyLsfvTJeHPXsxQmSEoV8owaZGmoWF9YtqB9bzy7ezpLtNdoe/MUWVPqcWKDXQdacX4nSFMyOjt2Y83774Ywtvdrq9RzfHutlI8U55DiAVTtkgiq2XxdkZCywTVpDNaEYUiKcnmAlD/WWNtRD7FS34nCs/+feTbWlOZV2LLHUBFBlCPITDL05mVMXk7TNRDX60pEsTmv6KTiWxODAqBFXWDdavEIiax9V/Bj4UH04LBL4T4bB2muBIxiEVMqtAN0EP8471wTPtzWLobFhBT8s4epXytofcLREmTtIlBLD0PYBUAAP//wcdZcQAAAAZJREFUAwD6ReGeeTquaAAAAABJRU5ErkJggg=="><link rel="icon" type="image/png" sizes="16x16" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABMklEQVR4AZxOu0oDURA9cy0st7HNozDFrkUKH4QUFv6AbKFN1hcWIlrkP7RU7CSmEiIkFn6DqKgBsRBSaG0ssoWaQsa5CXuTJWHZzTBnzzBzztmrAFDK8XYyjtfM2N6vMEeir2mmbW8TUirllPYk5VzmPAjTwtHd1+SJcJG2S2WlGGVMWES0rQDKQqqwkEPl9ADVs8NIaM1y0RaHNHNWBc/e3VhBYTGHpfnZSGjNulsUtzSRpYR6/dn2exzn4/vfRmYC9Oav/YrO9Ro6dXc85KY1WhsgFBAsk3AoYGpmDtZqDZZbHw+5ac3wD0IBw4e4swl4fnnH3WMrFu6fWibfBNQat9jaP4mFxs3DaIDZJBwUmD8SegZy5jfFRJXBJtkk3kv1g+4xg6+SWSEPR7X7RUf/AAAA//8s0vNIAAAABklEQVQDAO+wnJmpByrmAAAAAElFTkSuQmCC"><link rel="apple-touch-icon" href="/icon-180.png"></head>
+<body>
+<div class="wrap">
+<nav id="toc"><input id="q" type="search" placeholder="Søk i hjelpen …" aria-label="Søk"><b>Innhold</b></nav>
+<main>
+<h1><span class="app">Sangvisning</span> – hjelp og veiledning</h1>
+<p class="lead">Alt du trenger for å legge inn sanger, lage møteplan og vise tekstene på skjermen. Bruk søkefeltet til venstre, eller bla.</p>
+<p id="none">Ingen treff.</p>
+
+<section id="start"><h2>1. Kom i gang</h2>
+<ol>
+<li>Start programmet på PC-en (det svarte vinduet må stå åpent så lenge du bruker det).</li>
+<li>Åpne <b>Chrome</b> eller <b>Edge</b> på samme PC. Hvis siden ikke åpner av seg selv, skriver du <kbd>http://localhost:5000</kbd> (tallet kan være et annet, se Innstillinger).</li>
+<li>Legg inn en sang: <span class="btn">＋ Ny sang</span>, eller importer mange (se «Legge inn sanger»).</li>
+<li>Trykk <span class="btn">+</span> ved sangen i biblioteket for å legge den i møteplanen til høyre.</li>
+<li>Trykk <span class="btn">⧉ Projektor</span> for å åpne skjermen som vises for salen.</li>
+<li>Trykk <span class="btn">▶</span> ved en sang i møteplanen. Bla med piltastene.</li>
+</ol>
+<div class="tip">Alt du legger inn lagres automatisk på PC-en. Programmet fungerer uten nett (bortsett fra YouTube og e-post).</div>
+</section>
+
+<section id="oversikt"><h2>2. Slik ser skjermen ut</h2>
+<table>
+<tr><th>Felt</th><th>Hva det er</th></tr>
+<tr><td><b>Bibliotek</b> (venstre)</td><td>Alle sanger, videoer og lysbilder. Søk i tittel, tekst og kategori. Trykk <kbd>/</kbd> for å hoppe til søkefeltet.</td></tr>
+<tr><td><b>Forhåndsvisning</b></td><td>Klikk på en sang for å se versene her uten at salen ser det. Her kan du også kontrollere teksten.</td></tr>
+<tr><td><b>Fremvisning</b></td><td>Det salen ser nå. Liten skjerm under viser nøyaktig hva som er på projektoren. Neste vers er markert så du vet hva som kommer.</td></tr>
+<tr><td><b>Møteplan</b> (høyre)</td><td>Sangene du skal bruke i dag, i rekkefølge. Dra for å flytte.</td></tr>
+<tr><td>Knapper øverst</td><td><span class="btn">＋ Ny sang</span> <span class="btn">✎ Rediger</span> <span class="btn">☰ Register</span> <span class="btn">＋ Legg til ▾</span> <span class="btn">⋯ Mer</span></td></tr>
+</table>
+<p>Små <span class="btn">?</span>-knapper over alt i programmet gir en kort forklaring på stedet.</p>
+</section>
+
+<section id="sanger"><h2>3. Legge inn sanger</h2>
+<h3>Én sang</h3>
+<p>Trykk <span class="btn">＋ Ny sang</span>. Skriv tittel og lim inn teksten. Sett blank linje mellom versene, eller bruk knappene for å sette inn Vers, Refreng, Bro osv. Programmet deler teksten i lysbilder for deg.</p>
+<h3>Mange sanger</h3>
+<p>Bruk <span class="btn">Importer sanger ▾</span> under biblioteket:</p>
+<ul>
+<li><b>Mappe eller filer med OpenLyrics (.xml)</b> – for eksempel fra OpenLP. Du får se en liste og velger hvilke som skal inn. Sanger som allerede finnes er avmerket bort.</li>
+<li><b>PDF, Word eller tekstfil med mange sanger</b> – programmet foreslår hvor hver sang begynner. Kontroller listen.</li>
+<li><b>Lim inn tekst</b> – hvis du har mange sanger i ett dokument.</li>
+<li><b>Utkast fra mobil</b> – sanger sendt inn fra mobilen (se «Mobil og nettbrett»).</li>
+</ul>
+<div class="tip">Du kan også slippe sangfiler rett på biblioteket («Eller slipp sangfiler her»).</div>
+<h3>Redigere en sang</h3>
+<ul>
+<li><span class="btn">✎</span> ved sangen, eller <span class="btn">✎ Rediger</span> øverst, åpner redigeringen med to kolonner.</li>
+<li><b>Om sangen</b> (tittel, nummer, bok, tekstforfatter, komponist, opphavsrett, kategorier) kan lukkes sammen for å gi mer plass. Tekstforfatter er det viktigste feltet hvis du vil vise kreditt på skjermen.</li>
+<li><b>Rekkefølge</b> settes ved å trykke på del-knappene (vers, refreng …) i den rekkefølgen de skal synges. Samme del kan brukes flere ganger. Trykk på en del i listen for å hoppe til den i teksten.</li>
+<li><span class="btn">?</span> i redigeringen forklarer feltene.</li>
+<li><kbd>Ctrl</kbd>+<kbd>Enter</kbd> lagrer.</li>
+</ul>
+<h3>Rette en feil mens du viser</h3>
+<p>Trykk <span class="btn">✎</span> ved et vers i Fremvisning. Bare det verset åpnes i en liten boks som du kan flytte rundt. Du kan fortsette å bla i sangen mens boksen er åpen.</p>
+<h3>Register</h3>
+<p><span class="btn">☰ Register</span> viser alle sanger i en tabell. Velg hvilke kolonner du vil se, filtrer, og merk flere sanger for å sette tekstforfatter eller komponist på alle samtidig. Du kan eksportere til Excel (CSV) og importere tilbake.</p>
+</section>
+
+<section id="plan"><h2>4. Møteplan</h2>
+<ul>
+<li><span class="btn">+</span> i biblioteket legger sangen til. <kbd>Ctrl</kbd>+<kbd>Enter</kbd> i søkefeltet gjør det samme for øverste treff.</li>
+<li>Dra i håndtaket <b>⋮⋮</b> for å endre rekkefølge. <span class="btn">×</span> fjerner sangen fra planen (ikke fra biblioteket).</li>
+<li><b>Lagre</b> gir planen et navn. Velg lagrede planer i nedtrekkslisten. <b>Slett</b> sletter den lagrede planen. <b>Tøm</b> tømmer planen som er åpen.</li>
+<li><b>Tema</b> velger bakgrunn og tekststil for visningen. <b>Rediger</b> ved temaet åpner temaene (farger, egne bakgrunnsbilder).</li>
+<li>Videoer, lydfiler og lysbilder kan ligge i planen sammen med sangene.</li>
+</ul>
+</section>
+
+<section id="vising"><h2>5. Vise på skjermen</h2>
+<ol>
+<li>Trykk <span class="btn">⧉ Projektor</span>. Med <b>to skjermer</b> åpnes visningen i fullskjerm på den andre. Med <b>én skjerm</b> åpnes et lite prøvevindu nede i hjørnet som du kan flytte; Esc lukker det.</li>
+<li>Trykk <span class="btn">▶</span> ved en sang i møteplanen, eller dobbeltklikk. Sangens vers vises som lysbilder i Fremvisning.</li>
+<li>Bla med piltastene, eller klikk på et vers. <kbd>1</kbd>–<kbd>9</kbd> hopper til vers nummer.</li>
+<li><span class="btn">✕</span> ved Projektor lukker visningsvinduet.</li>
+</ol>
+<h3>Under visning</h3>
+<table>
+<tr><td><b>Svart</b> (<kbd>B</kbd>)</td><td>Slukker alt på skjermen. Trykk igjen for å komme tilbake.</td></tr>
+<tr><td><b>Skjul tekst</b> (<kbd>T</kbd>)</td><td>Skjuler bare teksten, bakgrunnen blir stående.</td></tr>
+<tr><td><b>💬 Melding</b></td><td>Viser en kort tekst til salen, for eksempel Vipps-nummer eller «Bil med reg.nr … blokkerer». Blir stående til du fjerner den.</td></tr>
+<tr><td><b>⏱ Nedtelling</b></td><td>Stor klokke før møtestart. Velg minutter eller klokkeslett. Forsvinner av seg selv.</td></tr>
+<tr><td>Kreditt</td><td>Vis tekstforfatter og komponist på første og siste lysbilde (Innstillinger → Visning).</td></tr>
+</table>
+<h3>Flere skjermer</h3>
+<ul>
+<li><b>Skjerm-visning i nettleser:</b> åpne adressen <kbd>/skjerm</kbd> på en annen PC, TV eller nettbrett på samme nett. Den viser det samme som projektoren.</li>
+<li><b>Sangerskjerm</b> (<kbd>/stage.html</kbd>) viser sangteksten for dem som synger fra scenen.</li>
+<li>Adresser og QR-koder finner du under <b>Mer ▸ Mobil og nettbrett (QR)</b>.</li>
+</ul>
+<div class="warn">Hvis du bare har én skjerm og projektorvinduet «låser seg»: trykk Esc i vinduet, eller <span class="btn">✕</span> ved Projektor.</div>
+</section>
+
+<section id="media"><h2>6. Video, lyd og lysbilder</h2>
+<p>Under <span class="btn">＋ Legg til ▾</span>:</p>
+<ul>
+<li><b>Video eller nettlenke</b> – lim inn en YouTube-adresse. Du kan sette start og slutt. Valget «bare lyd» spiller YouTube uten bilde.</li>
+<li><b>Lydfil fra denne PC-en</b> – mp3, m4a, wav, ogg eller flac. Lyden spilles i kontrollsiden og kan tones ned. Filene ligger i programmets datamappe.</li>
+<li><b>Lysbilder (PDF eller bilder)</b> – for eksempel fra PowerPoint eksportert som PDF.</li>
+<li><b>Mer ▸ Test videoer på forhånd</b> sjekker at YouTube-lenkene i planen faktisk virker før møtet.</li>
+</ul>
+<p>Mellomrom starter og stopper en video som vises.</p>
+</section>
+
+<section id="del"><h2>7. Del og skriv ut møteplanen</h2>
+<p>Trykk <span class="btn">📤 Del / skriv ut …</span> under møteplanen. Velg møtenavn og dato, og hvordan sangarket skal se ut:</p>
+<table>
+<tr><td><b>Stor tekst, én sang per side</b></td><td>Lett å lese. Skriften tilpasses så sangen får plass på én side.</td></tr>
+<tr><td><b>Kompakt</b></td><td>To kolonner og flere sanger per ark. Sparer papir.</td></tr>
+<tr><td><b>Bare titler</b></td><td>Rekkefølgen uten tekster.</td></tr>
+</table>
+<ul>
+<li><b>Lagre som PDF</b> lager en fil som er klar for utskrift. <b>Skriv ut</b> åpner utskriftsvinduet.</li>
+<li><b>Tekstfil</b> – ren tekst med sangene.</li>
+<li><b>Send på e-post</b> – skriv adresser (flere med komma). Sangarket følger med som PDF. Krever e-postoppsett (se «E-post»).</li>
+<li><b>Fil til annen PC</b> – hele planen med sanger. Åpnes på den andre PC-en med <span class="btn">⇧ Importer plan</span>.</li>
+</ul>
+</section>
+
+<section id="logg"><h2>8. Logg og bruksrapport</h2>
+<ul>
+<li><span class="btn">📋 Logg møtet</span> lagrer sangene i planen i loggen. Velg dato (forslag: kommende søndag). Det skjer bare når du trykker, aldri automatisk. Trykker du på nytt med samme dato og navn, erstattes loggføringen.</li>
+<li>«✓ Loggført» vises når planen er lik den som er loggført.</li>
+<li><span class="btn">📊 Rapport</span> viser alle loggførte møter og hvor ofte hver sang er brukt. Søk på en sang for å se datoene. Eksport til Excel (CSV) finnes også.</li>
+</ul>
+</section>
+
+<section id="mobil"><h2>9. Mobil og nettbrett</h2>
+<p>Mobilen må være på samme wifi som PC-en. Åpne <b>Mer ▸ Mobil og nettbrett (QR)</b> og skann QR-koden, så får du en meny med:</p>
+<ul>
+<li><b>Møteplan</b> – bla i sangene og send vers til skjermen fra mobilen.</li>
+<li><b>Legg inn ny sang</b> – lim inn tekst og send. Sangen havner som <b>utkast</b> på PC-en, hvor du kontrollerer den før den legges i biblioteket.</li>
+<li><b>Vis skjermen</b> – samme som projektoren.</li>
+</ul>
+<h3>Sang fra et bilde</h3>
+<p>Mobilen kan lese tekst fra bilder gratis: på iPhone holder du på teksten og velger <i>Kopier alle</i>; på Android bruker du Google Lens → <i>Kopier tekst</i> (Samsung: T-ikonet i Galleri). Lim teksten inn på siden «Legg inn sang». Veiledningen står på siden selv.</p>
+<p>Utkastene finner du under <b>Importer sanger ▾ ▸ Utkast fra mobil</b>. Programmet fjerner akkordlinjer og noterester og forsøker å dele i vers. Kontroller alltid æ, ø, å.</p>
+<h3>PIN</h3>
+<p>Settes under <b>Innstillinger ▸ PIN for mobilsiden</b>. Brukes når noen sender sanger fra mobilen.</p>
+</section>
+
+<section id="epost"><h2>10. E-post</h2>
+<p>Settes opp under <b>Mer ▸ Innstillinger ▸ E-post</b>. Programmet sender e-post selv, uten å åpne e-postprogrammet ditt. Det trenger tre ting: en <b>avsenderadresse</b>, en <b>server</b> (SMTP) og et <b>passord</b> til den postkassen.</p>
+
+<h3>Hvilken e-post bør dere bruke?</h3>
+<table>
+<tr><th>Type</th><th>Passord</th><th>Passer når</th></tr>
+<tr><td><b>Egen adresse på eget domene</b><br>(for eksempel <kbd>sanger@menigheten.no</kbd>, hos Domeneshop, one.com, Webhuset eller lignende)</td><td>Vanlig passord til postkassen. <b>Ikke app-passord.</b></td><td>Anbefalt for lag og foreninger. Enklest å få til og minst bråk med søppelpost.</td></tr>
+<tr><td><b>Gmail, Outlook/Hotmail, iCloud</b></td><td><b>App-passord</b> (eget passord kun til programmer)</td><td>Dere har allerede en slik adresse og vil ikke opprette noe nytt.</td></tr>
+<tr><td><b>Intern server</b> (jobb, kopimaskin-oppsett)</td><td>Ofte ikke noe</td><td>Bare hvis noen i IT har gitt dere opplysningene.</td></tr>
+</table>
+
+<h3>Slik gjør du det</h3>
+<ol>
+<li>Åpne <b>Mer ▸ Innstillinger ▸ E-post</b>.</li>
+<li>Velg <b>Leverandør</b> hvis du bruker Gmail, Outlook eller iCloud. Server, port og sikkerhet fylles ut. Ellers skriver du dem inn selv (se under).</li>
+<li>Skriv <b>e-postadressen</b> og <b>passordet</b>. Passordet lagres bare på denne PC-en.</li>
+<li>Trykk <b>Send testmelding til meg</b>.</li>
+</ol>
+
+<h3>Port og sikkerhet</h3>
+<table>
+<tr><th>Valg</th><th>Betydning</th></tr>
+<tr><td>Port 587 + STARTTLS</td><td>Vanligst. Prøv denne først.</td></tr>
+<tr><td>Port 465 + SSL/TLS</td><td>Eldre, men vanlig.</td></tr>
+<tr><td>Port 25</td><td>Interne servere, noen uten passord og kryptering. Mange internettleverandører blokkerer den hjemmefra.</td></tr>
+</table>
+
+<details>
+<summary><b>Les mer: oppsett steg for steg for hver leverandør</b></summary>
+
+<h3>Egen adresse på eget domene (anbefalt)</h3>
+<p>Har dere et domene (for eksempel <kbd>menigheten.no</kbd>), kan dere opprette egne postkasser, som <kbd>sanger@menigheten.no</kbd> eller <kbd>prosjektor@menigheten.no</kbd>. Hos de fleste leverandører koster det lite eller ingenting.</p>
+<ol>
+<li>Logg inn i kontrollpanelet hos domeneleverandøren og opprett en <b>e-postadresse/postkasse</b>. Velg et passord og skriv det ned.</li>
+<li>Finn leverandørens side om <b>oppsett i e-postprogram</b>. Der står <b>SMTP-server</b> (utgående), port og sikkerhet. Det er ofte noe som <kbd>smtp.leverandør.no</kbd> eller <kbd>mail.dittdomene.no</kbd>, port <b>587</b> med STARTTLS eller port <b>465</b> med SSL/TLS.</li>
+<li>I Sangvisning: velg <b>Leverandør</b> «Annen / egen server» og fyll inn <b>SMTP-server</b>, <b>port</b> og <b>sikkerhet</b>.</li>
+<li><b>Brukernavn:</b> hos noen er det hele e-postadressen, hos andre et eget brukernavn fra kontrollpanelet. Står det ikke noe annet, bruk hele adressen. Er det forskjell, fyller du det i feltet for brukernavn.</li>
+<li>Skriv <b>vanlig passord</b> til postkassen. Det er ikke noe app-passord her, det er bare postkassens eget passord.</li>
+<li>Trykk <b>Send testmelding til meg</b>.</li>
+</ol>
+<p><b>Hvorfor er dette best?</b></p>
+<ul>
+<li>Avsenderen ser skikkelig ut («sanger@menigheten.no») og hører til organisasjonen, ikke til en privatperson.</li>
+<li>Postkassen kan flyttes til en ny person når en frivillig slutter. Ingen privat Gmail-konto er involvert.</li>
+<li>Domenet har vanligvis allerede riktig oppsett mot søppelpost (SPF/DKIM) hos leverandøren. Da havner meldingene sjeldnere i søppelpost.</li>
+<li>Dere kan opprette <b>én adresse per bruk eller per avsender</b> (for eksempel en for sangark og en for kopier av data). Da ser mottakeren med en gang hvor meldingen kom fra. Det er samme tankegang som når en kopimaskin eller et kassesystem får sin egen avsenderadresse, så man kan se hvem meldingen kommer fra.</li>
+</ul>
+<p><b>Viktig:</b> avsenderadressen må være en postkasse på det samme domenet som serveren hører til. Sender dere med en adresse serveren ikke eier, avvises meldingen eller havner i søppelpost.</p>
+
+<h3>Gmail</h3>
+<ol>
+<li>Gå til Google-kontoen din ▸ <b>Sikkerhet</b> og slå på <b>Bekreftelse i to trinn</b>. Uten den kan du ikke lage app-passord.</li>
+<li>Søk etter <b>App-passord</b> i kontoinnstillingene (eller åpne <kbd>myaccount.google.com/apppasswords</kbd>). Gi det et navn, for eksempel «Sangvisning», og trykk <b>Opprett</b>.</li>
+<li>Google viser et passord på 16 bokstaver. Kopier det med en gang, det vises bare én gang.</li>
+<li>I Sangvisning: Leverandør <b>Gmail</b>, adressen din (hele <kbd>navn@gmail.com</kbd>), og lim inn app-passordet i passordfeltet.</li>
+</ol>
+<p>Serveren er <kbd>smtp.gmail.com</kbd>, port 587, STARTTLS. Fyller du ut leverandør, settes dette automatisk. Har du en Google Workspace-konto via jobb eller organisasjon, kan administratoren ha slått av app-passord. Da må du spørre vedkommende.</p>
+
+<h3>Outlook / Hotmail / Microsoft 365</h3>
+<ol>
+<li>Gå til Microsoft-kontoen din ▸ <b>Sikkerhet</b> og slå på <b>Tostegsbekreftelse</b>.</li>
+<li>Velg <b>Flere sikkerhetsalternativer</b> ▸ <b>Opprett nytt app-passord</b>.</li>
+<li>I Sangvisning: Leverandør <b>Outlook</b>, adressen din og app-passordet.</li>
+</ol>
+<p>Serveren er <kbd>smtp-mail.outlook.com</kbd>, port 587, STARTTLS. Microsoft strammer inn hvilke programmer som får sende, og for jobb- og skolekontoer (Microsoft 365) er SMTP ofte slått av av administratoren. Fungerer ikke dette, bruk heller en egen adresse på eget domene.</p>
+
+<h3>iCloud</h3>
+<ol>
+<li>Logg inn på kontoen din hos Apple ▸ <b>Innlogging og sikkerhet</b> ▸ <b>App-spesifikke passord</b> og lag et nytt.</li>
+<li>I Sangvisning: Leverandør <b>iCloud</b>, din Apple-adresse og app-passordet.</li>
+</ol>
+<p>Serveren er <kbd>smtp.mail.me.com</kbd>, port 587, STARTTLS. Brukernavnet er ofte bare første del av adressen (før @). Prøv det hvis hele adressen ikke fungerer.</p>
+
+<h3>Når det ikke virker</h3>
+<table>
+<tr><th>Melding eller symptom</th><th>Vanlig årsak</th></tr>
+<tr><td>«Innlogging feilet» / «authentication failed»</td><td>Feil passord eller brukernavn. Hos Gmail, Outlook og iCloud brukes <b>app-passord</b>, ikke vanlig passord. Hos eget domene: sjekk at brukernavnet er riktig (hele adressen eller et eget brukernavn).</td></tr>
+<tr><td>Tidsavbrudd / får ikke kontakt</td><td>Feil serveradresse eller port, eller at nettverket blokkerer porten. Prøv 587, deretter 465. Port 25 er ofte stengt.</td></tr>
+<tr><td>Sertifikatfeil</td><td>Serveradressen stemmer ikke med sertifikatet. Bruk akkurat det navnet leverandøren oppgir.</td></tr>
+<tr><td>Meldingen sendes, men kommer ikke fram</td><td>Sjekk søppelpost hos mottakeren. Marker som «Ikke søppelpost» og legg avsenderen til som trygg. Bruk en adresse på eget domene hvis det fortsetter.</td></tr>
+<tr><td>Avvist av serveren</td><td>Avsenderadressen hører ikke til serveren. Bruk samme adresse som du logger inn med.</td></tr>
+</table>
+</details>
+
+<p>Kommer testmeldingen i søppelpost, marker den som «Ikke søppelpost» og legg avsenderen til som trygg.</p>
+</section>
+
+<section id="data"><h2>11. Sikkerhetskopi, papirkurv og flytting mellom PC-er</h2>
+<ul>
+<li><b>Automatisk kopi</b> tas daglig i programmets datamappe. <b>Mer ▸ Sikkerhetskopi</b> lar deg eksportere alt, hente tilbake en kopi, velge en ekstra mappe (for eksempel en minnepenn) og sende kopien på e-post.</li>
+<li><b>Papirkurv:</b> slettede sanger ligger der til du tømmer den (siste 20 slettinger). Etter en sletting vises også en <b>Angre</b>-knapp.</li>
+<li><b>Sky og overføring:</b> flytt sanger, planer og temaer mellom PC-er, for eksempel hjemme og i kirka. Du kan bruke <b>e-post</b> (send en kopi til deg selv og hent den på den andre PC-en), en <b>synkkode</b>, eller en <b>delt mappe</b> i Dropbox, Google Drive eller OneDrive.</li>
+<li><b>Ny PC:</b> kopier mappen <kbd>%AppData%\Sangvisning</kbd>, eller bruk Sky og overføring.</li>
+</ul>
+</section>
+
+<section id="innstillinger"><h2>12. Innstillinger</h2>
+<table>
+<tr><td><b>Port</b></td><td>En del av adressen som mobil og TV bruker (for eksempel :5000). Endres bare hvis noe annet bruker den. Gjelder etter omstart av programmet.</td></tr>
+<tr><td><b>Kreditt på skjermen</b></td><td>Viser tekstforfatter og komponist på første og siste lysbilde.</td></tr>
+<tr><td><b>Projektorskjerm</b></td><td>Automatisk (anbefalt) velger andre skjerm hvis den finnes.</td></tr>
+<tr><td><b>Skjermer, Temaer, Nullstill layout</b></td><td>Snarveier. Nullstill layout setter panelenes størrelse tilbake.</td></tr>
+<tr><td><b>E-post</b></td><td>Se «E-post».</td></tr>
+<tr><td><b>Data og overføring</b></td><td>Sikkerhetskopi, Sky og overføring, Papirkurv.</td></tr>
+</table>
+</section>
+
+<section id="taster"><h2>13. Hurtigtaster</h2>
+<table>
+<tr><th>Tast</th><th>Gjør</th></tr>
+<tr><td><kbd>/</kbd></td><td>Hopp til søkefeltet</td></tr>
+<tr><td><kbd>Enter</kbd> i søk</td><td>Vis øverste treff i forhåndsvisning. <kbd>Shift</kbd>+<kbd>Enter</kbd> sender til skjermen, <kbd>Ctrl</kbd>+<kbd>Enter</kbd> legger i møteplanen.</td></tr>
+<tr><td><kbd>→</kbd> <kbd>↓</kbd> <kbd>PgDn</kbd></td><td>Neste vers (eller neste i listen)</td></tr>
+<tr><td><kbd>←</kbd> <kbd>↑</kbd> <kbd>PgUp</kbd></td><td>Forrige vers</td></tr>
+<tr><td><kbd>1</kbd>–<kbd>9</kbd></td><td>Hopp til vers nummer</td></tr>
+<tr><td><kbd>Enter</kbd></td><td>Send valgt sang til skjermen</td></tr>
+<tr><td><kbd>B</kbd></td><td>Svart skjerm</td></tr>
+<tr><td><kbd>T</kbd></td><td>Skjul bare teksten</td></tr>
+<tr><td><kbd>Mellomrom</kbd></td><td>Spill av / pause video</td></tr>
+<tr><td><kbd>Esc</kbd></td><td>Lukk meny eller hjelpeboble. I projektorvinduet: lukk det.</td></tr>
+<tr><td><kbd>F1</kbd></td><td>Åpne denne hjelpen</td></tr>
+</table>
+</section>
+
+<section id="feil"><h2>14. Når noe ikke virker</h2>
+<table>
+<tr><th>Problem</th><th>Prøv dette</th></tr>
+<tr><td>Siden åpner ikke</td><td>Sjekk at det svarte programvinduet står åpent. Prøv adressen med riktig port.</td></tr>
+<tr><td>Endringer vises ikke etter oppdatering</td><td>Trykk <kbd>Ctrl</kbd>+<kbd>F5</kbd> i nettleseren.</td></tr>
+<tr><td>Porten er opptatt</td><td>Programmet velger neste ledige port selv. Se adressen i vinduet, eller bytt under Innstillinger.</td></tr>
+<tr><td>Mobil kommer ikke inn</td><td>Samme wifi som PC-en? Tillat programmet i Windows-brannmuren når Windows spør.</td></tr>
+<tr><td>Ingen lyd</td><td>Sjekk volum på PC-en. Lyden spilles i kontrollsiden, ikke i projektorvinduet.</td></tr>
+<tr><td>YouTube-video spiller ikke</td><td>Krever nett. Noen videoer er sperret for innbygging. Bruk «Test videoer på forhånd».</td></tr>
+<tr><td>E-post feiler</td><td>Bruk app-passord. Prøv port 587 med STARTTLS eller 465 med SSL/TLS. Se også «E-post».</td></tr>
+<tr><td>«Krever oppdatert Program.cs»</td><td>Programmet (det svarte vinduet) er eldre enn nettsiden. Bytt filen og start på nytt.</td></tr>
+<tr><td>Prøvevinduet dekker alt</td><td>Esc i vinduet, eller <span class="btn">✕</span> ved Projektor.</td></tr>
+</table>
+</section>
+
+<section id="om"><h2>15. Om <span class="app">Sangvisning</span></h2>
+<ul>
+<li>Et lokalt program for å vise sangtekster, video og lysbilder i kirke og forsamling. Det kjører på din egen PC, og sangene dine ligger i <kbd>%AppData%\Sangvisning</kbd>. Ingenting sendes ut uten at du selv ber om det (e-post, sky-mappe eller synkkode).</li>
+<li>Programmet følger ikke med sanger. Du er selv ansvarlig for å ha rett til å vise tekstene, for eksempel gjennom menighetens lisens. Opphavsrett kan registreres på hver sang og vises som kreditt.</li>
+<li>Programmet er under utvikling. Gi tilbakemelding om alt som er uklart.</li>
+</ul>
+</section>
+</main></div>
+<script>
+const APP='Sangvisning';
+document.querySelectorAll('.app').forEach(e=>e.textContent=APP);
+document.title='Hjelp – '+APP;
+const secs=[...document.querySelectorAll('main section')], toc=document.getElementById('toc');
+secs.forEach(s=>{ const a=document.createElement('a'); a.href='#'+s.id; a.textContent=s.querySelector('h2').textContent; a.dataset.for=s.id; toc.append(a); });
+document.getElementById('q').oninput=e=>{
+  const q=e.target.value.trim().toLowerCase(); let n=0;
+  secs.forEach(s=>{ const hit=!q||s.textContent.toLowerCase().includes(q); s.classList.toggle('hid',!hit); toc.querySelector('[data-for="'+s.id+'"]').classList.toggle('hid',!hit); if(hit) n++; });
+  document.getElementById('none').style.display=n?'none':'block';
+};
+</script></body></html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="no"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sangerskjerm</title>
+<style>
+:root{--bg:#000;--fg:#fff;--mute:#9a9aa4}
+body.light{--bg:#fff;--fg:#111;--mute:#666}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}
+#top{flex:none;display:flex;gap:8px;align-items:center;padding:8px 0;font-size:14px;color:var(--mute)}
+#title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#st{font-size:12px;white-space:nowrap}
+#main{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:700;line-height:1.25;overflow:hidden}
+#next{flex:none;height:24%;display:flex;flex-direction:column;color:var(--mute);text-align:center;line-height:1.25;padding:6px 0;border-top:1px solid #8884}
+#next small{flex:none;font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+#nt{flex:1;min-height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:600}
+#nav{flex:none;padding:6px 0}
+#nav .r{display:flex;gap:10px;margin-bottom:8px}
+#nav button{flex:1;padding:16px 10px;font-size:19px;font-weight:600}
+#nav .s button{padding:11px 8px;font-size:15px;font-weight:500}
+#nav[hidden]{display:none}
+#home{flex:none;padding:10px 16px;border-radius:12px;border:1px solid #8886;color:var(--fg);text-decoration:none;font-size:17px;font-weight:600}
+#ctl{flex:none;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:8px 0}
+button.on{background:#8883}
+button{font:inherit;padding:8px 14px;border-radius:10px;border:1px solid #8886;background:transparent;color:var(--fg)}
+body.hide #ctl{display:none}
+</style><link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACm0lEQVR4AeyWzWtTQRTFz4yYSCJIu6kIJhRbbeMHlVINDWIUkbqoxYVgSVy4cFcQXJgu/APapSC4cFFa1LrTKoggWCELQbFUTLVFMZhoMVIVpAmJL+l07usHeXnJJCQvWXXgJm/u3Ht+JzNJGI780XbO7uoMhlyewGN3Z/Cr2xMUloTUIk3ShmTkIzcN7PUET7i2N39gDCMMbAAMrfmFNT1LLdIkbWIQa0NPN+DuCPYygVeMsXbUeRCDWK4DAR+heEvLZafgmGAMuhk0YOisbWyc2NzWlLvIgH0N4BoQxLQ15/o548xrWGnghIF7OYPZwJ7dTbgSOIWhq32WBGmRJgqGPAo/h0BHft7hsOHpwxBC1wYsgdOHIK0nk8NwOuz5KBCbg8GQ9fsOycIdxkILZjuddpz0HTQqSTY3ZoCl3/8KU5bNi2mbDFhGq1Boy4ByB7TvYSyHb9YUWuyl8jDUBhZfI7c0V1NoidnqDTiO3cCuC49qCkfP9eoNKDstWlQegUUMpcyWAdMOzM3HsZzMKLetmsVkKo3IfMzUajKQTGVwfnAEo7emcPvuc0uCtPovjSKV+l/eAFUs/vyLsfvTJeHPXsxQmSEoV8owaZGmoWF9YtqB9bzy7ezpLtNdoe/MUWVPqcWKDXQdacX4nSFMyOjt2Y83774Ywtvdrq9RzfHutlI8U55DiAVTtkgiq2XxdkZCywTVpDNaEYUiKcnmAlD/WWNtRD7FS34nCs/+feTbWlOZV2LLHUBFBlCPITDL05mVMXk7TNRDX60pEsTmv6KTiWxODAqBFXWDdavEIiax9V/Bj4UH04LBL4T4bB2muBIxiEVMqtAN0EP8471wTPtzWLobFhBT8s4epXytofcLREmTtIlBLD0PYBUAAP//wcdZcQAAAAZJREFUAwD6ReGeeTquaAAAAABJRU5ErkJggg=="><link rel="icon" type="image/png" sizes="16x16" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABMklEQVR4AZxOu0oDURA9cy0st7HNozDFrkUKH4QUFv6AbKFN1hcWIlrkP7RU7CSmEiIkFn6DqKgBsRBSaG0ssoWaQsa5CXuTJWHZzTBnzzBzztmrAFDK8XYyjtfM2N6vMEeir2mmbW8TUirllPYk5VzmPAjTwtHd1+SJcJG2S2WlGGVMWES0rQDKQqqwkEPl9ADVs8NIaM1y0RaHNHNWBc/e3VhBYTGHpfnZSGjNulsUtzSRpYR6/dn2exzn4/vfRmYC9Oav/YrO9Ro6dXc85KY1WhsgFBAsk3AoYGpmDtZqDZZbHw+5ac3wD0IBw4e4swl4fnnH3WMrFu6fWibfBNQat9jaP4mFxs3DaIDZJBwUmD8SegZy5jfFRJXBJtkk3kv1g+4xg6+SWSEPR7X7RUf/AAAA//8s0vNIAAAABklEQVQDAO+wnJmpByrmAAAAAElFTkSuQmCC"><link rel="apple-touch-icon" href="/icon-180.png">
+</head>
+<body><div id="app">
+  <div id="top"><a id="home" href="/menu.html">‹ Meny</a><span id="title"></span><span id="st">Kobler til …</span></div>
+  <div id="main"></div>
+  <div id="next" hidden><small>Neste</small><div id="nt"></div></div>
+  <div id="nav" hidden><div class="r"><button id="bPrev">◀ Forrige</button><button id="bNx">Neste ▶</button></div><div class="r s"><button id="bPrevS">⏮ Forrige sang</button><button id="bNextS">Neste sang ⏭</button></div></div>
+  <div id="ctl"><button id="bMinus">A−</button><button id="bPlus">A+</button><button id="bNext">Vis neste</button><button id="bCtl">Styr</button><button id="bLight">Lys/mørk</button><button id="bFull">Fullskjerm</button></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+let cfg={scale:1,next:true,light:false}, cur={text:'',blank:true,next:'',title:'',img:'',nextImg:''};
+try{ Object.assign(cfg,JSON.parse(localStorage.getItem('stage')||'{}')); }catch(e){}
+const saveCfg=()=>{ try{ localStorage.setItem('stage',JSON.stringify(cfg)); }catch(e){} };
+
+function fitInto(el,text,start,unit){
+  el.textContent=''; const sp=document.createElement('span'); sp.style.display='block'; sp.textContent=text; el.append(sp);
+  const set=f=>{ el.style.fontSize=f+unit; };
+  const min=Math.max(1.5,start*0.5); let f=start, n=0;
+  sp.style.whiteSpace='pre'; sp.style.width='max-content'; sp.style.maxWidth='none'; set(f);
+  while((sp.offsetWidth>el.clientWidth||sp.offsetHeight>el.clientHeight)&&f>min&&n++<160){ f-=.25; set(f); }
+  if(sp.offsetWidth<=el.clientWidth&&sp.offsetHeight<=el.clientHeight) return;
+  sp.style.whiteSpace='pre-line'; sp.style.width='auto'; sp.style.maxWidth='100%'; sp.style.textWrap='balance';
+  f=start; n=0; set(f);
+  while((sp.offsetHeight>el.clientHeight||sp.scrollWidth>el.clientWidth+1)&&f>1.5&&n++<200){ f-=.25; set(f); }
+}
+function showImg(el,src){
+  let im=el.firstChild; if(!(im&&im.tagName==='IMG')){ el.textContent=''; im=document.createElement('img'); im.style.cssText='width:100%;height:100%;object-fit:contain;display:block'; el.append(im); }
+  if(im.getAttribute('src')!==src) im.src=src;
+}
+function render(){
+  document.body.classList.toggle('light',cfg.light);
+  $('title').textContent=cur.title?(cur.title+(cur.part?' · '+cur.part:'')):'';
+  const nx=$('next');
+  nx.hidden=!(cfg.next&&(cur.next||cur.nextImg)&&!cur.blank);
+  $('nav').hidden=!cfg.ctl; $('bCtl').classList.toggle('on',!!cfg.ctl);
+  if(cur.img&&!cur.blank) showImg($('main'),cur.img); else fitInto($('main'),cur.blank?'':cur.text,7*cfg.scale,'vmin');
+  if(!nx.hidden){ if(cur.nextImg) showImg($('nt'),cur.nextImg); else fitInto($('nt'),cur.next,3.6*cfg.scale,'vmin'); }
+}
+function connect(){
+  const es=new EventSource('/api/stream');
+  es.onopen=()=>{ $('st').textContent='● Tilkoblet'; };
+  es.onmessage=e=>{ try{ cur=Object.assign({text:'',blank:true,next:'',title:'',img:'',nextImg:''},JSON.parse(e.data)); render(); }catch(x){} };
+  es.onerror=()=>{ $('st').textContent='Mister kontakt – prøver igjen …'; };
+}
+$('bMinus').onclick=()=>{ cfg.scale=Math.max(.5,cfg.scale-.1); saveCfg(); render(); };
+$('bPlus').onclick=()=>{ cfg.scale=Math.min(1.8,cfg.scale+.1); saveCfg(); render(); };
+async function cmd(c){
+  const send=pin=>fetch('/api/remote',{method:'POST',headers:{'Content-Type':'application/json','X-Pin':pin},body:JSON.stringify({cmd:c})});
+  try{
+    let pin=''; try{ pin=localStorage.getItem('pin')||''; }catch(e){}
+    let r=await send(pin);
+    if(r.status===401){ pin=prompt('PIN (den du satte under Utkast i programmet):','')||''; if(!pin) return; try{ localStorage.setItem('pin',pin.trim()); }catch(e){} r=await send(pin.trim()); if(r.status===401) alert('Feil PIN.'); }
+  }catch(e){ alert('Fikk ikke kontakt med programmet.'); }
+}
+$('bCtl').onclick=()=>{ cfg.ctl=!cfg.ctl; saveCfg(); render(); };
+$('bPrev').onclick=()=>cmd('prev'); $('bNx').onclick=()=>cmd('next'); $('bPrevS').onclick=()=>cmd('prevsong'); $('bNextS').onclick=()=>cmd('nextsong');
+{ let x0=null; const m=$('main');
+  m.addEventListener('touchstart',e=>{ x0=e.touches[0].clientX; },{passive:true});
+  m.addEventListener('touchend',e=>{ if(x0===null||!cfg.ctl) return; const dx=e.changedTouches[0].clientX-x0; x0=null; if(Math.abs(dx)>70) cmd(dx<0?'next':'prev'); },{passive:true}); }
+$('bNext').onclick=()=>{ cfg.next=!cfg.next; saveCfg(); render(); };
+$('bLight').onclick=()=>{ cfg.light=!cfg.light; saveCfg(); render(); };
+$('bFull').onclick=()=>{ document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen(); };
+$('main').addEventListener('click',()=>document.body.classList.toggle('hide'));
+let wl=null;
+async function keepAwake(){ try{ if(navigator.wakeLock&&!wl){ wl=await navigator.wakeLock.request('screen'); wl.onrelease=()=>{wl=null;}; } }catch(e){} }
+addEventListener('click',keepAwake); document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') keepAwake(); });
+addEventListener('resize',render); addEventListener('orientationchange',()=>setTimeout(render,200));
+render(); connect();
+</script></body></html>

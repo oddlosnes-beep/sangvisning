@@ -1,0 +1,50 @@
+name: Bygg Sangvisning-Setup
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+          dotnet-quality: 'ga'
+
+      - name: Versjon
+        shell: bash
+        run: echo "VERSION=1.0.${{ github.run_number }}" >> "$GITHUB_ENV"
+
+      - name: Publiser (med .NET inni)
+        shell: bash
+        run: dotnet publish Sangvisning.csproj -c Release -r win-x64 --self-contained true -o publish
+
+      - name: Sjekk at wwwroot er med
+        shell: bash
+        run: ls publish/wwwroot | head -30
+
+      - name: Installer Inno Setup
+        shell: pwsh
+        run: choco install innosetup -y --no-progress
+
+      - name: Bygg Setup.exe
+        shell: pwsh
+        run: |
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DAppVersion=$env:VERSION" installer\Sangvisning.iss
+
+      - name: Lag release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "v$VERSION" installer/Output/Sangvisning-Setup.exe \
+            --title "Sangvisning $VERSION" \
+            --notes "Last ned Sangvisning-Setup.exe, dobbeltklikk og følg veiviseren."

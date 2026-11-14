@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="no"><head><meta charset="utf-8"><title>Utgang</title>
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<style>
+html,body{margin:0;height:100%;background:#000;color:#fff;overflow:hidden}
+body.act{cursor:none}
+#t{position:absolute;inset:5%;display:flex;align-items:center;justify-content:center;text-align:center;
+font:700 7vw/1.25 system-ui,sans-serif;white-space:pre-line;text-shadow:0 0 .1em #000}
+#bg,#dim{position:absolute;inset:0}
+#bk{position:absolute;inset:0;background:#000;z-index:5;display:none}
+#im{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:1;display:none}
+#yt{position:absolute;inset:0;z-index:2;background:#000;visibility:hidden}
+#yt.on{visibility:visible}
+#yt iframe{width:100%;height:100%;border:0}
+#msg{position:fixed;left:0;right:0;z-index:6;display:none;background:rgba(0,0,0,.82);color:#fff;font:600 6vh/1.25 system-ui,'Segoe UI',Arial,sans-serif;padding:1.2vh 3vw;overflow:hidden;box-sizing:border-box}
+#msg.tk{bottom:0;white-space:nowrap}
+#msg.bn{top:0;text-align:center;white-space:pre-line}
+#msgIn{display:inline-block;will-change:transform}
+#cr{position:absolute;z-index:3;bottom:1.5%;left:3%;right:3%;text-align:center;font:500 2.4vh/1.2 system-ui,'Segoe UI',Arial,sans-serif;color:#fff;opacity:.6;text-shadow:0 0 .3em #000;pointer-events:none}
+#cd{position:absolute;inset:0;z-index:4;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;font-family:system-ui,'Segoe UI',Arial,sans-serif;text-shadow:0 0 .15em #000}
+#cd.on{display:flex}
+#cdL{font-weight:600;font-size:5vw;line-height:1.2;margin-bottom:2vh;white-space:pre-line;padding:0 5vw}
+#cdT{font-weight:700;font-size:26vw;line-height:1;font-variant-numeric:tabular-nums}
+body.cdon #t{visibility:hidden}
+#note{position:absolute;z-index:3;bottom:2%;left:0;right:0;text-align:center;font:14px system-ui,sans-serif;color:#888;pointer-events:none}
+</style><link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACm0lEQVR4AeyWzWtTQRTFz4yYSCJIu6kIJhRbbeMHlVINDWIUkbqoxYVgSVy4cFcQXJgu/APapSC4cFFa1LrTKoggWCELQbFUTLVFMZhoMVIVpAmJL+l07usHeXnJJCQvWXXgJm/u3Ht+JzNJGI780XbO7uoMhlyewGN3Z/Cr2xMUloTUIk3ShmTkIzcN7PUET7i2N39gDCMMbAAMrfmFNT1LLdIkbWIQa0NPN+DuCPYygVeMsXbUeRCDWK4DAR+heEvLZafgmGAMuhk0YOisbWyc2NzWlLvIgH0N4BoQxLQ15/o548xrWGnghIF7OYPZwJ7dTbgSOIWhq32WBGmRJgqGPAo/h0BHft7hsOHpwxBC1wYsgdOHIK0nk8NwOuz5KBCbg8GQ9fsOycIdxkILZjuddpz0HTQqSTY3ZoCl3/8KU5bNi2mbDFhGq1Boy4ByB7TvYSyHb9YUWuyl8jDUBhZfI7c0V1NoidnqDTiO3cCuC49qCkfP9eoNKDstWlQegUUMpcyWAdMOzM3HsZzMKLetmsVkKo3IfMzUajKQTGVwfnAEo7emcPvuc0uCtPovjSKV+l/eAFUs/vyLsfvTJeHPXsxQmSEoV8owaZGmoWF9YtqB9bzy7ezpLtNdoe/MUWVPqcWKDXQdacX4nSFMyOjt2Y83774Ywtvdrq9RzfHutlI8U55DiAVTtkgiq2XxdkZCywTVpDNaEYUiKcnmAlD/WWNtRD7FS34nCs/+feTbWlOZV2LLHUBFBlCPITDL05mVMXk7TNRDX60pEsTmv6KTiWxODAqBFXWDdavEIiax9V/Bj4UH04LBL4T4bB2muBIxiEVMqtAN0EP8471wTPtzWLobFhBT8s4epXytofcLREmTtIlBLD0PYBUAAP//wcdZcQAAAAZJREFUAwD6ReGeeTquaAAAAABJRU5ErkJggg=="><link rel="icon" type="image/png" sizes="16x16" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABMklEQVR4AZxOu0oDURA9cy0st7HNozDFrkUKH4QUFv6AbKFN1hcWIlrkP7RU7CSmEiIkFn6DqKgBsRBSaG0ssoWaQsa5CXuTJWHZzTBnzzBzztmrAFDK8XYyjtfM2N6vMEeir2mmbW8TUirllPYk5VzmPAjTwtHd1+SJcJG2S2WlGGVMWES0rQDKQqqwkEPl9ADVs8NIaM1y0RaHNHNWBc/e3VhBYTGHpfnZSGjNulsUtzSRpYR6/dn2exzn4/vfRmYC9Oav/YrO9Ro6dXc85KY1WhsgFBAsk3AoYGpmDtZqDZZbHw+5ac3wD0IBw4e4swl4fnnH3WMrFu6fWibfBNQat9jaP4mFxs3DaIDZJBwUmD8SegZy5jfFRJXBJtkk3kv1g+4xg6+SWSEPR7X7RUf/AAAA//8s0vNIAAAABklEQVQDAO+wnJmpByrmAAAAAElFTkSuQmCC"><link rel="apple-touch-icon" href="/icon-180.png">
+</head>
+<body><div id="bg"></div><div id="dim"></div><div id="t"></div><img id="im" alt=""><div id="bk"></div><div id="yt"><div id="p"></div></div>
+<div id="cr"></div><div id="cd"><div id="cdL"></div><div id="cdT"></div></div>
+<div id="msg"><span id="msgIn"></span></div>
+<div id="note">Klikk i dette vinduet én gang for å aktivere fullskjerm, video og lyd (Esc avslutter fullskjerm).</div>
+<script>
+const t=document.getElementById('t'), yt=document.getElementById('yt'), note=document.getElementById('note');
+const RELAY=/[?&]relay=1/.test(location.search), VIEW=/[?&]view=1/.test(location.search), TEST=/[?&]test=1/.test(location.search);
+const ch=(()=>{
+  if(VIEW){ let h=null; const es=new EventSource('/api/view/stream');
+    es.onmessage=e=>{ try{ if(h) h({data:JSON.parse(e.data)}); }catch(_){} };
+    return { postMessage(){}, set onmessage(f){ h=f; }, get onmessage(){ return h; } }; }
+  if(!RELAY) return new BroadcastChannel('sangvisning');
+  let h=null; const post=m=>fetch('/api/relay/from-output',{method:'POST',body:JSON.stringify(m)}).catch(()=>{});
+  const es=new EventSource('/api/relay/to-output');
+  es.onmessage=e=>{ try{ if(h) h({data:JSON.parse(e.data)}); }catch(_){} };
+  es.onopen=()=>post({hello:1});
+  return { postMessage:post, set onmessage(f){ h=f; }, get onmessage(){ return h; } };
+})();
+const TH_FONTS={sans:'system-ui,"Segoe UI",Arial,sans-serif',serif:'Georgia,"Times New Roman",serif',arial:'Arial,Helvetica,sans-serif',verdana:'Verdana,Geneva,sans-serif',trebuchet:'"Trebuchet MS",sans-serif',impact:'Impact,"Arial Black",sans-serif',mono:'Consolas,"Courier New",monospace',cursive:'"Segoe Script","Brush Script MT",cursive'};
+const TH_DEF={bg:{type:'color',c1:'#000000',c2:'#000000',angle:160,radial:false,img:'',dim:0},text:{color:'#ffffff',font:'sans',weight:700,shadow:'soft',sc:'#000000',align:'center',valign:'center',size:7}};
+function thFull(th){ th=th||{}; return {id:th.id,name:th.name,bg:Object.assign({},TH_DEF.bg,th.bg),text:Object.assign({},TH_DEF.text,th.text)}; }
+function thShadow(k,c){ return k==='none'?'none':k==='strong'?`.04em .04em .08em ${c},0 0 .25em ${c}`:k==='outline'?`-.03em -.03em 0 ${c},.03em -.03em 0 ${c},-.03em .03em 0 ${c},.03em .03em 0 ${c},0 0 .1em ${c}`:`0 0 .12em ${c}`; }
+function paintTheme(th,bg,dim,txt){
+  th=thFull(th); const b=th.bg, x=th.text;
+  bg.style.background='none'; bg.style.backgroundColor=b.c1;
+  if(b.type==='gradient') bg.style.backgroundImage=b.radial?`radial-gradient(circle at 50% 40%,${b.c1},${b.c2})`:`linear-gradient(${b.angle}deg,${b.c1},${b.c2})`;
+  else if(b.type==='image'&&b.img){ bg.style.backgroundImage=`url("${b.img}")`; bg.style.backgroundSize='cover'; bg.style.backgroundPosition='center'; bg.style.backgroundRepeat='no-repeat'; }
+  else bg.style.backgroundImage='none';
+  dim.style.background='rgba(0,0,0,'+((b.dim||0)/100)+')';
+  txt.style.color=x.color; txt.style.fontFamily=TH_FONTS[x.font]||TH_FONTS.sans; txt.style.fontWeight=x.weight; txt.style.textAlign=x.align;
+  txt.style.textShadow=thShadow(x.shadow,x.sc);
+  txt.style.justifyContent=x.align==='left'?'flex-start':x.align==='right'?'flex-end':'center';
+  txt.style.alignItems=x.valign==='top'?'flex-start':x.valign==='bottom'?'flex-end':'center';
+  return +x.size||7;
+}
+function fitInto(el,text,start,unit){
+  el.textContent=''; const sp=document.createElement('span'); sp.style.display='block'; sp.textContent=text; el.append(sp);
+  const set=f=>{ el.style.fontSize=f+unit; };
+  // 1) Hver tekstlinje skal stå på én linje – krymper skriften litt hvis nødvendig
+  const min=Math.max(1.5,start*0.5); let f=start, n=0;
+  sp.style.whiteSpace='pre'; sp.style.width='max-content'; sp.style.maxWidth='none'; set(f);
+  while((sp.offsetWidth>el.clientWidth||sp.offsetHeight>el.clientHeight)&&f>min&&n++<120){ f-=.25; set(f); }
+  if(sp.offsetWidth<=el.clientWidth&&sp.offsetHeight<=el.clientHeight) return;
+  // 2) Ellers: bryt lange linjer jevnt (ingen enkeltord alene på en linje)
+  sp.style.whiteSpace='pre-line'; sp.style.width='auto'; sp.style.maxWidth='100%'; sp.style.textWrap='balance';
+  f=start; n=0; set(f);
+  while((sp.offsetHeight>el.clientHeight||sp.scrollWidth>el.clientWidth+1)&&f>1.5&&n++<160){ f-=.25; set(f); }
+}
+let thSize=7;
+function applyTheme(th){ thSize=paintTheme(th,document.getElementById('bg'),document.getElementById('dim'),t); }
+applyTheme(null);
+let last={text:'',blank:true}, player=null, ready=false, pending=null, cur=null, showing=false, err=null, api='idle', vol=100;
+
+let curTxt='';
+function fit(){ fitInto(t,curTxt,thSize,'vw'); }
+function render(){ curTxt=last.blank?'':last.text; fit(); document.getElementById('cr').textContent=last.blank?'':(last.cr||''); }
+const params=m=>{ const o={videoId:m.id,startSeconds:m.start||0}; if(m.end) o.endSeconds=m.end; return o; };
+
+const q=[];
+function loadApi(){
+  if(api!=='idle') return; api='loading';
+  const s=document.createElement('script'); s.src='https://www.youtube.com/iframe_api';
+  s.onerror=()=>{ api='fail'; err='offline'; q.splice(0).forEach(x=>ch.postMessage({type:'vtest',tid:x.tid,ok:false,err:'offline'})); };
+  document.head.append(s);
+}
+window.onYouTubeIframeAPIReady=()=>{
+  api='ready';
+  player=new YT.Player('p',{width:'100%',height:'100%',
+    playerVars:{controls:0,rel:0,modestbranding:1,playsinline:1,disablekb:1,iv_load_policy:3,fs:0,origin:location.origin},
+    events:{
+      onReady:()=>{ ready=true; player.setVolume(vol); if(pending){ cue(pending); pending=null; } },
+      onStateChange:e=>{ if(e.data===0) hide(); if([1,3,5].includes(e.data)) err=null; },
+      onError:e=>{ err=e.data; showing=false; yt.classList.remove('on'); render(); }
+    }});
+  q.splice(0).forEach(x=>x.fn());
+};
+function cue(m){
+  cur=m; err=null;
+  if(!ready){ pending=m; loadApi(); return; }
+  player.cueVideoById(params(m));
+}
+function hide(){
+  showing=false; yt.classList.remove('on'); render();
+  if(cur&&ready&&!err) player.cueVideoById(params(cur));
+}
+
+function whenApi(fn,tid){
+  if(api==='ready') fn();
+  else if(api==='fail') ch.postMessage({type:'vtest',tid,ok:false,err:'offline'});
+  else { q.push({fn,tid}); loadApi(); }
+}
+// Egen, midlertidig spiller per test, slik at feil fra en video ikke påvirker neste.
+function testVid(m){
+  const box=document.createElement('div');
+  box.style.cssText='position:fixed;right:0;bottom:0;width:320px;height:180px;opacity:.01;pointer-events:none;z-index:-1';
+  const inner=document.createElement('div'); box.append(inner); document.body.append(box);
+  let done=false, pl=null, timer=null;
+  const fin=(ok,e)=>{ if(done) return; done=true; clearTimeout(timer);
+    ch.postMessage({type:'vtest',tid:m.tid,id:m.id,ok,err:e||0});
+    setTimeout(()=>{ try{ pl&&pl.destroy(); }catch(x){} box.remove(); },0); };
+  timer=setTimeout(()=>fin(false,'tidsavbrudd'),12000);
+  try{
+    pl=new YT.Player(inner,{width:320,height:180,videoId:m.id,playerVars:{controls:0,origin:location.origin},
+      events:{ onReady:()=>setTimeout(()=>fin(true),3000), onStateChange:e=>{ if(e.data===5) fin(true); }, onError:e=>fin(false,e.data) }});
+  }catch(x){ fin(false,'feil: '+x.message); }
+}
+let cdEnd=0, cdTimer=null, cdDone=null;
+function cdOff(){ clearInterval(cdTimer); cdTimer=null; clearTimeout(cdDone); cdEnd=0; document.getElementById('cd').classList.remove('on'); document.body.classList.remove('cdon'); }
+function cdOn(d){
+  cdOff(); cdEnd=+d.end||0; if(!cdEnd) return;
+  document.getElementById('cdL').textContent=d.label||''; document.getElementById('cd').classList.add('on'); document.body.classList.add('cdon');
+  const tick=()=>{ const s=Math.max(0,Math.ceil((cdEnd-Date.now())/1000)); document.getElementById('cdT').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+    if(cdEnd-Date.now()<=0&&!cdDone){ clearInterval(cdTimer); cdDone=setTimeout(cdOff,4000); } };
+  tick(); cdTimer=setInterval(tick,250);
+}
+let msgAnim=null;
+function hideMsg(){ if(msgAnim){ msgAnim.cancel(); msgAnim=null; } const m=document.getElementById('msg'); m.style.display='none'; }
+function showMsg(d){
+  hideMsg(); const m=document.getElementById('msg'), i=document.getElementById('msgIn'); i.textContent=d.text||'';
+  m.className=d.mode==='banner'?'bn':'tk'; m.style.display='block';
+  const hx=/^#([0-9a-f]{6})$/i.test(d.bg||'')?d.bg:'#000000'; const rg=[1,3,5].map(k=>parseInt(hx.slice(k,k+2),16));
+  m.style.background='rgba('+rg.join(',')+',.9)'; m.style.color=/^#[0-9a-f]{6}$/i.test(d.fg||'')?d.fg:'#ffffff';
+  if(d.mode!=='banner'){ const W=innerWidth, tw=i.offsetWidth, speed=W/10; msgAnim=i.animate([{transform:'translateX('+W+'px)'},{transform:'translateX(-'+tw+'px)'}],{duration:(W+tw)/speed*1000,iterations:Infinity,easing:'linear'}); }
+}
+ch.onmessage=e=>{
+  const d=e.data;
+  if(VIEW&&d.type==='v') return;
+  if(d.type==='closeOut'){ window.close(); return; }
+  if(d.type==='cd'){ cdOn(d); return; }
+  if(d.type==='cdoff'){ cdOff(); return; }
+  if(d.type==='msg'){ showMsg(d); return; }
+  if(d.type==='msgoff'){ hideMsg(); return; }
+  if(d.hello||d.type==='vstatus'||d.type==='vtest') return;
+  if(d.type==='blackout'){ document.getElementById('bk').style.display=d.on?'block':'none'; return; }
+  if(d.type==='img'){ const im=document.getElementById('im'); if(d.src){ im.src=d.src; im.style.display='block'; } else { im.style.display='none'; im.removeAttribute('src'); } return; }
+  if(d.type==='theme'){ applyTheme(d.theme); render(); return; }
+  if(d.type!=='v'){ last=d; if(!showing) render(); return; }
+  switch(d.cmd){
+    case 'cue': cue(d); break;
+    case 'play':
+      if(!ready) return;
+      showing=true; yt.classList.add('on');
+      if(player.getPlayerState()===0) player.loadVideoById(params(cur)); else player.playVideo();
+      break;
+    case 'pause': if(ready) player.pauseVideo(); break;
+    case 'stop': hide(); break;
+    case 'vol': vol=d.v; if(ready) player.setVolume(vol); break;
+    case 'seek': if(ready) player.seekTo(player.getCurrentTime()+d.d,true); break;
+    case 'seekto': if(ready) player.seekTo(d.t,true); break;
+    case 'test': whenApi(()=>testVid(d),d.tid); break;
+  }
+};
+setInterval(()=>{
+  if(!cur) return;
+  ch.postMessage({type:'vstatus',err,showing,id:cur&&cur.id,
+    st:ready?player.getPlayerState():-2, t:ready?player.getCurrentTime():0, d:ready?player.getDuration():0});
+},500);
+
+if(VIEW){ note.textContent='Trykk i vinduet for fullskjerm. Skjermen følger programmet automatisk.'; setTimeout(()=>{ note.style.display='none'; },6000); }
+if(RELAY){ note.textContent='Trykk Esc for å lukke projektorvinduet'; setTimeout(()=>{ note.style.display='none'; },5000);
+  addEventListener('keydown',e=>{ if(e.key==='Escape'){ fetch('/api/output/close',{method:'POST'}).catch(()=>{}); setTimeout(()=>window.close(),300); } }); }
+addEventListener('resize',fit);
+addEventListener('click',()=>{
+  document.body.classList.add('act'); note.style.display='none';
+  if(!TEST&&!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+});
+if(TEST){ note.textContent='Prøvevindu. Lukk med Esc, eller med ✕ i programmet.'; note.style.display='block'; setTimeout(()=>{ note.style.display='none'; },5000);
+  addEventListener('keydown',e=>{ if(e.key==='Escape') window.close(); }); }
+ch.postMessage({hello:1});
+</script></body></html>
