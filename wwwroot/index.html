@@ -18,6 +18,7 @@ header h1{font-size:16px;margin:0 8px 0 0}
 header h1+.hg{border-left:0}
 #cloudBar{flex:1 0 100%;display:flex;gap:8px;align-items:center;background:var(--accbg);border:1px solid var(--acc);border-radius:8px;padding:5px 10px;font-size:13px}
 #cloudBar[hidden]{display:none}
+#updBar{flex:1 0 100%;display:flex;gap:8px;align-items:center;background:var(--accbg);border:1px solid var(--acc);border-radius:8px;padding:5px 10px;font-size:13px}#updBar[hidden]{display:none}#updBar span{flex:1}
 #cloudBar span{flex:1}
 header button,header .btn{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;box-sizing:border-box}
 button.dr{background:#f59e0b;border-color:#f59e0b;color:#1a1200}
@@ -251,10 +252,11 @@ header button,header .btn{min-height:30px}
   <span id="moreWrap" style="position:relative"><button id="bMore">⋯ Mer</button><div id="moreMenu" hidden>
     <button id="bHelp">📖 Hjelp og veiledning (F1)</button><button id="bSet">⚙ Innstillinger …</button><button id="bCloud">☁ Sky og overføring …</button><button id="bBak">Sikkerhetskopi</button>
     <button id="bUse" hidden>Bruksrapport (logg) …</button><button id="bTrash">Papirkurv …</button><button id="bStage">Mobil og nettbrett (QR)</button>
-    <button id="bTestVid">Test videoer på forhånd</button><button id="bQuit" title="Stopper programmet helt. Brukes når du er ferdig for dagen.">⏻ Avslutt programmet</button>
+    <button id="bTestVid">Test videoer på forhånd</button><button id="bUpd" title="Sjekker GitHub om det finnes en nyere versjon">Se etter ny versjon</button><button id="bQuit" title="Stopper programmet helt. Brukes når du er ferdig for dagen.">⏻ Avslutt programmet</button>
     <button id="bSample" hidden>+ 40 eksempelsanger</button><button id="bClearSamples" hidden>Fjern eksempelsanger</button>
     <button id="bTh" hidden>Temaer …</button><button id="bScr" hidden>Skjermer</button><button id="bCredit" hidden>Kreditt på skjermen: av</button><button id="bLayReset" hidden>Nullstill layout</button>
   </div></span></div>
+<div id="updBar" hidden><span id="updMsg"></span><button id="updDo" class="pri">Oppdater nå</button><a id="updPage" class="btn" target="_blank" rel="noopener" hidden>Se hva som er nytt</a><button id="updLater">Senere</button></div>
 <div id="cloudBar" hidden><span id="cloudMsg"></span><button id="cloudGet" class="pri">Hent nå</button><button id="cloudLater">Senere</button></div>
 </header>
 <main id="drop">
@@ -3164,6 +3166,24 @@ async function setLoad(){
     $('setPortInfo').textContent='Nå i bruk: port '+(d.activePort||d.port)+(d.activePort&&d.port&&d.activePort!==d.port?' (valgt port '+d.port+' var opptatt)':'')+'.'; }catch(e){ $('setPortInfo').textContent='Krever oppdatert Program.cs.'; }
   $('setCredit').checked=!!S.settings.credit;
 }
+async function updCheck(manual){
+  try{
+    const d=await (await fetch('/api/update/check')).json();
+    if(d.newer){ $('updMsg').textContent='Ny versjon '+d.latest+' er klar (du har '+d.current+').'; $('updDo').hidden=!d.canInstall; $('updPage').hidden=d.canInstall; $('updPage').href=d.page||'#'; $('updBar').hidden=false; }
+    else if(manual) alert(d.error?'Fikk ikke kontakt med GitHub. Sjekk nettforbindelsen.':'Du har siste versjon ('+d.current+').');
+  }catch(e){ if(manual) alert('Kunne ikke sjekke etter ny versjon.'); }
+}
+$('updLater').onclick=()=>{ $('updBar').hidden=true; };
+$('bUpd').onclick=()=>{ $('moreMenu').hidden=true; updCheck(true); };
+$('updDo').onclick=async()=>{
+  if(!confirm('Oppdatere nå?\nProgrammet lukkes og starter på nytt av seg selv etter et halvt minutt. Projektorvinduet slukkes en stund. Sangene dine blir ikke rørt.')) return;
+  $('updMsg').textContent='Laster ned og installerer … vent litt.'; $('updDo').disabled=true;
+  try{
+    const r=await fetch('/api/update/install',{method:'POST'}); if(!r.ok) throw new Error(await r.text());
+    document.body.innerHTML='<div style="font:18px system-ui;padding:40px;text-align:center">Oppdaterer Sangvisning …<br>Programmet starter på nytt av seg selv om et øyeblikk.<br>Hvis ikke noe skjer, start det fra skrivebordet.</div>';
+  }catch(e){ $('updMsg').textContent='Oppdateringen feilet: '+e.message; $('updDo').disabled=false; }
+};
+setTimeout(()=>updCheck(false),5000);
 $('bQuit').onclick=async()=>{
   if(!confirm('Avslutte Sangvisning helt?\nProjektorvinduet og alle andre sider som er koblet til slutter å virke.')) return;
   try{ await fetch('/api/quit',{method:'POST'}); }catch(e){}

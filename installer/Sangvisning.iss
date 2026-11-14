@@ -38,3 +38,4 @@ Name: "{autodesktop}\Sangvisning"; Filename: "{app}\Sangvisning.exe"; WorkingDir
 
 [Run]
 Filename: "{app}\Sangvisning.exe"; WorkingDir: "{app}"; Description: "Start Sangvisning nå"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\Sangvisning.exe"; WorkingDir: "{app}"; Flags: nowait; Check: WizardSilent

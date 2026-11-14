@@ -25,7 +25,7 @@ jobs:
 
       - name: Publiser (med .NET inni)
         shell: bash
-        run: dotnet publish Sangvisning.csproj -c Release -r win-x64 --self-contained true -p:HideConsole=true -o publish
+        run: dotnet publish Sangvisning.csproj -c Release -r win-x64 --self-contained true -p:HideConsole=true -p:Version=$VERSION -o publish
 
       - name: Sjekk at wwwroot er med
         shell: bash

@@ -1069,6 +1069,63 @@ app.MapGet("/api/info", () =>
     return Results.Json(new { port, lan, ips });
 });
 
+// --- Oppdatering fra GitHub (virker bare for lokal bruker) ---
+var appVersion = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version ?? new Version(0, 0, 0);
+bool installert = (Environment.ProcessPath ?? "").Contains(Path.Combine("Programs", "Sangvisning"), StringComparison.OrdinalIgnoreCase);
+async Task<(string tag, string assetUrl, string page)?> SisteUtgave()
+{
+    using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(8) };
+    http.DefaultRequestHeaders.UserAgent.ParseAdd("Sangvisning-oppdatering");
+    var js = await http.GetStringAsync("https://api.github.com/repos/oddlosnes-beep/sangvisning/releases/latest");
+    using var d = JsonDocument.Parse(js);
+    var r = d.RootElement;
+    var tag = r.GetProperty("tag_name").GetString() ?? "";
+    var asset = "";
+    foreach (var a in r.GetProperty("assets").EnumerateArray())
+        if ((a.GetProperty("name").GetString() ?? "") == "Sangvisning-Setup.exe") asset = a.GetProperty("browser_download_url").GetString() ?? "";
+    return (tag, asset, r.GetProperty("html_url").GetString() ?? "");
+}
+app.MapGet("/api/update/check", async (HttpContext ctx) =>
+{
+    if (!IsLocal(ctx)) return Results.StatusCode(403);
+    try
+    {
+        var u = await SisteUtgave();
+        if (u is null) throw new Exception("tom");
+        var ok = Version.TryParse(u.Value.tag.TrimStart('v', 'V'), out var lv);
+        return Results.Json(new { current = appVersion.ToString(3), latest = ok ? lv!.ToString(3) : "", newer = ok && lv! > appVersion, canInstall = installert && u.Value.assetUrl != "", page = u.Value.page, error = false });
+    }
+    catch
+    {
+        return Results.Json(new { current = appVersion.ToString(3), latest = "", newer = false, canInstall = false, page = "", error = true });
+    }
+});
+app.MapPost("/api/update/install", async (HttpContext ctx) =>
+{
+    if (!IsLocal(ctx)) return Results.StatusCode(403);
+    if (!installert) return Results.BadRequest("Oppdatering fra programmet virker bare i den installerte versjonen.");
+    try
+    {
+        var u = await SisteUtgave();
+        var dl = u?.assetUrl ?? "";
+        if (!dl.StartsWith("https://github.com/oddlosnes-beep/sangvisning/releases/download/")) return Results.BadRequest("Fant ikke installasjonsfilen.");
+        var tmp = Path.Combine(Path.GetTempPath(), "Sangvisning-Setup-ny.exe");
+        using (var http = new HttpClient { Timeout = TimeSpan.FromMinutes(5) })
+        {
+            http.DefaultRequestHeaders.UserAgent.ParseAdd("Sangvisning-oppdatering");
+            using var resp = await http.GetAsync(dl, HttpCompletionOption.ResponseHeadersRead);
+            resp.EnsureSuccessStatusCode();
+            await using var fs = File.Create(tmp);
+            await resp.Content.CopyToAsync(fs);
+        }
+        if (new FileInfo(tmp).Length < 5_000_000) return Results.BadRequest("Nedlastingen ble ufullstendig.");
+        Process.Start(new ProcessStartInfo(tmp, "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS") { UseShellExecute = true });
+        _ = Task.Run(async () => { await Task.Delay(800); app.Lifetime.StopApplication(); });
+        return Results.Ok();
+    }
+    catch (Exception e) { return Results.Problem(e.Message); }
+});
+
 app.MapPost("/api/quit", (HttpContext ctx) =>
 {
     if (!IsLocal(ctx)) return Results.StatusCode(403);
