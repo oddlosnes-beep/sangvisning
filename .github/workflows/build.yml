@@ -20,8 +20,15 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
+      - uses: android-actions/setup-android@v3
       - name: Bygg Android-appen
-        run: gradle -p android assembleRelease -Pvcode=${{ github.run_number }} --no-daemon
+        shell: bash
+        run: |
+          set +e
+          gradle -p android assembleRelease -Pvcode=${{ github.run_number }} --no-daemon --console=plain > build.log 2>&1
+          code=$?
+          if [ $code -ne 0 ]; then echo "::error::$(grep -iE 'error|wrong|failed|not found|what went' -A2 build.log | head -25 | tr '\n' '|')"; fi
+          exit $code
       - uses: actions/upload-artifact@v4
         with:
           name: apk
