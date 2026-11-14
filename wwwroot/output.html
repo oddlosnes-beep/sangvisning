@@ -183,7 +183,7 @@ setInterval(()=>{
     st:ready?player.getPlayerState():-2, t:ready?player.getCurrentTime():0, d:ready?player.getDuration():0});
 },500);
 
-if(VIEW){ note.textContent='Trykk i vinduet for fullskjerm. Tilbake til menyen: dra ned mot venstre, eller hold en finger inne i 1,5 sekunder.'; setTimeout(()=>{ note.style.display='none'; },9000); }
+if(VIEW){ note.textContent='Trykk i vinduet for fullskjerm. Tilbake til menyen: trykk to ganger, dra ned mot venstre, eller hold en finger inne.'; setTimeout(()=>{ note.style.display='none'; },9000); }
 if(RELAY){ note.textContent='Trykk Esc for å lukke projektorvinduet'; setTimeout(()=>{ note.style.display='none'; },5000);
   addEventListener('keydown',e=>{ if(e.key==='Escape'){ fetch('/api/output/close',{method:'POST'}).catch(()=>{}); setTimeout(()=>window.close(),300); } }); }
 addEventListener('resize',fit);
@@ -199,9 +199,12 @@ if(VIEW){
   let bt; const showBack=()=>{ back.style.display='block'; clearTimeout(bt); bt=setTimeout(()=>{ back.style.display='none'; },4500); };
   const leave=()=>{ try{ if(document.fullscreenElement) document.exitFullscreen(); }catch(e){} location.href='/menu.html'; };
   back.addEventListener('click',e=>{ e.stopPropagation(); leave(); });
-  // Ingenting vises ved vanlig trykk. Hold en finger i ca. 1,5 sekund for å få fram ‹ Meny.
+  // Ingenting vises ved ett trykk. Trykk to ganger, eller hold en finger inne i 1,5 sekunder, for å få fram ‹ Meny.
   let lp=null,lx=0,ly=0;
-  addEventListener('pointerdown',e=>{ lx=e.clientX; ly=e.clientY; clearTimeout(lp); lp=setTimeout(showBack,1500); });
+  document.documentElement.style.touchAction='manipulation';
+  let lastTap=0;
+  addEventListener('pointerdown',e=>{ lx=e.clientX; ly=e.clientY; clearTimeout(lp); lp=setTimeout(showBack,1500);
+    const now=Date.now(); if(now-lastTap<450){ showBack(); lastTap=0; } else lastTap=now; });
   addEventListener('pointermove',e=>{ if(lp&&Math.hypot(e.clientX-lx,e.clientY-ly)>12){ clearTimeout(lp); lp=null; } });
   for(const n of ['pointerup','pointercancel']) addEventListener(n,()=>{ clearTimeout(lp); lp=null; });
   addEventListener('contextmenu',e=>e.preventDefault());
