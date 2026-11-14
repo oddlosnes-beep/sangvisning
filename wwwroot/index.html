@@ -3260,7 +3260,7 @@ $('abClose').onclick=()=>$('abDlg').close();
 async function updCheck(manual){
   try{
     const d=await (await fetch('/api/update/check')).json();
-    if(d.newer){ $('updMsg').textContent='Ny versjon '+d.latest+' er klar (du har '+d.current+').'; $('updDo').hidden=!d.canInstall; $('updPage').hidden=d.canInstall; $('updPage').href=d.page||'#'; $('updBar').hidden=false; }
+    window.__updFrom=d.current; if(d.newer){ $('updMsg').textContent='Ny versjon '+d.latest+' er klar (du har '+d.current+').'; $('updDo').hidden=!d.canInstall; $('updPage').hidden=d.canInstall; $('updPage').href=d.page||'#'; $('updBar').hidden=false; }
     else if(manual) alert(d.error?'Fikk ikke kontakt med GitHub. Sjekk nettforbindelsen.':'Du har siste versjon ('+d.current+').');
   }catch(e){ if(manual) alert('Kunne ikke sjekke etter ny versjon.'); }
 }
@@ -3271,7 +3271,21 @@ $('updDo').onclick=async()=>{
   $('updMsg').textContent='Laster ned og installerer … vent litt.'; $('updDo').disabled=true;
   try{
     const r=await fetch('/api/update/install',{method:'POST'}); if(!r.ok) throw new Error(await r.text());
-    document.body.innerHTML='<div style="font:18px system-ui;padding:40px;text-align:center">Oppdaterer Sangvisning …<br>Programmet starter på nytt av seg selv om et øyeblikk.<br>Hvis ikke noe skjer, start det fra skrivebordet.</div>';
+    const fromV=window.__updFrom||''; let sawDown=false, tries=0;
+    document.body.innerHTML='<div id="updScreen" style="min-height:90vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;font:20px system-ui,sans-serif;color:var(--text)"><div id="updBig">Oppdaterer Sangvisning …</div><div class="hint" id="updSmall">Vent litt, programmet starter på nytt av seg selv.</div></div>';
+    const poll=async()=>{
+      tries++;
+      try{
+        const d=await (await fetch('/api/version',{cache:'no-store'})).json();
+        if(sawDown||d.version!==fromV){
+          $('updBig').textContent='✓ Oppdatert til versjon '+d.version; $('updSmall').textContent='';
+          setTimeout(()=>location.reload(),2200); return;
+        }
+      }catch(e){ sawDown=true; }
+      if(tries>80){ $('updBig').textContent='Dette tok lengre tid enn vanlig'; $('updSmall').textContent='Start Sangvisning fra ikonet på skrivebordet.'; return; }
+      setTimeout(poll,1500);
+    };
+    setTimeout(poll,2500);
   }catch(e){ $('updMsg').textContent='Oppdateringen feilet: '+e.message; $('updDo').disabled=false; }
 };
 setTimeout(()=>updCheck(false),5000);

@@ -1143,6 +1143,8 @@ app.Lifetime.ApplicationStarted.Register(() =>
     try { File.WriteAllText(Path.Combine(appDataDir, "port.txt"), port.ToString()); } catch { }
     if (portNote != "") Console.WriteLine(portNote);
     Console.WriteLine($"Sangvisning kjører på {url}{(lan ? " (sangerskjerm også på nettverket)" : "")}\nData: {file}\nKopier: {bdir}\nLukk dette vinduet for å avslutte.");
+    // Etter en oppdatering fra programmet er vinduet allerede åpent, så da åpnes det ikke et nytt.
+    if (args.Contains("--ingen-vindu")) return;
     // Åpner som eget programvindu (uten adresselinje og faner): Chrome, ellers Edge, ellers vanlig nettleser.
     var adr = url + "/index.html";
     foreach (var nl in new[] { "chrome", "msedge" })
