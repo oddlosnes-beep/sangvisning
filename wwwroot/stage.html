@@ -6,7 +6,7 @@
 :root{--bg:#000;--fg:#fff;--mute:#9a9aa4}
 body.light{--bg:#fff;--fg:#111;--mute:#666}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
-#app{position:fixed;inset:0;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;padding:env(safe-area-inset-top) max(14px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(14px,env(safe-area-inset-left))}
 #top{flex:none;display:flex;gap:8px;align-items:center;padding:8px 0;font-size:14px;color:var(--mute)}
 #title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #st{font-size:12px;white-space:nowrap}
@@ -24,13 +24,14 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:
 button.on{background:#8883}
 button{font:inherit;padding:8px 14px;border-radius:10px;border:1px solid #8886;background:transparent;color:var(--fg)}
 body.hide #ctl{display:none}
-</style><link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACm0lEQVR4AeyWzWtTQRTFz4yYSCJIu6kIJhRbbeMHlVINDWIUkbqoxYVgSVy4cFcQXJgu/APapSC4cFFa1LrTKoggWCELQbFUTLVFMZhoMVIVpAmJL+l07usHeXnJJCQvWXXgJm/u3Ht+JzNJGI780XbO7uoMhlyewGN3Z/Cr2xMUloTUIk3ShmTkIzcN7PUET7i2N39gDCMMbAAMrfmFNT1LLdIkbWIQa0NPN+DuCPYygVeMsXbUeRCDWK4DAR+heEvLZafgmGAMuhk0YOisbWyc2NzWlLvIgH0N4BoQxLQ15/o548xrWGnghIF7OYPZwJ7dTbgSOIWhq32WBGmRJgqGPAo/h0BHft7hsOHpwxBC1wYsgdOHIK0nk8NwOuz5KBCbg8GQ9fsOycIdxkILZjuddpz0HTQqSTY3ZoCl3/8KU5bNi2mbDFhGq1Boy4ByB7TvYSyHb9YUWuyl8jDUBhZfI7c0V1NoidnqDTiO3cCuC49qCkfP9eoNKDstWlQegUUMpcyWAdMOzM3HsZzMKLetmsVkKo3IfMzUajKQTGVwfnAEo7emcPvuc0uCtPovjSKV+l/eAFUs/vyLsfvTJeHPXsxQmSEoV8owaZGmoWF9YtqB9bzy7ezpLtNdoe/MUWVPqcWKDXQdacX4nSFMyOjt2Y83774Ywtvdrq9RzfHutlI8U55DiAVTtkgiq2XxdkZCywTVpDNaEYUiKcnmAlD/WWNtRD7FS34nCs/+feTbWlOZV2LLHUBFBlCPITDL05mVMXk7TNRDX60pEsTmv6KTiWxODAqBFXWDdavEIiax9V/Bj4UH04LBL4T4bB2muBIxiEVMqtAN0EP8471wTPtzWLobFhBT8s4epXytofcLREmTtIlBLD0PYBUAAP//wcdZcQAAAAZJREFUAwD6ReGeeTquaAAAAABJRU5ErkJggg=="><link rel="icon" type="image/png" sizes="16x16" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABMklEQVR4AZxOu0oDURA9cy0st7HNozDFrkUKH4QUFv6AbKFN1hcWIlrkP7RU7CSmEiIkFn6DqKgBsRBSaG0ssoWaQsa5CXuTJWHZzTBnzzBzztmrAFDK8XYyjtfM2N6vMEeir2mmbW8TUirllPYk5VzmPAjTwtHd1+SJcJG2S2WlGGVMWES0rQDKQqqwkEPl9ADVs8NIaM1y0RaHNHNWBc/e3VhBYTGHpfnZSGjNulsUtzSRpYR6/dn2exzn4/vfRmYC9Oav/YrO9Ro6dXc85KY1WhsgFBAsk3AoYGpmDtZqDZZbHw+5ac3wD0IBw4e4swl4fnnH3WMrFu6fWibfBNQat9jaP4mFxs3DaIDZJBwUmD8SegZy5jfFRJXBJtkk3kv1g+4xg6+SWSEPR7X7RUf/AAAA//8s0vNIAAAABklEQVQDAO+wnJmpByrmAAAAAElFTkSuQmCC"><link rel="apple-touch-icon" href="/icon-180.png">
+#fsHint{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(8px + env(safe-area-inset-bottom));z-index:5;background:#222;color:#fff;border:1px solid #8886;border-radius:12px;padding:8px 12px;font-size:14px;max-width:92vw;text-align:center}#fsHint[hidden]{display:none}</style><link rel="manifest" href="/stage.webmanifest"><link rel="apple-touch-icon" href="/icon-180.png"><meta name="theme-color" content="#000000"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Sanger"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACm0lEQVR4AeyWzWtTQRTFz4yYSCJIu6kIJhRbbeMHlVINDWIUkbqoxYVgSVy4cFcQXJgu/APapSC4cFFa1LrTKoggWCELQbFUTLVFMZhoMVIVpAmJL+l07usHeXnJJCQvWXXgJm/u3Ht+JzNJGI780XbO7uoMhlyewGN3Z/Cr2xMUloTUIk3ShmTkIzcN7PUET7i2N39gDCMMbAAMrfmFNT1LLdIkbWIQa0NPN+DuCPYygVeMsXbUeRCDWK4DAR+heEvLZafgmGAMuhk0YOisbWyc2NzWlLvIgH0N4BoQxLQ15/o548xrWGnghIF7OYPZwJ7dTbgSOIWhq32WBGmRJgqGPAo/h0BHft7hsOHpwxBC1wYsgdOHIK0nk8NwOuz5KBCbg8GQ9fsOycIdxkILZjuddpz0HTQqSTY3ZoCl3/8KU5bNi2mbDFhGq1Boy4ByB7TvYSyHb9YUWuyl8jDUBhZfI7c0V1NoidnqDTiO3cCuC49qCkfP9eoNKDstWlQegUUMpcyWAdMOzM3HsZzMKLetmsVkKo3IfMzUajKQTGVwfnAEo7emcPvuc0uCtPovjSKV+l/eAFUs/vyLsfvTJeHPXsxQmSEoV8owaZGmoWF9YtqB9bzy7ezpLtNdoe/MUWVPqcWKDXQdacX4nSFMyOjt2Y83774Ywtvdrq9RzfHutlI8U55DiAVTtkgiq2XxdkZCywTVpDNaEYUiKcnmAlD/WWNtRD7FS34nCs/+feTbWlOZV2LLHUBFBlCPITDL05mVMXk7TNRDX60pEsTmv6KTiWxODAqBFXWDdavEIiax9V/Bj4UH04LBL4T4bB2muBIxiEVMqtAN0EP8471wTPtzWLobFhBT8s4epXytofcLREmTtIlBLD0PYBUAAP//wcdZcQAAAAZJREFUAwD6ReGeeTquaAAAAABJRU5ErkJggg=="><link rel="icon" type="image/png" sizes="16x16" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABMklEQVR4AZxOu0oDURA9cy0st7HNozDFrkUKH4QUFv6AbKFN1hcWIlrkP7RU7CSmEiIkFn6DqKgBsRBSaG0ssoWaQsa5CXuTJWHZzTBnzzBzztmrAFDK8XYyjtfM2N6vMEeir2mmbW8TUirllPYk5VzmPAjTwtHd1+SJcJG2S2WlGGVMWES0rQDKQqqwkEPl9ADVs8NIaM1y0RaHNHNWBc/e3VhBYTGHpfnZSGjNulsUtzSRpYR6/dn2exzn4/vfRmYC9Oav/YrO9Ro6dXc85KY1WhsgFBAsk3AoYGpmDtZqDZZbHw+5ac3wD0IBw4e4swl4fnnH3WMrFu6fWibfBNQat9jaP4mFxs3DaIDZJBwUmD8SegZy5jfFRJXBJtkk3kv1g+4xg6+SWSEPR7X7RUf/AAAA//8s0vNIAAAABklEQVQDAO+wnJmpByrmAAAAAElFTkSuQmCC"><link rel="apple-touch-icon" href="/icon-180.png">
 </head>
 <body><div id="app">
   <div id="top"><a id="home" href="/menu.html">‹ Meny</a><span id="title"></span><span id="st">Kobler til …</span></div>
   <div id="main"></div>
   <div id="next" hidden><small>Neste</small><div id="nt"></div></div>
   <div id="nav" hidden><div class="r"><button id="bPrev">◀ Forrige</button><button id="bNx">Neste ▶</button></div><div class="r s"><button id="bPrevS">⏮ Forrige sang</button><button id="bNextS">Neste sang ⏭</button></div></div>
+  <div id="fsHint" hidden></div>
   <div id="ctl"><button id="bMinus">A−</button><button id="bPlus">A+</button><button id="bNext">Vis neste</button><button id="bCtl">Styr</button><button id="bLight">Lys/mørk</button><button id="bFull">Fullskjerm</button></div>
 </div>
 <script>
@@ -92,5 +93,23 @@ let wl=null;
 async function keepAwake(){ try{ if(navigator.wakeLock&&!wl){ wl=await navigator.wakeLock.request('screen'); wl.onrelease=()=>{wl=null;}; } }catch(e){} }
 addEventListener('click',keepAwake); document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') keepAwake(); });
 addEventListener('resize',render); addEventListener('orientationchange',()=>setTimeout(render,200));
+
+// Fullskjerm: automatisk ved første trykk der nettleseren tillater det. På iPad finnes ikke dette,
+// der legger man siden på hjemmeskjermen (Del ▸ Legg til på Hjemmeskjerm), så åpner den uten nettleserfelt.
+(function(){
+  const standalone=matchMedia('(display-mode: fullscreen)').matches||matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+  if(standalone) return;
+  const de=document.documentElement, canFs=!!(de.requestFullscreen||de.webkitRequestFullscreen);
+  const hint=$('fsHint'); let seen=false; try{ seen=localStorage.getItem('stageHint')==='1'; }catch(e){}
+  const dismiss=()=>{ hint.hidden=true; try{ localStorage.setItem('stageHint','1'); }catch(e){} };
+  if(canFs){
+    const go=()=>{ removeEventListener('pointerdown',go,true); try{ (de.requestFullscreen||de.webkitRequestFullscreen).call(de); }catch(e){} };
+    addEventListener('pointerdown',go,true);
+    if(!seen){ hint.textContent='Trykk hvor som helst for fullskjerm'; hint.hidden=false; setTimeout(dismiss,6000); addEventListener('pointerdown',dismiss,{once:true,capture:true}); }
+  } else if(!seen){
+    hint.innerHTML='For fullskjerm: trykk Del og velg <b>Legg til på Hjemmeskjerm</b>. Åpne så fra ikonet. ';
+    const b=document.createElement('button'); b.textContent='OK'; b.onclick=dismiss; hint.append(b); hint.hidden=false;
+  }
+})();
 render(); connect();
 </script></body></html>
