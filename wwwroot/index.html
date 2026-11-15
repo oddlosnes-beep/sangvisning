@@ -1201,7 +1201,9 @@ function saveYt(){
     Object.assign(ytEdit,{title:$('yTitle').value.trim(),start,end}); if(S.aud===ytEdit) $('aTitle').textContent=ytEdit.title||'Lydfil';
     save(); $('ytDlg').close(); render(); return;
   }
-  const url=$('yUrl').value.trim(), vid=parseVid(url);
+  let url=$('yUrl').value.trim();
+  { const im=url.match(/<iframe[^>]*\ssrc=["']([^"']+)["']/i); if(im){ url=im[1].replace(/&amp;/g,'&'); if(url.startsWith('//')) url='https:'+url; } }
+  const vid=parseVid(url);
   if(!vid){
     if(!/^https?:\/\/\S+$/i.test(url)) return err('Fant ikke en YouTube-lenke eller en gyldig nettadresse (som begynner med https://).');
     let h=0; for(const c of url) h=(h*31+c.charCodeAt(0))|0;
