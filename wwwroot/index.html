@@ -630,7 +630,7 @@ header button,header .btn{min-height:30px}
     <ol class="hint" style="margin:6px 0 0;padding-left:20px">
       <li>Åpne videoen på nettsiden i nettleseren.</li>
       <li>Trykk knappen «&lt;&gt;» (del / bygg inn) under videoen.</li>
-      <li>Kopier <b>hele</b> koden som kommer opp, og lim den inn i feltet «Lenke til videoen» her. Programmet henter ut riktig adresse selv. Har du valget «Bruk IFRAME-versjon», fjern det så du får JavaScript-koden. Da kan programmet styre spoling, lyd og glidebryter nøyaktig.</li>
+      <li>Kopier <b>hele</b> koden som kommer opp (det spiller ingen rolle om «Bruk IFRAME-versjon» er avhuket), og lim den inn i feltet «Lenke til videoen» her. Programmet henter ut riktig adresse selv.</li>
       <li>Vis den med ▶ Spill av. Da åpnes bare selve spilleren på utgangsskjermen.</li>
     </ol>
     <p class="hint" style="margin:4px 0 0">Limer du inn vanlig sideadresse i stedet, viser vinduet hele nettsiden, og videoen blir liten.</p>
@@ -1223,7 +1223,7 @@ function saveYt(){
   }
   let url=$('yUrl').value.trim();
   { const im=url.match(/<iframe[^>]*\ssrc=["']([^"']+)["']/i); if(im){ url=im[1].replace(/&amp;/g,'&'); if(url.startsWith('//')) url='https:'+url; } }
-  const mfm=url.match(/new\s+MFPlayer\(\s*['"][^'"]*['"]\s*,\s*['"]([A-Za-z0-9_-]{6,})['"]/);
+  const mfm=url.match(/new\s+MFPlayer\(\s*['"][^'"]*['"]\s*,\s*['"]([A-Za-z0-9_-]{6,})['"]/)||url.match(/mediaflowpro\.com\/ovp\/\d+\/([A-Za-z0-9_-]{6,})/);
   if(mfm){
     const f={vid:'mf'+mfm[1],url:'/mf.html?id='+mfm[1],mf:mfm[1],web:true,title:$('yTitle').value.trim(),start:0,end:0};
     if(ytEdit){ Object.assign(ytEdit,f); if(S.vid===ytEdit) liveVideo(ytEdit); }
