@@ -1160,6 +1160,12 @@ app.MapPost("/api/ytfs", (HttpContext ctx) =>
     return Results.Json(new { ok = OperatingSystem.IsWindows() && WinKill.FullscreenYouTube(ctx.Request.Query["tast"] == "f11") });
 });
 
+app.MapPost("/api/ytclick", (HttpContext ctx) =>
+{
+    if (!IsLocal(ctx)) return Results.StatusCode(403);
+    return Results.Json(new { ok = OperatingSystem.IsWindows() && WinKill.ClickCenter() });
+});
+
 app.MapPost("/api/closeyt", (HttpContext ctx) =>
 {
     if (!IsLocal(ctx)) return Results.StatusCode(403);
@@ -1216,6 +1222,12 @@ static class WinKill
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetWindowText(IntPtr h, StringBuilder sb, int n);
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetClassName(IntPtr h, StringBuilder sb, int n);
     [DllImport("user32.dll")] static extern bool IsWindowVisible(IntPtr h);
+    [StructLayout(LayoutKind.Sequential)] struct RECT { public int L, T, R, B; }
+    [StructLayout(LayoutKind.Sequential)] struct PT { public int X, Y; }
+    [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr h, out RECT r);
+    [DllImport("user32.dll")] static extern bool GetCursorPos(out PT p);
+    [DllImport("user32.dll")] static extern bool SetCursorPos(int x, int y);
+    [DllImport("user32.dll")] static extern void mouse_event(uint f, uint dx, uint dy, uint d, UIntPtr e);
     [DllImport("user32.dll")] static extern bool SetForegroundWindow(IntPtr h);
     [DllImport("user32.dll")] static extern bool ShowWindow(IntPtr h, int c);
     [DllImport("user32.dll")] static extern void keybd_event(byte vk, byte scan, uint flags, UIntPtr extra);
@@ -1240,6 +1252,33 @@ static class WinKill
         Thread.Sleep(250);
         byte vk = f11 ? (byte)0x7A : (byte)0x46; // F11 = nettleser-fullskjerm, F = fullskjerm i spilleren
         keybd_event(vk, 0, 0, UIntPtr.Zero); keybd_event(vk, 0, 2, UIntPtr.Zero);
+        return true;
+    }
+
+    public static bool ClickCenter()
+    {
+        IntPtr yt = IntPtr.Zero, other = IntPtr.Zero;
+        EnumWindows((h, l) =>
+        {
+            if (!IsWindowVisible(h)) return true;
+            var sb = new StringBuilder(300); GetWindowText(h, sb, 300);
+            var cn = new StringBuilder(100); GetClassName(h, cn, 100);
+            var t = sb.ToString();
+            if (cn.ToString() != "Chrome_WidgetWin_1" || t.Length == 0 || t.Contains("Sangvisning") || t.Contains("Utgang") || t.Contains("Sangerskjerm")) return true;
+            if (t.Contains("YouTube")) { yt = h; return false; }
+            if (other == IntPtr.Zero) other = h;
+            return true;
+        }, IntPtr.Zero);
+        var w = yt != IntPtr.Zero ? yt : other;
+        if (w == IntPtr.Zero || !GetWindowRect(w, out var r)) return false;
+        GetCursorPos(out var old);
+        ShowWindow(w, 9); SetForegroundWindow(w);
+        Thread.Sleep(200);
+        SetCursorPos((r.L + r.R) / 2, (r.T + r.B) / 2 + 15);
+        Thread.Sleep(60);
+        mouse_event(0x0002, 0, 0, 0, UIntPtr.Zero); mouse_event(0x0004, 0, 0, 0, UIntPtr.Zero); // venstreklikk midt i vinduet
+        Thread.Sleep(120);
+        SetCursorPos(old.X, old.Y);
         return true;
     }
 
