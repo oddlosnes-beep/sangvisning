@@ -316,7 +316,10 @@ header button,header .btn{min-height:30px}
       <div class="hint" id="vTime"></div>
       <label class="hint">Lyd <input id="vVol" type="range" min="0" max="100" value="100" style="width:150px;vertical-align:middle"></label>
       <div id="vErr" style="color:#d6334a;font-size:13px;min-height:1em"></div>
-      <button id="vExt" title="Åpner videoen på youtube.com i et eget vindu på utgangsskjermen">Åpne på YouTube (skjerm 2)</button><button id="vExtFs" title="Gjør videoen fullskjerm på utgangsskjermen">⛶ Fullskjerm</button><button id="vExtClose">Lukk videovindu</button> <button id="vEdit">Rediger video</button>
+      <div class="bar" style="margin:4px 0"><button id="vEdit">✎ Rediger video</button></div>
+      <details id="vMore" style="margin:2px 0"><summary class="hint" style="cursor:pointer">Flere valg (eget vindu på skjerm 2)</summary>
+        <div class="bar" style="flex-wrap:wrap;margin:6px 0"><button id="vExt" title="Åpner videoen i et eget vindu på utgangsskjermen">Åpne på skjerm 2</button><button id="vExtFs" title="Gjør vinduet fullskjerm">⛶ Fullskjerm</button><button id="vExtClose">Lukk videovindu</button></div>
+      </details>
       <p class="hint" id="vHelp">Mellomrom = spill av / pause. Videoen vises på utgangsskjermen først når du trykker spill av.</p>
     </div>
     <div id="lvPres" hidden><div class="hint">Piltaster blar. Trykk på et bilde for å vise det.</div><div class="pgrid" id="lvpGrid"></div></div>
@@ -623,6 +626,15 @@ header button,header .btn{min-height:30px}
   <h2 id="yHead">Legg til video eller nettlenke</h2>
   <label>Lenke til videoen</label><input id="yUrl" placeholder="YouTube, eller en annen side (f.eks. Normisjons mediaflow)">
   <p class="hint" style="margin:4px 0 0">YouTube spilles inne i programmet. Andre lenker åpnes i et eget vindu på utgangsskjermen.</p>
+  <details style="margin:6px 0 0"><summary class="hint" style="cursor:pointer">Video fra en nettside, for eksempel Normisjon? Slik legger du den inn</summary>
+    <ol class="hint" style="margin:6px 0 0;padding-left:20px">
+      <li>Åpne videoen på nettsiden i nettleseren.</li>
+      <li>Trykk knappen «&lt;&gt;» (del / bygg inn) under videoen.</li>
+      <li>Kopier <b>hele</b> koden som kommer opp, og lim den inn i feltet «Lenke til videoen» her. Programmet henter ut riktig adresse selv.</li>
+      <li>Vis den med ▶ Spill av. Da åpnes bare selve spilleren på utgangsskjermen.</li>
+    </ol>
+    <p class="hint" style="margin:4px 0 0">Limer du inn vanlig sideadresse i stedet, viser vinduet hele nettsiden, og videoen blir liten.</p>
+  </details>
   <label style="display:flex;gap:8px;align-items:center;margin:8px 0 0"><input id="yAO" type="checkbox" style="width:auto"> Bare lyd – vis ikke bildet (YouTube-musikk)</label>
   <div class="bar" style="margin:6px 0 0"><label class="btn" style="margin:0">♪ Velg lydfil fra denne PC-en …<input id="yAudFile" type="file" accept="audio/*,.mp3,.m4a,.wav,.ogg,.flac,.aac,.opus" multiple hidden></label><span class="hint" id="yAudInfo"></span></div>
   <label>Tittel (valgfritt)</label><input id="yTitle">
@@ -1170,7 +1182,10 @@ function liveVideo(it){
     ? '<b>Slik gjør du:</b><br>1. Trykk <b>▶ Spill av</b>. Siden åpnes på utgangsskjermen og videoen starter av seg selv.<br>2. <b>Mellomrom</b> starter og stopper. <b>−10 s / +10 s</b> spoler.<br>3. <b>Stopp</b> (eller <b>Esc</b>) lukker videovinduet og tar deg tilbake.<br><span style="opacity:.8">Tips: bare ett vindu skal ligge øverst. Skjer ingenting, trykk «Åpne siden på skjerm 2».</span>'
     : (it.vid&&!it.aud ? 'Mellomrom = spill av / pause. Videoen vises på utgangsskjermen først når du trykker spill av. Blir den blokkert av YouTube, åpnes den av seg selv på YouTube. F = fullskjerm, Esc = lukk vinduet.' : 'Mellomrom = spill av / pause.');
   if(it.web){ $('vInfo').textContent='Nettlenke. Åpnes i et eget vindu på utgangsskjermen.'; $('vTime').textContent=''; }
-  render(); cueVid(); if(it.web) openExt(true);
+  $('vSeek').hidden=!!it.web; $('vVol').parentElement.hidden=!!it.web;
+  $('vBack').textContent=it.web?'−5 s':'−10 s'; $('vFwd').textContent=it.web?'+5 s':'+10 s';
+  if(it.web) $('vTime').textContent='Trykk ▶ Spill av for å vise den på utgangsskjermen.';
+  render(); cueVid();
   if(!it.web){ const tok=it; setTimeout(()=>{ if(S.vid===tok&&vState===-1&&$('vTime').textContent==='Laster …'){ $('vTime').textContent='Ingen svar fra utgangsvinduet'; $('vErr').textContent=outIsOpen()?'Utgangsvinduet svarer ikke. Last det inn på nytt, eller trykk «Åpne på YouTube».':'Utgangsvinduet er ikke åpent. Trykk «Utgang» for å åpne det, eller «Åpne på YouTube».'; } },3500); }
 }
 function vStatus(d){
@@ -2281,7 +2296,7 @@ $('yUrl').addEventListener('change',async()=>{
     const j=await r.json(); if(j.title&&!$('yTitle').value) $('yTitle').value=j.title; }catch(e){}
 });
 $('vPlay').onclick=()=>S.vid&&S.vid.web?(extOpen?ytClick():openExt(true)):vsend({cmd:'play'}); $('vPause').onclick=()=>S.vid&&S.vid.web?ytClick():vsend({cmd:'pause'}); $('vStop').onclick=()=>S.vid&&S.vid.web?closeExt():vsend({cmd:'stop'});
-$('vBack').onclick=()=>S.vid&&S.vid.web?ytKey('left',2):vsend({cmd:'seek',d:-10}); $('vFwd').onclick=()=>S.vid&&S.vid.web?ytKey('right',2):vsend({cmd:'seek',d:10});
+$('vBack').onclick=()=>S.vid&&S.vid.web?ytKey('left',1):vsend({cmd:'seek',d:-10}); $('vFwd').onclick=()=>S.vid&&S.vid.web?ytKey('right',1):vsend({cmd:'seek',d:10});
 $('vEdit').onclick=()=>{ if(S.vid) openYt(S.vid); };
 $('vSeek').addEventListener('pointerdown',()=>{vSeeking=true;});
 $('vSeek').onchange=()=>{ vSeeking=false; if(!S.vid) return; const a=S.vid.start||0, b=S.vid.end||vDur;
