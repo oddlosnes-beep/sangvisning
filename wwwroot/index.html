@@ -317,7 +317,7 @@ header button,header .btn{min-height:30px}
       <label class="hint">Lyd <input id="vVol" type="range" min="0" max="100" value="100" style="width:150px;vertical-align:middle"></label>
       <div id="vErr" style="color:#d6334a;font-size:13px;min-height:1em"></div>
       <button id="vExt" title="Åpner videoen på youtube.com i et eget vindu på utgangsskjermen">Åpne på YouTube (skjerm 2)</button><button id="vExtFs" title="Gjør videoen fullskjerm på utgangsskjermen">⛶ Fullskjerm</button><button id="vExtClose">Lukk videovindu</button> <button id="vEdit">Rediger video</button>
-      <p class="hint">Mellomrom = spill av / pause. Videoen vises på utgangsskjermen først når du trykker spill av.</p>
+      <p class="hint" id="vHelp">Mellomrom = spill av / pause. Videoen vises på utgangsskjermen først når du trykker spill av.</p>
     </div>
     <div id="lvPres" hidden><div class="hint">Piltaster blar. Trykk på et bilde for å vise det.</div><div class="pgrid" id="lvpGrid"></div></div>
     <div id="lvSlides"></div>
@@ -1166,7 +1166,10 @@ function liveVideo(it){
   $('vInfo').textContent=(it.start||it.end)?'Spiller '+fmt(it.start||0)+(it.end?' – '+fmt(it.end):' – slutten'):'Hele videoen';
   $('vErr').textContent=''; $('vTime').textContent='Laster …'; $('vSeek').value=0;
   $('vExt').textContent=it.web?'Åpne siden på skjerm 2':'Åpne på YouTube (skjerm 2)';
-  if(it.web){ $('vInfo').textContent='Nettlenke. Åpnes i et eget vindu på utgangsskjermen. Start avspillingen på selve siden.'; $('vTime').textContent=''; }
+  $('vHelp').innerHTML=it.web
+    ? '<b>Slik gjør du:</b><br>1. Trykk <b>▶ Spill av</b>. Siden åpnes på utgangsskjermen og videoen starter av seg selv.<br>2. <b>Mellomrom</b> starter og stopper. <b>−10 s / +10 s</b> spoler.<br>3. <b>Stopp</b> (eller <b>Esc</b>) lukker videovinduet og tar deg tilbake.<br><span style="opacity:.8">Tips: bare ett vindu skal ligge øverst. Skjer ingenting, trykk «Åpne siden på skjerm 2».</span>'
+    : (it.vid&&!it.aud ? 'Mellomrom = spill av / pause. Videoen vises på utgangsskjermen først når du trykker spill av. Blir den blokkert av YouTube, åpnes den av seg selv på YouTube. F = fullskjerm, Esc = lukk vinduet.' : 'Mellomrom = spill av / pause.');
+  if(it.web){ $('vInfo').textContent='Nettlenke. Åpnes i et eget vindu på utgangsskjermen.'; $('vTime').textContent=''; }
   render(); cueVid(); if(it.web) openExt(true);
   if(!it.web){ const tok=it; setTimeout(()=>{ if(S.vid===tok&&vState===-1&&$('vTime').textContent==='Laster …'){ $('vTime').textContent='Ingen svar fra utgangsvinduet'; $('vErr').textContent=outIsOpen()?'Utgangsvinduet svarer ikke. Last det inn på nytt, eller trykk «Åpne på YouTube».':'Utgangsvinduet er ikke åpent. Trykk «Utgang» for å åpne det, eller «Åpne på YouTube».'; } },3500); }
 }
