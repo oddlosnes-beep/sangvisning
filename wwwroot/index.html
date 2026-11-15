@@ -2262,7 +2262,8 @@ $('bScr').onclick=()=>{ fillScreens(); $('scDlg').showModal(); };
 $('scGrant').onclick=async()=>{ const sd=await getScreens(); fillOutSel();
   if(!sd) alert('Fikk ikke tilgang. Bruk Chrome eller Edge og velg «Tillat» når nettleseren spør om å administrere vinduer.'); fillScreens(); };
 $('scTest').onclick=openOutput; $('scClose').onclick=()=>$('scDlg').close();
-$('vExtFs').onclick=()=>fetch('/api/ytfs'+((S.vid&&S.vid.web)?'?tast=f11':''),{method:'POST'}).catch(()=>{}); $('vExt').onclick=openExt; function ytClick(){ return fetch('/api/ytclick',{method:'POST'}).catch(()=>{}); }
+$('vExtFs').onclick=()=>fetch('/api/ytfs'+((S.vid&&S.vid.web)?'?tast=f11':''),{method:'POST'}).catch(()=>{}); $('vExt').onclick=openExt; function ytKey(k,n){ return fetch('/api/ytkey?k='+k+'&n='+n,{method:'POST'}).catch(()=>{}); }
+function ytClick(){ return fetch('/api/ytclick',{method:'POST'}).catch(()=>{}); }
 async function closeExt(){ try{ if(extWin&&!extWin.closed) extWin.close(); }catch(e){} try{ await fetch('/api/closeyt'+((S.vid&&S.vid.web)?'?alle=1':''),{method:'POST'}); }catch(e){} extWin=null; extOpen=false; }
 $('vExtClose').onclick=closeExt;
 $('bTestVid').onclick=testVideos;
@@ -2276,8 +2277,8 @@ $('yUrl').addEventListener('change',async()=>{
   try{ const r=await fetch('https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+v));
     const j=await r.json(); if(j.title&&!$('yTitle').value) $('yTitle').value=j.title; }catch(e){}
 });
-$('vPlay').onclick=()=>S.vid&&S.vid.web?(extOpen?ytClick():openExt(true)):vsend({cmd:'play'}); $('vPause').onclick=()=>S.vid&&S.vid.web?ytClick():vsend({cmd:'pause'}); $('vStop').onclick=()=>vsend({cmd:'stop'});
-$('vBack').onclick=()=>vsend({cmd:'seek',d:-10}); $('vFwd').onclick=()=>vsend({cmd:'seek',d:10});
+$('vPlay').onclick=()=>S.vid&&S.vid.web?(extOpen?ytClick():openExt(true)):vsend({cmd:'play'}); $('vPause').onclick=()=>S.vid&&S.vid.web?ytClick():vsend({cmd:'pause'}); $('vStop').onclick=()=>S.vid&&S.vid.web?closeExt():vsend({cmd:'stop'});
+$('vBack').onclick=()=>S.vid&&S.vid.web?ytKey('left',2):vsend({cmd:'seek',d:-10}); $('vFwd').onclick=()=>S.vid&&S.vid.web?ytKey('right',2):vsend({cmd:'seek',d:10});
 $('vEdit').onclick=()=>{ if(S.vid) openYt(S.vid); };
 $('vSeek').addEventListener('pointerdown',()=>{vSeeking=true;});
 $('vSeek').onchange=()=>{ vSeeking=false; if(!S.vid) return; const a=S.vid.start||0, b=S.vid.end||vDur;

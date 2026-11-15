@@ -1160,6 +1160,15 @@ app.MapPost("/api/ytfs", (HttpContext ctx) =>
     return Results.Json(new { ok = OperatingSystem.IsWindows() && WinKill.FullscreenYouTube(ctx.Request.Query["tast"] == "f11") });
 });
 
+app.MapPost("/api/ytkey", (HttpContext ctx) =>
+{
+    if (!IsLocal(ctx)) return Results.StatusCode(403);
+    var k = ctx.Request.Query["k"].ToString();
+    byte vk = k == "left" ? (byte)0x25 : (byte)0x27;
+    int n = int.TryParse(ctx.Request.Query["n"], out var nn) ? Math.Clamp(nn, 1, 12) : 1;
+    return Results.Json(new { ok = OperatingSystem.IsWindows() && WinKill.SendKey(vk, n) });
+});
+
 app.MapPost("/api/ytclick", (HttpContext ctx) =>
 {
     if (!IsLocal(ctx)) return Results.StatusCode(403);
@@ -1252,6 +1261,28 @@ static class WinKill
         Thread.Sleep(250);
         byte vk = f11 ? (byte)0x7A : (byte)0x46; // F11 = nettleser-fullskjerm, F = fullskjerm i spilleren
         keybd_event(vk, 0, 0, UIntPtr.Zero); keybd_event(vk, 0, 2, UIntPtr.Zero);
+        return true;
+    }
+
+    public static bool SendKey(byte vk, int times)
+    {
+        IntPtr yt = IntPtr.Zero, other = IntPtr.Zero;
+        EnumWindows((h, l) =>
+        {
+            if (!IsWindowVisible(h)) return true;
+            var sb = new StringBuilder(300); GetWindowText(h, sb, 300);
+            var cn = new StringBuilder(100); GetClassName(h, cn, 100);
+            var t = sb.ToString();
+            if (cn.ToString() != "Chrome_WidgetWin_1" || t.Length == 0 || t.Contains("Sangvisning") || t.Contains("Utgang") || t.Contains("Sangerskjerm")) return true;
+            if (t.Contains("YouTube")) { yt = h; return false; }
+            if (other == IntPtr.Zero) other = h;
+            return true;
+        }, IntPtr.Zero);
+        var w = yt != IntPtr.Zero ? yt : other;
+        if (w == IntPtr.Zero) return false;
+        ShowWindow(w, 9); SetForegroundWindow(w);
+        Thread.Sleep(200);
+        for (int i = 0; i < times; i++) { keybd_event(vk, 0, 0, UIntPtr.Zero); keybd_event(vk, 0, 2, UIntPtr.Zero); Thread.Sleep(60); }
         return true;
     }
 
