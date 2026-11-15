@@ -3151,12 +3151,12 @@ function mkAyt(vid,go,nocookie){
   const opts={width:320,height:180,videoId:vid,playerVars:{controls:0,playsinline:1,disablekb:1,fs:0,origin:location.origin},
     events:{onReady:()=>{ ayReady=true; go(); }, onError:e=>{
       if((e.data==150||e.data==101)&&!ayRetried){ ayRetried=true; ayReady=false; try{ ayt.destroy(); }catch(x){} const d=document.createElement('div'); d.id='aytBox'; const old=document.getElementById('aytBox'); if(old) old.replaceWith(d); else document.body.append(d); ayt=mkAyt(vid,go,true); return; }
-      if(e.data==150||e.data==101){ setTimeout(()=>{ const l=$('aYtLink'); if(l){ l.href='https://www.youtube.com/watch?v='+vid; l.hidden=false; } },0); }
+      if(e.data==150||e.data==101){ setTimeout(()=>{ const l=$('aYtLink'); if(l){ l.href='https://www.youtube.com/watch?v='+vid; l.hidden=false; const f=document.createElement('iframe'); f.id='aYtFrame'; f.src='https://www.youtube.com/embed/'+vid+'?rel=0'; f.allow='autoplay; encrypted-media; fullscreen'; f.referrerPolicy='strict-origin-when-cross-origin'; f.style.cssText='width:100%;aspect-ratio:16/9;border:0;border-radius:8px;margin-top:8px;background:#000'; l.after(f); } },0); }
       aErr((e.data==150||e.data==101)?'Eieren av videoen tillater ikke avspilling her (feilkode '+e.data+'). Prøv en annen opplasting av sangen, eller åpne den på YouTube.':'YouTube kan ikke spille denne videoen (feilkode '+e.data+').'); }}};
   if(nocookie) opts.host='https://www.youtube-nocookie.com';
   return new YT.Player('aytBox',opts);
 }
-function aErr(t){ A.err=t||''; $('aErr').textContent=A.err; const l=$('aYtLink'); if(l) l.hidden=true; }
+function aErr(t){ A.err=t||''; $('aErr').textContent=A.err; const l=$('aYtLink'); if(l) l.hidden=true; const f=$('aYtFrame'); if(f) f.remove(); }
 function ayApi(cb){
   if(window.YT&&YT.Player){ cb(); return; }
   ayQ.push(cb); if(ayLoading) return; ayLoading=true;
