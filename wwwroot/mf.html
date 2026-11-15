@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="no"><head><meta charset="utf-8"><title>Video</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="https://mfstatic.com/css/mediaflowplayer.min.css">
+<style>
+html,body{margin:0;height:100%;background:#000;overflow:hidden;cursor:none}
+#mfv{position:fixed;inset:0}
+#msg{position:fixed;left:12px;bottom:10px;color:#888;font:14px system-ui;z-index:10}
+</style></head><body>
+<div id="mfv"></div><div id="msg">Laster videoen …</div>
+<script>
+// Spiller en Mediaflow-video i et eget vindu, styrt fra Sangvisning (spill, pause, spoling, lyd).
+const id=new URLSearchParams(location.search).get('id')||'';
+const ch=new BroadcastChannel('sangvisning-mf');
+const msg=t=>{ const m=document.getElementById('msg'); m.textContent=t||''; };
+let v=null, pl=null, tries=0;
+function fit(){ if(!v) return; v.style.cssText+=';position:fixed;left:0;top:0;width:100vw;height:100vh;object-fit:contain;background:#000;z-index:5'; }
+function find(){
+  v=document.querySelector('#mfv video'); 
+  if(v){ fit(); msg(''); v.addEventListener('ended',()=>send()); v.addEventListener('click',()=>toggle()); play(); return; }
+  if(++tries>40){ msg('Fant ikke videoen. Sjekk lenken, eller bruk innbyggingskoden med iframe.'); return; }
+  setTimeout(find,300);
+}
+function play(){ if(!v) return; const p=v.play(); if(p&&p.catch) p.catch(()=>{ ch.postMessage({type:'mfstatus',blocked:true}); msg('Trykk på videoen for å starte'); }); }
+function toggle(){ if(!v) return; v.paused?play():v.pause(); }
+function send(){ if(!v) return; ch.postMessage({type:'mfstatus',t:v.currentTime||0,d:v.duration||0,paused:v.paused,ended:v.ended}); }
+ch.onmessage=e=>{ const m=e.data||{}; if(m.type!=='mfcmd'||!v) return;
+  if(m.cmd==='play') play(); else if(m.cmd==='pause') v.pause(); else if(m.cmd==='toggle') toggle();
+  else if(m.cmd==='seek') v.currentTime=Math.max(0,Math.min(v.duration||1e9,(v.currentTime||0)+m.d));
+  else if(m.cmd==='seekto') v.currentTime=Math.max(0,m.t);
+  else if(m.cmd==='vol') v.volume=Math.max(0,Math.min(1,m.v/100));
+  send(); };
+setInterval(send,500);
+(function(){
+  const s=document.createElement('script'); s.crossOrigin='anonymous';
+  s.onload=()=>{ try{ pl=new MFPlayer('#mfv',id); }catch(e){ msg('Kunne ikke starte spilleren: '+e.message); return; } find(); };
+  s.onerror=()=>msg('Fikk ikke tak i spilleren fra Mediaflow. Sjekk internettforbindelsen.');
+  s.src='https://mfstatic.com/js/mediaflowplayer.min.js'; document.body.appendChild(s);
+})();
+addEventListener('keydown',e=>{ if(e.key==='Escape') window.close(); if(e.key===' '){ e.preventDefault(); toggle(); } });
+</script></body></html>
