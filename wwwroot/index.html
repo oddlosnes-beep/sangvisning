@@ -315,7 +315,7 @@ header button,header .btn{min-height:30px}
       <div class="hint" id="vTime"></div>
       <label class="hint">Lyd <input id="vVol" type="range" min="0" max="100" value="100" style="width:150px;vertical-align:middle"></label>
       <div id="vErr" style="color:#d6334a;font-size:13px;min-height:1em"></div>
-      <button id="vExt" title="Åpner videoen på youtube.com i et eget vindu på utgangsskjermen">Åpne på YouTube (skjerm 2)</button><button id="vExtClose">Lukk videovindu</button> <button id="vEdit">Rediger video</button>
+      <button id="vExt" title="Åpner videoen på youtube.com i et eget vindu på utgangsskjermen">Åpne på YouTube (skjerm 2)</button><button id="vExtFs" title="Gjør videoen fullskjerm på utgangsskjermen">⛶ Fullskjerm</button><button id="vExtClose">Lukk videovindu</button> <button id="vEdit">Rediger video</button>
       <p class="hint">Mellomrom = spill av / pause. Videoen vises på utgangsskjermen først når du trykker spill av.</p>
     </div>
     <div id="lvPres" hidden><div class="hint">Piltaster blar. Trykk på et bilde for å vise det.</div><div class="pgrid" id="lvpGrid"></div></div>
@@ -1096,6 +1096,7 @@ function openExt(){
   extWin=window.open(S.vid.web?S.vid.url:'https://www.youtube.com/watch?v='+S.vid.vid+t+'&autoplay=1','sangvisning-yt',placeFeatures(outScreen(),true));
   if(!extWin) return alert('Nettleseren blokkerte vinduet. Tillat popup og prøv igjen.');
   extWin.focus();
+  setTimeout(()=>{ fetch('/api/ytfs',{method:'POST'}).catch(()=>{}); },4500);
 }
 let testRes=null, testSeq=0;
 async function testVideos(){
@@ -2250,7 +2251,7 @@ $('bScr').onclick=()=>{ fillScreens(); $('scDlg').showModal(); };
 $('scGrant').onclick=async()=>{ const sd=await getScreens(); fillOutSel();
   if(!sd) alert('Fikk ikke tilgang. Bruk Chrome eller Edge og velg «Tillat» når nettleseren spør om å administrere vinduer.'); fillScreens(); };
 $('scTest').onclick=openOutput; $('scClose').onclick=()=>$('scDlg').close();
-$('vExt').onclick=openExt; $('vExtClose').onclick=async()=>{ try{ if(extWin&&!extWin.closed) extWin.close(); }catch(e){} try{ await fetch('/api/closeyt',{method:'POST'}); }catch(e){} extWin=null; };
+$('vExtFs').onclick=()=>fetch('/api/ytfs',{method:'POST'}).catch(()=>{}); $('vExt').onclick=openExt; $('vExtClose').onclick=async()=>{ try{ if(extWin&&!extWin.closed) extWin.close(); }catch(e){} try{ await fetch('/api/closeyt',{method:'POST'}); }catch(e){} extWin=null; };
 $('bTestVid').onclick=testVideos;
 (async()=>{ for(const n of ['window-management','window-placement']){
   try{ const p=await navigator.permissions.query({name:n}); if(p.state==='granted') getScreens(); break; }catch(e){} } })();

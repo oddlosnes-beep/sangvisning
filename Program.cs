@@ -1154,6 +1154,12 @@ app.MapPost("/api/update/install", async (HttpContext ctx) =>
     return Results.Ok();
 });
 
+app.MapPost("/api/ytfs", (HttpContext ctx) =>
+{
+    if (!IsLocal(ctx)) return Results.StatusCode(403);
+    return Results.Json(new { ok = OperatingSystem.IsWindows() && WinKill.FullscreenYouTube() });
+});
+
 app.MapPost("/api/closeyt", (HttpContext ctx) =>
 {
     if (!IsLocal(ctx)) return Results.StatusCode(403);
@@ -1210,7 +1216,28 @@ static class WinKill
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetWindowText(IntPtr h, StringBuilder sb, int n);
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetClassName(IntPtr h, StringBuilder sb, int n);
     [DllImport("user32.dll")] static extern bool IsWindowVisible(IntPtr h);
+    [DllImport("user32.dll")] static extern bool SetForegroundWindow(IntPtr h);
+    [DllImport("user32.dll")] static extern bool ShowWindow(IntPtr h, int c);
+    [DllImport("user32.dll")] static extern void keybd_event(byte vk, byte scan, uint flags, UIntPtr extra);
     [DllImport("user32.dll")] static extern bool PostMessage(IntPtr h, uint m, IntPtr w, IntPtr l);
+    public static bool FullscreenYouTube()
+    {
+        IntPtr found = IntPtr.Zero;
+        EnumWindows((h, l) =>
+        {
+            if (!IsWindowVisible(h)) return true;
+            var sb = new StringBuilder(300); GetWindowText(h, sb, 300);
+            var cn = new StringBuilder(100); GetClassName(h, cn, 100);
+            if (cn.ToString() == "Chrome_WidgetWin_1" && sb.ToString().Contains("YouTube") && !sb.ToString().Contains("Sangvisning")) { found = h; return false; }
+            return true;
+        }, IntPtr.Zero);
+        if (found == IntPtr.Zero) return false;
+        ShowWindow(found, 9); SetForegroundWindow(found);
+        Thread.Sleep(250);
+        keybd_event(0x46, 0, 0, UIntPtr.Zero); keybd_event(0x46, 0, 2, UIntPtr.Zero); // tasten F = fullskjerm i YouTube
+        return true;
+    }
+
     public static int CloseYouTube()
     {
         int n = 0;
