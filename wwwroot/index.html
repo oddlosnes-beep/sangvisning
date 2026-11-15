@@ -2,6 +2,7 @@
 <html lang="no">
 <head>
 <meta charset="utf-8">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Sangvisning – prototype</title>
 <style>
@@ -3143,6 +3144,16 @@ const aEl=new Audio(); aEl.preload='auto';
 const A={it:null,st:-1,d:0,vol:100,err:'',done:false};
 let ayt=null, ayReady=false, ayLoading=false, aTimer=null, aFadeT=null, ayQ=[];
 const aYt=()=>!!(A.it&&A.it.ao&&!A.it.aud);
+
+let ayRetried=false;
+function mkAyt(vid,go,nocookie){
+  const opts={width:320,height:180,videoId:vid,playerVars:{controls:0,playsinline:1,disablekb:1,fs:0,origin:location.origin},
+    events:{onReady:()=>{ ayReady=true; go(); }, onError:e=>{
+      if((e.data==150||e.data==101)&&!ayRetried){ ayRetried=true; ayReady=false; try{ ayt.destroy(); }catch(x){} const d=document.createElement('div'); d.id='aytBox'; const old=document.getElementById('aytBox'); if(old) old.replaceWith(d); else document.body.append(d); ayt=mkAyt(vid,go,true); return; }
+      aErr((e.data==150||e.data==101)?'Eieren av videoen tillater ikke avspilling her (feilkode '+e.data+'). Prøv en annen opplasting av sangen, eller åpne den på YouTube.':'YouTube kan ikke spille denne videoen (feilkode '+e.data+').'); }}};
+  if(nocookie) opts.host='https://www.youtube-nocookie.com';
+  return new YT.Player('aytBox',opts);
+}
 function aErr(t){ A.err=t||''; $('aErr').textContent=A.err; }
 function ayApi(cb){
   if(window.YT&&YT.Player){ cb(); return; }
@@ -3183,8 +3194,7 @@ function playAudio(it){
     ayApi(()=>{
       const go=()=>{ ayt.loadVideoById({videoId:it.vid,startSeconds:a,endSeconds:it.end||undefined}); ayt.setVolume(A.vol); };
       if(ayt&&ayReady) go();
-      else if(!ayt) ayt=new YT.Player('aytBox',{width:320,height:180,videoId:it.vid,playerVars:{controls:0,playsinline:1,disablekb:1,fs:0},
-        events:{onReady:()=>{ ayReady=true; go(); }, onError:e=>aErr((e.data==150||e.data==101)?'Eieren av videoen tillater ikke avspilling utenfor YouTube (feilkode '+e.data+'). Prøv en annen opplasting av sangen, for eksempel en tekstvideo eller et album fra artistens egen kanal.':'YouTube kan ikke spille denne videoen (feilkode '+e.data+').') }});
+      else if(!ayt) ayt=mkAyt(it.vid,go,false);;
     });
   }
   aTimer=setInterval(aUpdate,400); aUpdate(); render();
