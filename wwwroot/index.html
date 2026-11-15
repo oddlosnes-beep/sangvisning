@@ -72,6 +72,7 @@ dialog textarea{font-family:ui-monospace,Consolas,monospace;font-size:14px;heigh
 #eErr{color:#d6334a;font-size:13px;margin-top:6px;min-height:1em}
 button.pri{background:var(--acc);color:#fff;border-color:var(--acc)}
 dialog{max-height:94vh;overflow:auto}
+.setSec{border-top:1px solid var(--line);padding:2px 0}.setSec>summary{cursor:pointer;list-style:none;padding:8px 0}.setSec>summary::-webkit-details-marker{display:none}.setSec>summary h3{display:inline;font-size:14px;margin:0}.setSec>summary::before{content:"▸";display:inline-block;width:18px;color:var(--mute)}.setSec[open]>summary::before{content:"▾"}
 #aud{position:fixed;right:16px;bottom:16px;z-index:190;width:min(340px,92vw);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;box-shadow:0 6px 24px rgba(0,0,0,.4)}
 #aud[hidden]{display:none}
 #aud .aTop{cursor:move;touch-action:none;display:flex;gap:8px;align-items:center}#aud .aTop b{flex:1;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -513,16 +514,18 @@ header button,header .btn{min-height:30px}
 </div>
 <dialog id="setDlg" style="width:min(560px,96vw)">
   <div class="rh" style="display:flex;align-items:center;gap:8px"><h2 style="margin:0;font-size:16px">Innstillinger</h2><button class="qm" data-help="Det du sjelden endrer: port, skjerm, e-post og data.&#10;Valg lagres med en gang, bortsett fra port og e-post som har egne Lagre-knapper.">?</button><span class="sp" style="flex:1"></span><button id="setClose" class="pri">Lukk</button></div>
-  <h3 style="font-size:14px;margin:12px 0 4px">Nettverk</h3>
+  <details class="setSec"><summary><h3>Nettverk</h3></summary>
   <p class="hint" style="margin:0 0 6px">Porten er en del av adressen mobil og TV bruker (for eksempel :5000). Bytt bare hvis noe annet på maskinen bruker den. Endringen gjelder etter at programmet er startet på nytt (lukk det svarte vinduet og start på nytt).</p>
   <div class="row"><div><label>Port (1024–65535)</label><input id="setPort" type="number" min="1024" max="65535"></div><div><label>&nbsp;</label><button id="setPortSave">Lagre port</button></div></div>
   <div id="setPortInfo" class="hint" style="margin:4px 0 0"></div>
-  <h3 style="font-size:14px;margin:14px 0 4px">Visning</h3>
+  </details>
+  <details class="setSec"><summary><h3>Visning</h3></summary>
   <label style="display:flex;gap:8px;align-items:center;margin:0"><input id="setCredit" type="checkbox" style="width:auto"> Vis tekstforfatter og komponist på skjermen (første og siste lysbilde)</label>
   <label>Projektorskjerm</label><select id="outSel" title="Hvilken skjerm projektorvinduet skal åpnes på" style="width:100%"></select>
   <p class="hint" style="margin:4px 0 0">Automatisk: med to skjermer åpnes projektoren i fullskjerm på den andre. Med én skjerm åpnes et lite prøvevindu du kan flytte.</p>
   <div class="bar" style="flex-wrap:wrap"><button id="setScr">Skjermer …</button><button id="setTh">Temaer …</button><button id="setLay" title="Setter panelenes bredde og høyde tilbake til standard">Nullstill layout</button></div>
-  <h3 style="font-size:14px;margin:14px 0 4px">E-post (sending av sangark og kopier) <button class="qm" data-help="Programmet sender e-post selv, uten å åpne e-postprogrammet ditt.&#10;Egen adresse på eget domene bruker postkassens vanlige passord. Gmail, Outlook og iCloud krever app-passord.&#10;Port 587 med STARTTLS er vanligst. 465 bruker SSL/TLS. 25 brukes ofte av interne servere, noen uten passord.&#10;Trykk Send testmelding for å sjekke at det virker.">?</button></h3>
+  </details>
+  <details class="setSec"><summary><h3>E-post (sending av sangark og kopier) <button class="qm" data-help="Programmet sender e-post selv, uten å åpne e-postprogrammet ditt.&#10;Egen adresse på eget domene bruker postkassens vanlige passord. Gmail, Outlook og iCloud krever app-passord.&#10;Port 587 med STARTTLS er vanligst. 465 bruker SSL/TLS. 25 brukes ofte av interne servere, noen uten passord.&#10;Trykk Send testmelding for å sjekke at det virker.">?</button></h3></summary>
   <div class="row"><div><label>Leverandør</label><select id="msPreset"><option value="">Velg for å fylle ut …</option><option value="gmail">Gmail</option><option value="outlook">Outlook / Hotmail</option><option value="icloud">iCloud</option><option value="other">Annen / egen server</option></select></div><div><label>Din e-postadresse</label><input id="msAddr" type="email" autocomplete="off" placeholder="navn@epost.no"></div></div>
   <div class="row"><div><label>SMTP-server (utgående)</label><input id="msSmtp" autocomplete="off" placeholder="Tom = velges ut fra adressen"></div><div><label>Port</label><input id="msPort" type="number" list="msPorts" min="1" max="65535" placeholder="587"><datalist id="msPorts"><option value="587"><option value="465"><option value="25"><option value="2525"></datalist></div></div>
   <div class="row"><div><label>Sikkerhet</label><select id="msSec"><option value="auto">Automatisk (etter port)</option><option value="starttls">STARTTLS (vanligst, port 587)</option><option value="ssl">SSL/TLS (port 465)</option><option value="none">Ingen kryptering (port 25, intern server)</option></select></div><div><label>Passord</label><input id="msPass" type="password" autocomplete="new-password" placeholder="Passord / app-passord"></div></div>
@@ -531,11 +534,14 @@ header button,header .btn{min-height:30px}
     <div class="row"><div><label>Avsendernavn</label><input id="msFromName" placeholder="F.eks. Sangvisning"></div><div><label>Avsenderadresse (tom = e-postadressen)</label><input id="msFrom" type="email"></div></div></details>
   <div class="bar" style="margin:6px 0 0"><button id="msSave" class="pri">Lagre e-postoppsett</button><button id="msTest">Send testmelding til meg</button></div>
   <p class="hint" id="msInfo" style="margin:4px 0 0"></p><p class="hint" style="margin:2px 0 0"><a href="/hjelp.html#epost" target="_blank" rel="noopener">Les mer: oppsett steg for steg (eget domene, Gmail, Outlook, iCloud) ↗</a></p><p class="hint" id="msMsg" style="margin:2px 0 0"></p>
-  <h3 style="font-size:14px;margin:14px 0 4px">Data og overføring</h3>
+  </details>
+  <details class="setSec"><summary><h3>Data og overføring</h3></summary>
   <div class="bar" style="flex-wrap:wrap"><button id="setBak">Sikkerhetskopi …</button><button id="setCloud">Sky og overføring …</button><button id="setUse">Bruksrapport …</button><button id="setTrash">Papirkurv …</button></div>
-  <h3 style="font-size:14px;margin:14px 0 4px">Mobil og nettbrett</h3>
+  </details>
+  <details class="setSec"><summary><h3>Mobil og nettbrett</h3></summary>
   <div class="bar" style="flex-wrap:wrap"><button id="setQr">Adresser og QR-koder …</button><button id="setDr">PIN for mobilsiden …</button></div>
-</dialog>
+
+  </details></dialog>
 <div id="undoBar" hidden><span id="undoT"></span><button id="undoGo" class="pri">Angre</button><button id="undoX" title="Lukk">✕</button></div>
 <dialog id="trashDlg" style="width:min(600px,96vw)">
   <div class="rh" style="display:flex;align-items:center;gap:8px"><h2 style="margin:0;font-size:16px">Papirkurv</h2><span class="sp" style="flex:1"></span><button id="trClose" class="pri">Lukk</button></div>
@@ -3329,6 +3335,8 @@ $('updDo').onclick=async()=>{
   top.addEventListener('pointerup',end); top.addEventListener('pointercancel',end);
   addEventListener('resize',()=>{ if(a.style.left) put(parseInt(a.style.left),parseInt(a.style.top)); });
 })();
+
+document.querySelectorAll('#setDlg .setSec').forEach(d=>d.addEventListener('toggle',()=>{ if(d.open) document.querySelectorAll('#setDlg .setSec').forEach(o=>{ if(o!==d) o.open=false; }); }));
 setTimeout(()=>updCheck(false),5000);
 $('bQuit').onclick=async()=>{
   if(!confirm('Avslutte Sangvisning helt?\nProjektorvinduet og alle andre sider som er koblet til slutter å virke.')) return;
