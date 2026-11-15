@@ -157,7 +157,8 @@ function mfHide(){ const box=document.getElementById('mf'); box.style.display='n
 addEventListener('message',e=>{ const m=e.data||{}; if(m.type==='mfstatus') ch.postMessage(m); else if(m.type==='mfkey') mfHide(); });
 ch.onmessage=e=>{
   const d=e.data;
-  if(VIEW&&d.type==='v') return;
+  if(VIEW&&d.type==='v'&&!(d.cmd&&d.cmd.indexOf('mf_')===0)) return;
+  if(!VIEW&&d.type==='v'&&d.cmd==='mf_sync') return;
   if(d.type==='closeOut'){ window.close(); return; }
   if(d.type==='cd'){ cdOn(d); return; }
   if(d.type==='cdoff'){ cdOff(); return; }
@@ -183,6 +184,7 @@ ch.onmessage=e=>{
     case 'test': whenApi(()=>testVid(d),d.tid); break;
     case 'mf_show': mfShow(d.id); break;
     case 'mf_hide': mfHide(); break;
+    case 'mf_sync': if(mfFr&&mfFr.contentWindow) mfFr.contentWindow.postMessage({type:'mfcmd',cmd:'sync',t:d.t,paused:d.paused},'*'); break;
     case 'mf_play': case 'mf_pause': case 'mf_toggle': case 'mf_seek': case 'mf_seekto': case 'mf_vol':
       if(mfFr&&mfFr.contentWindow) mfFr.contentWindow.postMessage({type:'mfcmd',cmd:d.cmd.slice(3),d:d.d,t:d.t,v:d.v},'*'); break;
   }

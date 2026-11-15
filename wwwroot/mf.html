@@ -31,6 +31,7 @@ function handle(m){ if(!m||m.type!=='mfcmd'||!v) return;
   else if(m.cmd==='seek') v.currentTime=Math.max(0,Math.min(v.duration||1e9,(v.currentTime||0)+m.d));
   else if(m.cmd==='seekto') v.currentTime=Math.max(0,m.t);
   else if(m.cmd==='vol') v.volume=Math.max(0,Math.min(1,m.v/100));
+  else if(m.cmd==='sync'){ if(Math.abs((v.currentTime||0)-m.t)>1.5) v.currentTime=m.t; if(m.paused&&!v.paused) v.pause(); else if(!m.paused&&v.paused) play(); }
   send(); }
 if(ch) ch.onmessage=e=>handle(e.data);
 addEventListener('message',e=>handle(e.data));

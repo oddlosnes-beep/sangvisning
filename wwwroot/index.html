@@ -718,7 +718,7 @@ header button,header .btn{min-height:30px}
 <script>
 const bcRaw = new BroadcastChannel('sangvisning');
 let relayOn=false, relayES=null, msgHandler=null;
-const ch = { postMessage(m){ bcRaw.postMessage(m); if(m&&m.type!=='v'&&m.type!=='vtest'&&!m.hello) fetch('/api/view/post',{method:'POST',body:JSON.stringify(m)}).catch(()=>{}); if(relayOn) fetch('/api/relay/to-output',{method:'POST',body:JSON.stringify(m)}).catch(()=>{}); },
+const ch = { postMessage(m){ bcRaw.postMessage(m); if(m&&(m.type!=='v'||(m.cmd&&m.cmd.indexOf('mf_')===0))&&m.type!=='vtest'&&!m.hello) fetch('/api/view/post',{method:'POST',body:JSON.stringify(m)}).catch(()=>{}); if(relayOn) fetch('/api/relay/to-output',{method:'POST',body:JSON.stringify(m)}).catch(()=>{}); },
   set onmessage(f){ msgHandler=f; bcRaw.onmessage=f; }, get onmessage(){ return msgHandler; } };
 function relayStart(){ if(relayES) return; relayOn=true; relayES=new EventSource('/api/relay/from-output');
   relayES.onmessage=e=>{ try{ if(msgHandler) msgHandler({data:JSON.parse(e.data)}); }catch(_){} }; }
@@ -2297,7 +2297,9 @@ function mfStatus(d){ if(!S.vid||!S.vid.mf) return;
   if(d.closed){ mfShown=false; $('vTime').textContent='Stoppet'; return; }
   vState=d.paused?2:1; if(d.d) vDur=d.d;
   $('vTime').textContent=(d.ended?'Ferdig':d.paused?'Pause':'Spiller')+' · '+fmt(d.t||0)+(d.d?' / '+fmt(d.d):'');
-  if(!vSeeking&&d.d) $('vSeek').value=Math.round(1000*d.t/d.d); }
+  if(!vSeeking&&d.d) $('vSeek').value=Math.round(1000*d.t/d.d);
+  if(mfShown&&Date.now()-mfSyncAt>2000){ mfSyncAt=Date.now(); ch.postMessage({type:'v',cmd:'mf_sync',t:d.t||0,paused:!!d.paused}); } }
+let mfSyncAt=0;
 mfch.onmessage=e=>{ const d=e.data||{}; if(d.type==='mfstatus') mfStatus(d); };
 let mfShown=false;
 function mfCtl(o){ if(mfShown&&outIsOpen()) vsend({cmd:'mf_'+o.cmd,d:o.d,t:o.t,v:o.v}); else mfch.postMessage(Object.assign({type:'mfcmd'},o)); }

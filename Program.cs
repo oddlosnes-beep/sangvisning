@@ -931,7 +931,7 @@ app.MapGet("/api/audio/{name}", (HttpContext ctx, string name) =>
 // ---- Skjermvisning i nettleser (en ekstra skjerm: TV, nettbrett, annen PC på samme nettverk) ----
 var viewClients = new List<Channel<string>>();
 var viewState = new Dictionary<string, string>();
-string[] viewOrder = { "theme", "blackout", "img", "text", "msg", "cd" };
+string[] viewOrder = { "theme", "blackout", "img", "text", "msg", "cd", "mfshow" };
 
 app.MapGet("/skjerm", (HttpContext ctx) => { ctx.Response.Redirect("/output.html?view=1"); return Task.CompletedTask; });
 
@@ -949,6 +949,7 @@ app.MapPost("/api/view/post", async (HttpContext ctx) =>
             {
                 if (type == "msgoff") viewState.Remove("msg");
                 else if (type == "cdoff") viewState.Remove("cd");
+                else if (type == "v") { var cmd = o["cmd"]?.GetValue<string>() ?? ""; if (cmd == "mf_show") viewState["mfshow"] = body; else if (cmd == "mf_hide") viewState.Remove("mfshow"); }
                 else if (Array.IndexOf(viewOrder, type) >= 0) viewState[type] = body;
             }
         }
