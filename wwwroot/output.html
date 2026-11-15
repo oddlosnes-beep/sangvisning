@@ -12,6 +12,8 @@ font:700 7vw/1.25 system-ui,sans-serif;white-space:pre-line;text-shadow:0 0 .1em
 #yt{position:absolute;inset:0;z-index:2;background:#000;visibility:hidden}
 #yt.on{visibility:visible}
 #yt iframe{width:100%;height:100%;border:0}
+#mf{position:absolute;inset:0;z-index:3;background:#000;display:none}
+#mf iframe{width:100%;height:100%;border:0}
 #msg{position:fixed;left:0;right:0;z-index:6;display:none;background:rgba(0,0,0,.82);color:#fff;font:600 6vh/1.25 system-ui,'Segoe UI',Arial,sans-serif;padding:1.2vh 3vw;overflow:hidden;box-sizing:border-box}
 #msg.tk{bottom:0;white-space:nowrap}
 #msg.bn{top:0;text-align:center;white-space:pre-line}
@@ -25,7 +27,7 @@ body.cdon #t{visibility:hidden}
 #note{position:absolute;z-index:3;bottom:2%;left:0;right:0;text-align:center;font:14px system-ui,sans-serif;color:#888;pointer-events:none}
 </style><link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACm0lEQVR4AeyWzWtTQRTFz4yYSCJIu6kIJhRbbeMHlVINDWIUkbqoxYVgSVy4cFcQXJgu/APapSC4cFFa1LrTKoggWCELQbFUTLVFMZhoMVIVpAmJL+l07usHeXnJJCQvWXXgJm/u3Ht+JzNJGI780XbO7uoMhlyewGN3Z/Cr2xMUloTUIk3ShmTkIzcN7PUET7i2N39gDCMMbAAMrfmFNT1LLdIkbWIQa0NPN+DuCPYygVeMsXbUeRCDWK4DAR+heEvLZafgmGAMuhk0YOisbWyc2NzWlLvIgH0N4BoQxLQ15/o548xrWGnghIF7OYPZwJ7dTbgSOIWhq32WBGmRJgqGPAo/h0BHft7hsOHpwxBC1wYsgdOHIK0nk8NwOuz5KBCbg8GQ9fsOycIdxkILZjuddpz0HTQqSTY3ZoCl3/8KU5bNi2mbDFhGq1Boy4ByB7TvYSyHb9YUWuyl8jDUBhZfI7c0V1NoidnqDTiO3cCuC49qCkfP9eoNKDstWlQegUUMpcyWAdMOzM3HsZzMKLetmsVkKo3IfMzUajKQTGVwfnAEo7emcPvuc0uCtPovjSKV+l/eAFUs/vyLsfvTJeHPXsxQmSEoV8owaZGmoWF9YtqB9bzy7ezpLtNdoe/MUWVPqcWKDXQdacX4nSFMyOjt2Y83774Ywtvdrq9RzfHutlI8U55DiAVTtkgiq2XxdkZCywTVpDNaEYUiKcnmAlD/WWNtRD7FS34nCs/+feTbWlOZV2LLHUBFBlCPITDL05mVMXk7TNRDX60pEsTmv6KTiWxODAqBFXWDdavEIiax9V/Bj4UH04LBL4T4bB2muBIxiEVMqtAN0EP8471wTPtzWLobFhBT8s4epXytofcLREmTtIlBLD0PYBUAAP//wcdZcQAAAAZJREFUAwD6ReGeeTquaAAAAABJRU5ErkJggg=="><link rel="icon" type="image/png" sizes="16x16" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABMklEQVR4AZxOu0oDURA9cy0st7HNozDFrkUKH4QUFv6AbKFN1hcWIlrkP7RU7CSmEiIkFn6DqKgBsRBSaG0ssoWaQsa5CXuTJWHZzTBnzzBzztmrAFDK8XYyjtfM2N6vMEeir2mmbW8TUirllPYk5VzmPAjTwtHd1+SJcJG2S2WlGGVMWES0rQDKQqqwkEPl9ADVs8NIaM1y0RaHNHNWBc/e3VhBYTGHpfnZSGjNulsUtzSRpYR6/dn2exzn4/vfRmYC9Oav/YrO9Ro6dXc85KY1WhsgFBAsk3AoYGpmDtZqDZZbHw+5ac3wD0IBw4e4swl4fnnH3WMrFu6fWibfBNQat9jaP4mFxs3DaIDZJBwUmD8SegZy5jfFRJXBJtkk3kv1g+4xg6+SWSEPR7X7RUf/AAAA//8s0vNIAAAABklEQVQDAO+wnJmpByrmAAAAAElFTkSuQmCC"><link rel="apple-touch-icon" href="/icon-180.png">
 </head>
-<body><div id="bg"></div><div id="dim"></div><div id="t"></div><img id="im" alt=""><div id="bk"></div><div id="yt"><div id="p"></div></div>
+<body><div id="bg"></div><div id="dim"></div><div id="t"></div><img id="im" alt=""><div id="bk"></div><div id="yt"><div id="p"></div></div><div id="mf"></div>
 <div id="cr"></div><div id="cd"><div id="cdL"></div><div id="cdT"></div></div>
 <div id="msg"><span id="msgIn"></span></div>
 <div id="note">Klikk i dette vinduet én gang for å aktivere fullskjerm, video og lyd (Esc avslutter fullskjerm).</div>
@@ -149,6 +151,10 @@ function showMsg(d){
   m.style.background='rgba('+rg.join(',')+',.9)'; m.style.color=/^#[0-9a-f]{6}$/i.test(d.fg||'')?d.fg:'#ffffff';
   if(d.mode!=='banner'){ const W=innerWidth, tw=i.offsetWidth, speed=W/10; msgAnim=i.animate([{transform:'translateX('+W+'px)'},{transform:'translateX(-'+tw+'px)'}],{duration:(W+tw)/speed*1000,iterations:Infinity,easing:'linear'}); }
 }
+let mfFr=null;
+function mfShow(id){ const box=document.getElementById('mf'); box.innerHTML=''; mfFr=document.createElement('iframe'); mfFr.allow='autoplay; fullscreen'; mfFr.src='/mf.html?embed=1&id='+encodeURIComponent(id); box.append(mfFr); box.style.display='block'; }
+function mfHide(){ const box=document.getElementById('mf'); box.style.display='none'; box.innerHTML=''; if(mfFr){ mfFr=null; ch.postMessage({type:'mfstatus',closed:true,ended:true,paused:true,t:0,d:0}); } }
+addEventListener('message',e=>{ const m=e.data||{}; if(m.type==='mfstatus') ch.postMessage(m); else if(m.type==='mfkey') mfHide(); });
 ch.onmessage=e=>{
   const d=e.data;
   if(VIEW&&d.type==='v') return;
@@ -157,7 +163,7 @@ ch.onmessage=e=>{
   if(d.type==='cdoff'){ cdOff(); return; }
   if(d.type==='msg'){ showMsg(d); return; }
   if(d.type==='msgoff'){ hideMsg(); return; }
-  if(d.hello||d.type==='vstatus'||d.type==='vtest') return;
+  if(d.hello||d.type==='vstatus'||d.type==='vtest'||d.type==='mfstatus') return;
   if(d.type==='blackout'){ document.getElementById('bk').style.display=d.on?'block':'none'; return; }
   if(d.type==='img'){ const im=document.getElementById('im'); if(d.src){ im.src=d.src; im.style.display='block'; } else { im.style.display='none'; im.removeAttribute('src'); } return; }
   if(d.type==='theme'){ applyTheme(d.theme); render(); return; }
@@ -175,6 +181,10 @@ ch.onmessage=e=>{
     case 'seek': if(ready) player.seekTo(player.getCurrentTime()+d.d,true); break;
     case 'seekto': if(ready) player.seekTo(d.t,true); break;
     case 'test': whenApi(()=>testVid(d),d.tid); break;
+    case 'mf_show': mfShow(d.id); break;
+    case 'mf_hide': mfHide(); break;
+    case 'mf_play': case 'mf_pause': case 'mf_toggle': case 'mf_seek': case 'mf_seekto': case 'mf_vol':
+      if(mfFr&&mfFr.contentWindow) mfFr.contentWindow.postMessage({type:'mfcmd',cmd:d.cmd.slice(3),d:d.d,t:d.t,v:d.v},'*'); break;
   }
 };
 setInterval(()=>{

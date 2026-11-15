@@ -1147,6 +1147,7 @@ ch.onmessage=e=>{
   const d=e.data;
   if(d.hello){ lastThKey=null; lastImg=null; lastBk=null; send(); if(S.vid) cueVid(); if(S.msgOn) ch.postMessage({type:'msg',text:S.msgOn.text,mode:S.msgOn.mode,fg:S.msgOn.fg,bg:S.msgOn.bg}); if(S.cd) cdSend(); }
   else if(d.type==='vstatus') vStatus(d);
+  else if(d.type==='mfstatus') mfStatus(d);
   else if(d.type==='vtest'&&testRes) testRes(d);
 };
 
@@ -1174,6 +1175,7 @@ function cueVid(){
 }
 function liveVideo(it){
   if(it.aud||it.ao){ playAudio(it); return; }
+  if(mfShown){ try{ vsend({cmd:'mf_hide'}); }catch(e){} mfShown=false; }
   S.vid=it; S.liveKind='vid'; send(); vDur=0; vState=-1;
   $('vTitle').textContent=it.title||(vname(it));
   $('vInfo').textContent=(it.start||it.end)?'Spiller '+fmt(it.start||0)+(it.end?' – '+fmt(it.end):' – slutten'):'Hele videoen';
@@ -2289,12 +2291,20 @@ $('scGrant').onclick=async()=>{ const sd=await getScreens(); fillOutSel();
   if(!sd) alert('Fikk ikke tilgang. Bruk Chrome eller Edge og velg «Tillat» når nettleseren spør om å administrere vinduer.'); fillScreens(); };
 $('scTest').onclick=openOutput; $('scClose').onclick=()=>$('scDlg').close();
 $('vExtFs').onclick=()=>fetch('/api/ytfs'+((S.vid&&S.vid.web)?'?tast=f11':''),{method:'POST'}).catch(()=>{}); $('vExt').onclick=openExt; const mfch=new BroadcastChannel('sangvisning-mf'); let mfBlockedOnce=false;
-const mfsend=o=>mfch.postMessage(Object.assign({type:'mfcmd'},o));
-mfch.onmessage=e=>{ const d=e.data||{}; if(d.type!=='mfstatus'||!S.vid||!S.vid.mf) return;
+const mfsend=o=>mfCtl(o);
+function mfStatus(d){ if(!S.vid||!S.vid.mf) return;
   if(d.blocked){ if(!mfBlockedOnce){ mfBlockedOnce=true; ytClick(); } return; }
+  if(d.closed){ mfShown=false; $('vTime').textContent='Stoppet'; return; }
   vState=d.paused?2:1; if(d.d) vDur=d.d;
   $('vTime').textContent=(d.ended?'Ferdig':d.paused?'Pause':'Spiller')+' · '+fmt(d.t||0)+(d.d?' / '+fmt(d.d):'');
-  if(!vSeeking&&d.d) $('vSeek').value=Math.round(1000*d.t/d.d); };
+  if(!vSeeking&&d.d) $('vSeek').value=Math.round(1000*d.t/d.d); }
+mfch.onmessage=e=>{ const d=e.data||{}; if(d.type==='mfstatus') mfStatus(d); };
+let mfShown=false;
+function mfCtl(o){ if(mfShown&&outIsOpen()) vsend({cmd:'mf_'+o.cmd,d:o.d,t:o.t,v:o.v}); else mfch.postMessage(Object.assign({type:'mfcmd'},o)); }
+function mfStart(){
+  if(outIsOpen()){ if(!mfShown){ mfShown=true; vsend({cmd:'mf_show',id:S.vid.mf}); $('vTime').textContent='Starter …'; } else vsend({cmd:'mf_play'}); return; }
+  if(extOpen&&extWin&&!extWin.closed) mfch.postMessage({type:'mfcmd',cmd:'play'}); else { mfBlockedOnce=false; openExt(true); } }
+function mfStop(){ if(mfShown){ vsend({cmd:'mf_hide'}); mfShown=false; } else closeExt(); }
 function ytKey(k,n){ return fetch('/api/ytkey?k='+k+'&n='+n,{method:'POST'}).catch(()=>{}); }
 function ytClick(){ return fetch('/api/ytclick',{method:'POST'}).catch(()=>{}); }
 async function closeExt(){ const own=S.vid&&S.vid.mf; try{ if(extWin&&!extWin.closed) extWin.close(); }catch(e){} if(!own) try{ await fetch('/api/closeyt'+((S.vid&&S.vid.web)?'?alle=1':''),{method:'POST'}); }catch(e){} extWin=null; extOpen=false; }
@@ -2310,7 +2320,7 @@ $('yUrl').addEventListener('change',async()=>{
   try{ const r=await fetch('https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+v));
     const j=await r.json(); if(j.title&&!$('yTitle').value) $('yTitle').value=j.title; }catch(e){}
 });
-$('vPlay').onclick=()=>S.vid&&S.vid.mf?(extOpen&&extWin&&!extWin.closed?mfsend({cmd:'play'}):(mfBlockedOnce=false,openExt(true))):S.vid&&S.vid.web?(extOpen?ytClick():openExt(true)):vsend({cmd:'play'}); $('vPause').onclick=()=>S.vid&&S.vid.mf?mfsend({cmd:'pause'}):S.vid&&S.vid.web?ytClick():vsend({cmd:'pause'}); $('vStop').onclick=()=>S.vid&&S.vid.web?closeExt():vsend({cmd:'stop'});
+$('vPlay').onclick=()=>S.vid&&S.vid.mf?mfStart():S.vid&&S.vid.web?(extOpen?ytClick():openExt(true)):vsend({cmd:'play'}); $('vPause').onclick=()=>S.vid&&S.vid.mf?mfsend({cmd:'pause'}):S.vid&&S.vid.web?ytClick():vsend({cmd:'pause'}); $('vStop').onclick=()=>S.vid&&S.vid.mf?mfStop():S.vid&&S.vid.web?closeExt():vsend({cmd:'stop'});
 $('vBack').onclick=()=>S.vid&&S.vid.mf?mfsend({cmd:'seek',d:-5}):S.vid&&S.vid.web?ytKey('left',1):vsend({cmd:'seek',d:-10}); $('vFwd').onclick=()=>S.vid&&S.vid.mf?mfsend({cmd:'seek',d:5}):S.vid&&S.vid.web?ytKey('right',1):vsend({cmd:'seek',d:10});
 $('vEdit').onclick=()=>{ if(S.vid) openYt(S.vid); };
 $('vSeek').addEventListener('pointerdown',()=>{vSeeking=true;});
@@ -2486,7 +2496,7 @@ addEventListener('keydown',e=>{
     else if(S.pvKind==='vid'&&S.pvVid&&fpanel==='plan') liveVideo(S.pvVid);
     else if(S.pvKind==='pres'&&S.pvPres&&(fpanel==='plan'||fpanel==='pv')) goPres(S.pvPres,fpanel==='pv'?S.pidx:0);
     else if(S.cur) goLive(S.cur.id); }
-  else if(e.key===' '&&S.vid&&S.liveKind==='vid'){ e.preventDefault(); if(S.vid.mf){ if(extOpen&&extWin&&!extWin.closed) mfsend({cmd:'toggle'}); else { mfBlockedOnce=false; openExt(true); } } else if(S.vid.web){ if(extOpen) ytClick(); else openExt(true); } else vsend({cmd:vState===1?'pause':'play'}); }
+  else if(e.key===' '&&S.vid&&S.liveKind==='vid'){ e.preventDefault(); if(S.vid.mf){ if(mfShown||(extOpen&&extWin&&!extWin.closed)) mfsend({cmd:'toggle'}); else mfStart(); } else if(S.vid.web){ if(extOpen) ytClick(); else openExt(true); } else vsend({cmd:vState===1?'pause':'play'}); }
   else if(/^[1-9]$/.test(e.key)&&S.liveKind==='pres'&&S.pres){ if(+e.key<=S.pres.item.n) goPres(S.pres.item,+e.key-1); }
   else if(/^[1-9]$/.test(e.key)){ const sg=S.liveKind==='song'&&S.lv&&song(S.lv.id); if(sg&&+e.key<=slidesOf(sg).length) liveShow(+e.key-1); }
   else if(e.key==='Escape'&&extOpen){ e.preventDefault(); closeExt(); }
