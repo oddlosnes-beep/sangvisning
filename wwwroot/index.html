@@ -1167,6 +1167,7 @@ function liveVideo(it){
   $('vExt').textContent=it.web?'Åpne siden på skjerm 2':'Åpne på YouTube (skjerm 2)';
   if(it.web){ $('vInfo').textContent='Nettlenke. Åpnes i et eget vindu på utgangsskjermen. Start avspillingen på selve siden.'; $('vTime').textContent=''; }
   render(); cueVid(); if(it.web) openExt();
+  if(!it.web){ const tok=it; setTimeout(()=>{ if(S.vid===tok&&vState===-1&&$('vTime').textContent==='Laster …'){ $('vTime').textContent='Ingen svar fra utgangsvinduet'; $('vErr').textContent=outIsOpen()?'Utgangsvinduet svarer ikke. Last det inn på nytt, eller trykk «Åpne på YouTube».':'Utgangsvinduet er ikke åpent. Trykk «Utgang» for å åpne det, eller «Åpne på YouTube».'; } },3500); }
 }
 function vStatus(d){
   if(!S.vid||(d.id&&d.id!==S.vid.vid)) return;
