@@ -1093,7 +1093,7 @@ function fillScreens(){
 function openExt(){
   if(!S.vid) return;
   const t=S.vid.start?'&t='+S.vid.start+'s':'';
-  extWin=window.open(S.vid.web?S.vid.url:'https://www.youtube.com/watch?v='+S.vid.vid+t,'sangvisning-yt',placeFeatures(outScreen()));
+  extWin=window.open(S.vid.web?S.vid.url:'https://www.youtube.com/watch?v='+S.vid.vid+t+'&autoplay=1','sangvisning-yt',placeFeatures(outScreen(),true));
   if(!extWin) return alert('Nettleseren blokkerte vinduet. Tillat popup og prøv igjen.');
   extWin.focus();
 }
