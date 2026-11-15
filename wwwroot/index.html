@@ -2250,7 +2250,7 @@ $('bScr').onclick=()=>{ fillScreens(); $('scDlg').showModal(); };
 $('scGrant').onclick=async()=>{ const sd=await getScreens(); fillOutSel();
   if(!sd) alert('Fikk ikke tilgang. Bruk Chrome eller Edge og velg «Tillat» når nettleseren spør om å administrere vinduer.'); fillScreens(); };
 $('scTest').onclick=openOutput; $('scClose').onclick=()=>$('scDlg').close();
-$('vExt').onclick=openExt; $('vExtClose').onclick=()=>{ if(extWin&&!extWin.closed) extWin.close(); };
+$('vExt').onclick=openExt; $('vExtClose').onclick=async()=>{ try{ if(extWin&&!extWin.closed) extWin.close(); }catch(e){} try{ await fetch('/api/closeyt',{method:'POST'}); }catch(e){} extWin=null; };
 $('bTestVid').onclick=testVideos;
 (async()=>{ for(const n of ['window-management','window-placement']){
   try{ const p=await navigator.permissions.query({name:n}); if(p.state==='granted') getScreens(); break; }catch(e){} } })();

@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
@@ -1153,6 +1154,12 @@ app.MapPost("/api/update/install", async (HttpContext ctx) =>
     return Results.Ok();
 });
 
+app.MapPost("/api/closeyt", (HttpContext ctx) =>
+{
+    if (!IsLocal(ctx)) return Results.StatusCode(403);
+    return Results.Json(new { closed = OperatingSystem.IsWindows() ? WinKill.CloseYouTube() : 0 });
+});
+
 app.MapPost("/api/quit", (HttpContext ctx) =>
 {
     if (!IsLocal(ctx)) return Results.StatusCode(403);
@@ -1194,3 +1201,26 @@ app.Lifetime.ApplicationStarted.Register(() =>
 
 app.Run();
 GC.KeepAlive(backupTimer);
+
+// Lukker YouTube-vinduet som Sangvisning åpnet. Nettleseren gir ikke siden lov til å lukke det selv.
+static class WinKill
+{
+    delegate bool EnumProc(IntPtr h, IntPtr l);
+    [DllImport("user32.dll")] static extern bool EnumWindows(EnumProc cb, IntPtr l);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetWindowText(IntPtr h, StringBuilder sb, int n);
+    [DllImport("user32.dll")] static extern bool IsWindowVisible(IntPtr h);
+    [DllImport("user32.dll")] static extern bool PostMessage(IntPtr h, uint m, IntPtr w, IntPtr l);
+    public static int CloseYouTube()
+    {
+        int n = 0;
+        EnumWindows((h, l) =>
+        {
+            if (!IsWindowVisible(h)) return true;
+            var sb = new StringBuilder(300); GetWindowText(h, sb, 300);
+            var t = sb.ToString();
+            if (t.Contains("YouTube") && (t.Contains("Chrome") || t.Contains("Edge")) && !t.Contains("Sangvisning")) { PostMessage(h, 0x0010, IntPtr.Zero, IntPtr.Zero); n++; }
+            return true;
+        }, IntPtr.Zero);
+        return n;
+    }
+}
