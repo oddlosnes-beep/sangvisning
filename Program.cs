@@ -1208,6 +1208,7 @@ static class WinKill
     delegate bool EnumProc(IntPtr h, IntPtr l);
     [DllImport("user32.dll")] static extern bool EnumWindows(EnumProc cb, IntPtr l);
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetWindowText(IntPtr h, StringBuilder sb, int n);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetClassName(IntPtr h, StringBuilder sb, int n);
     [DllImport("user32.dll")] static extern bool IsWindowVisible(IntPtr h);
     [DllImport("user32.dll")] static extern bool PostMessage(IntPtr h, uint m, IntPtr w, IntPtr l);
     public static int CloseYouTube()
@@ -1218,7 +1219,8 @@ static class WinKill
             if (!IsWindowVisible(h)) return true;
             var sb = new StringBuilder(300); GetWindowText(h, sb, 300);
             var t = sb.ToString();
-            if (t.Contains("YouTube") && (t.Contains("Chrome") || t.Contains("Edge")) && !t.Contains("Sangvisning")) { PostMessage(h, 0x0010, IntPtr.Zero, IntPtr.Zero); n++; }
+            var cn = new StringBuilder(100); GetClassName(h, cn, 100);
+            if (cn.ToString() == "Chrome_WidgetWin_1" && t.Contains("YouTube") && !t.Contains("Sangvisning")) { PostMessage(h, 0x0010, IntPtr.Zero, IntPtr.Zero); n++; }
             return true;
         }, IntPtr.Zero);
         return n;
