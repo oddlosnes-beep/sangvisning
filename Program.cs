@@ -1157,13 +1157,13 @@ app.MapPost("/api/update/install", async (HttpContext ctx) =>
 app.MapPost("/api/ytfs", (HttpContext ctx) =>
 {
     if (!IsLocal(ctx)) return Results.StatusCode(403);
-    return Results.Json(new { ok = OperatingSystem.IsWindows() && WinKill.FullscreenYouTube() });
+    return Results.Json(new { ok = OperatingSystem.IsWindows() && WinKill.FullscreenYouTube(ctx.Request.Query["tast"] == "f11") });
 });
 
 app.MapPost("/api/closeyt", (HttpContext ctx) =>
 {
     if (!IsLocal(ctx)) return Results.StatusCode(403);
-    return Results.Json(new { closed = OperatingSystem.IsWindows() ? WinKill.CloseYouTube() : 0 });
+    return Results.Json(new { closed = OperatingSystem.IsWindows() ? WinKill.CloseYouTube(ctx.Request.Query["alle"] == "1") : 0 });
 });
 
 app.MapPost("/api/quit", (HttpContext ctx) =>
@@ -1220,36 +1220,44 @@ static class WinKill
     [DllImport("user32.dll")] static extern bool ShowWindow(IntPtr h, int c);
     [DllImport("user32.dll")] static extern void keybd_event(byte vk, byte scan, uint flags, UIntPtr extra);
     [DllImport("user32.dll")] static extern bool PostMessage(IntPtr h, uint m, IntPtr w, IntPtr l);
-    public static bool FullscreenYouTube()
+    public static bool FullscreenYouTube(bool f11)
     {
-        IntPtr found = IntPtr.Zero;
+        IntPtr yt = IntPtr.Zero, other = IntPtr.Zero;
         EnumWindows((h, l) =>
         {
             if (!IsWindowVisible(h)) return true;
             var sb = new StringBuilder(300); GetWindowText(h, sb, 300);
             var cn = new StringBuilder(100); GetClassName(h, cn, 100);
-            if (cn.ToString() == "Chrome_WidgetWin_1" && sb.ToString().Contains("YouTube") && !sb.ToString().Contains("Sangvisning")) { found = h; return false; }
+            var t = sb.ToString();
+            if (cn.ToString() != "Chrome_WidgetWin_1" || t.Length == 0 || t.Contains("Sangvisning") || t.Contains("Utgang") || t.Contains("Sangerskjerm")) return true;
+            if (t.Contains("YouTube")) { yt = h; return false; }
+            if (other == IntPtr.Zero) other = h; // øverste ellers (siden som nettopp ble åpnet)
             return true;
         }, IntPtr.Zero);
+        var found = yt != IntPtr.Zero ? yt : other;
         if (found == IntPtr.Zero) return false;
         ShowWindow(found, 9); SetForegroundWindow(found);
         Thread.Sleep(250);
-        keybd_event(0x46, 0, 0, UIntPtr.Zero); keybd_event(0x46, 0, 2, UIntPtr.Zero); // tasten F = fullskjerm i YouTube
+        byte vk = f11 ? (byte)0x7A : (byte)0x46; // F11 = nettleser-fullskjerm, F = fullskjerm i spilleren
+        keybd_event(vk, 0, 0, UIntPtr.Zero); keybd_event(vk, 0, 2, UIntPtr.Zero);
         return true;
     }
 
-    public static int CloseYouTube()
+    public static int CloseYouTube(bool any)
     {
-        int n = 0;
+        int n = 0; IntPtr other = IntPtr.Zero;
         EnumWindows((h, l) =>
         {
             if (!IsWindowVisible(h)) return true;
             var sb = new StringBuilder(300); GetWindowText(h, sb, 300);
-            var t = sb.ToString();
             var cn = new StringBuilder(100); GetClassName(h, cn, 100);
-            if (cn.ToString() == "Chrome_WidgetWin_1" && t.Contains("YouTube") && !t.Contains("Sangvisning")) { PostMessage(h, 0x0010, IntPtr.Zero, IntPtr.Zero); n++; }
+            var t = sb.ToString();
+            if (cn.ToString() != "Chrome_WidgetWin_1" || t.Length == 0 || t.Contains("Sangvisning") || t.Contains("Utgang") || t.Contains("Sangerskjerm")) return true;
+            if (t.Contains("YouTube")) { PostMessage(h, 0x0010, IntPtr.Zero, IntPtr.Zero); n++; }
+            else if (other == IntPtr.Zero) other = h;
             return true;
         }, IntPtr.Zero);
+        if (n == 0 && any && other != IntPtr.Zero) { PostMessage(other, 0x0010, IntPtr.Zero, IntPtr.Zero); n++; }
         return n;
     }
 }
