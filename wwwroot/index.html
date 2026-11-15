@@ -1021,7 +1021,7 @@ function render(){
 }
 
 // ---- Utgangsvindu ----
-let scr=null, extWin=null, testWait=null;
+let scr=null, extWin=null, testWait=null, extOpen=false, extAuto='';
 async function getScreens(){
   if(!window.getScreenDetails) return null;
   try{ scr=scr||await window.getScreenDetails(); return scr; }catch(e){ return null; }
@@ -1101,7 +1101,7 @@ function openExt(){
   const t=S.vid.start?'&t='+S.vid.start+'s':'';
   extWin=window.open(S.vid.web?S.vid.url:'https://www.youtube.com/watch?v='+S.vid.vid+t+'&autoplay=1','sangvisning-yt',placeFeatures(outScreen(),true));
   if(!extWin) return alert('Nettleseren blokkerte vinduet. Tillat popup og prøv igjen.');
-  extWin.focus();
+  extWin.focus(); extOpen=true;
   setTimeout(()=>{ fetch('/api/ytfs',{method:'POST'}).catch(()=>{}); },4500);
 }
 let testRes=null, testSeq=0;
@@ -1172,6 +1172,7 @@ function vStatus(d){
   if(!S.vid||(d.id&&d.id!==S.vid.vid)) return;
   if(testWait&&(d.err||d.st===5)) testWait(d);
   if(!!d.showing!==S.vShow){ S.vShow=!!d.showing; render(); }
+  if(d.err&&d.err!=='offline'&&!S.vid.web&&!S.vid.aud&&extAuto!==S.vid.vid){ extAuto=S.vid.vid; try{ openExt(); }catch(e){} }
   const nb=d.err?d.err:([1,2,5].includes(d.st)?0:S.vid.bad);
   if(nb!==S.vid.bad){ S.vid.bad=nb; render(); }
   vState=d.st; if(d.d) vDur=d.d;
@@ -2257,7 +2258,8 @@ $('bScr').onclick=()=>{ fillScreens(); $('scDlg').showModal(); };
 $('scGrant').onclick=async()=>{ const sd=await getScreens(); fillOutSel();
   if(!sd) alert('Fikk ikke tilgang. Bruk Chrome eller Edge og velg «Tillat» når nettleseren spør om å administrere vinduer.'); fillScreens(); };
 $('scTest').onclick=openOutput; $('scClose').onclick=()=>$('scDlg').close();
-$('vExtFs').onclick=()=>fetch('/api/ytfs',{method:'POST'}).catch(()=>{}); $('vExt').onclick=openExt; $('vExtClose').onclick=async()=>{ try{ if(extWin&&!extWin.closed) extWin.close(); }catch(e){} try{ await fetch('/api/closeyt',{method:'POST'}); }catch(e){} extWin=null; };
+$('vExtFs').onclick=()=>fetch('/api/ytfs',{method:'POST'}).catch(()=>{}); $('vExt').onclick=openExt; async function closeExt(){ try{ if(extWin&&!extWin.closed) extWin.close(); }catch(e){} try{ await fetch('/api/closeyt',{method:'POST'}); }catch(e){} extWin=null; extOpen=false; }
+$('vExtClose').onclick=closeExt;
 $('bTestVid').onclick=testVideos;
 (async()=>{ for(const n of ['window-management','window-placement']){
   try{ const p=await navigator.permissions.query({name:n}); if(p.state==='granted') getScreens(); break; }catch(e){} } })();
@@ -2447,6 +2449,9 @@ addEventListener('keydown',e=>{
   else if(e.key===' '&&S.vid&&S.liveKind==='vid'){ e.preventDefault(); vsend({cmd:vState===1?'pause':'play'}); }
   else if(/^[1-9]$/.test(e.key)&&S.liveKind==='pres'&&S.pres){ if(+e.key<=S.pres.item.n) goPres(S.pres.item,+e.key-1); }
   else if(/^[1-9]$/.test(e.key)){ const sg=S.liveKind==='song'&&S.lv&&song(S.lv.id); if(sg&&+e.key<=slidesOf(sg).length) liveShow(+e.key-1); }
+  else if(e.key==='Escape'&&extOpen){ e.preventDefault(); closeExt(); }
+  else if(e.key.toLowerCase()==='y'&&S.vid&&S.liveKind==='vid'){ openExt(); }
+  else if(e.key.toLowerCase()==='f'&&extOpen){ fetch('/api/ytfs',{method:'POST'}).catch(()=>{}); }
   else if(e.key.toLowerCase()==='b') $('bBlank').click();
   else if(e.key.toLowerCase()==='t') $('bHideTxt').click();
 });
