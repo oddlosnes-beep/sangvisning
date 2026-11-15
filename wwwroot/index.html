@@ -1114,7 +1114,7 @@ function openExt(autoPlay){
   extWin=window.open(S.vid.web?S.vid.url:'https://www.youtube.com/watch?v='+S.vid.vid+t+'&autoplay=1','sangvisning-yt',placeFeatures(outScreen(),true));
   if(!extWin) return alert('Nettleseren blokkerte vinduet. Tillat popup og prøv igjen.');
   extWin.focus(); extOpen=true;
-  if(S.vid&&S.vid.mf){ /* egen spillerside, styres via kanal */ }
+  if(S.vid&&S.vid.mf){ setTimeout(()=>{ fetch('/api/ytfs?tast=f11',{method:'POST'}).catch(()=>{}); },2500); /* spilleren styres via kanal */ }
   else if(S.vid&&S.vid.web){ if(!outScreen()) setTimeout(()=>{ fetch('/api/ytfs?tast=f11',{method:'POST'}).catch(()=>{}); },3500); if(autoPlay===true) setTimeout(()=>ytClick(),4200); }
   else setTimeout(()=>{ fetch('/api/ytfs',{method:'POST'}).catch(()=>{}); },4500);
 }
