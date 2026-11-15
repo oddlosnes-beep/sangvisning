@@ -1155,6 +1155,21 @@ app.MapPost("/api/update/install", async (HttpContext ctx) =>
     return Results.Ok();
 });
 
+app.MapGet("/api/ytitle", async (HttpContext ctx) =>
+{
+    if (!IsLocal(ctx)) return Results.StatusCode(403);
+    var id = ctx.Request.Query["id"].ToString();
+    if (!Regex.IsMatch(id, "^[A-Za-z0-9_-]{6,20}$")) return Results.BadRequest();
+    try
+    {
+        using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(6) };
+        var js = await http.GetStringAsync("https://www.youtube.com/oembed?format=json&url=" + Uri.EscapeDataString("https://www.youtube.com/watch?v=" + id));
+        using var d = JsonDocument.Parse(js);
+        return Results.Json(new { title = d.RootElement.GetProperty("title").GetString() ?? "" });
+    }
+    catch { return Results.NotFound(); }
+});
+
 app.MapPost("/api/ytfs", (HttpContext ctx) =>
 {
     if (!IsLocal(ctx)) return Results.StatusCode(403);

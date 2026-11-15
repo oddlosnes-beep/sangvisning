@@ -53,6 +53,7 @@ input[type=search]{width:100%;padding:7px 10px;border:1px solid var(--line);bord
 .item:hover{background:var(--bg)}
 .item.sel{background:var(--accbg)}
 .item span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item span.wrapT{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.25}
 .item button{padding:2px 8px}
 .slide{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:8px;cursor:pointer;white-space:pre-line}
 .slide:hover{border-color:var(--acc)}
@@ -637,7 +638,7 @@ header button,header .btn{min-height:30px}
   </details>
   <label style="display:flex;gap:8px;align-items:center;margin:8px 0 0"><input id="yAO" type="checkbox" style="width:auto"> Bare lyd – vis ikke bildet (YouTube-musikk)</label>
   <div class="bar" style="margin:6px 0 0"><label class="btn" style="margin:0">♪ Velg lydfil fra denne PC-en …<input id="yAudFile" type="file" accept="audio/*,.mp3,.m4a,.wav,.ogg,.flac,.aac,.opus" multiple hidden></label><span class="hint" id="yAudInfo"></span></div>
-  <label>Tittel (valgfritt)</label><input id="yTitle">
+  <label>Tittel (anbefalt, det er navnet du ser i listen)</label><input id="yTitle" placeholder="F.eks. Profilvideo 2023">
   <div class="row"><div><label>Start (valgfritt, f.eks. 1:30)</label><input id="yStart"></div><div><label>Slutt (valgfritt)</label><input id="yEnd"></div></div>
   <div id="yErr" style="color:#d6334a;font-size:13px;min-height:1em;margin-top:6px"></div>
   <div class="bar"><span class="sp"></span><button id="yCancel">Avbryt</button><button id="ySave" class="pri">Legg til i møteplanen</button></div>
@@ -941,7 +942,7 @@ function render(){
       const r=document.createElement('div'), isSel=m.pres?(S.pvKind==='pres'&&S.pvPres&&S.pvPres.id===m.id):(S.pvKind==='vid'&&S.pvVid===m);
       r.className='item'+(isSel?' sel':'');
       r.innerHTML='<span></span><button title="Rediger">✎</button><button title="Vis direkte på skjermen">▶</button><button title="Legg til i møteplan">+</button><button title="Slett fra biblioteket">×</button>';
-      r.firstChild.textContent=m.pres?'🖼 '+m.name:(m.aud||m.ao?'♪ ':'▶ ')+(m.title||vname(m));
+      r.firstChild.textContent=m.pres?'🖼 '+m.name:(m.aud||m.ao?'♪ ':'▶ ')+(m.title||vname(m)); r.firstChild.classList.add('wrapT'); r.firstChild.title=m.pres?m.name:(m.title||vname(m));
       const sm=document.createElement('small'); sm.style.color='var(--mute)'; sm.textContent=m.pres?'  – '+m.n+' lysbilder':(m.aud?'  – lydfil':m.ao?'  – YouTube, bare lyd':'  – video'); r.firstChild.append(sm);
       const go=()=>m.pres?goPres(m,0):liveVideo(m);
       r.onclick=()=>m.pres?previewPres(m):previewVideo(m); r.ondblclick=go;
@@ -1245,9 +1246,11 @@ function saveYt(){
   if(isNaN(start)||isNaN(end)) return err('Skriv tid som 1:30 eller antall sekunder.');
   if(end&&end<=start) return err('Slutt må være etter start.');
   const f={vid,title:$('yTitle').value.trim(),start,end,ao:$('yAO').checked};
+  let target=ytEdit;
   if(ytEdit){ Object.assign(ytEdit,f); if(S.vid===ytEdit) liveVideo(ytEdit); }
-  else { const it=Object.assign({yt:true},f); S.media.push(it); previewVideo(it); }
+  else { const it=Object.assign({yt:true},f); S.media.push(it); previewVideo(it); target=it; }
   save(); $('ytDlg').close(); render();
+  if(!f.title&&target&&!target.title){ fetch('/api/ytitle?id='+encodeURIComponent(vid)).then(r=>r.ok?r.json():null).then(j=>{ if(j&&j.title&&!target.title){ target.title=j.title; save(); render(); if(S.vid===target) $('vTitle').textContent=j.title; } }).catch(()=>{}); }
 }
 
 // ---- Søk ----
