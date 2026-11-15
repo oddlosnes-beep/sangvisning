@@ -73,7 +73,7 @@ button.pri{background:var(--acc);color:#fff;border-color:var(--acc)}
 dialog{max-height:94vh;overflow:auto}
 #aud{position:fixed;right:16px;bottom:16px;z-index:190;width:min(340px,92vw);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;box-shadow:0 6px 24px rgba(0,0,0,.4)}
 #aud[hidden]{display:none}
-#aud .aTop{display:flex;gap:8px;align-items:center}#aud .aTop b{flex:1;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#aud .aTop{cursor:move;touch-action:none;display:flex;gap:8px;align-items:center}#aud .aTop b{flex:1;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #aud .aRow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:6px 0 2px}
 #aud input[type=range]{width:100%}
 #qe{position:fixed;z-index:195;left:min(290px,calc(100vw - 340px));top:14vh;width:320px;max-width:94vw;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:0 12px 10px;box-shadow:0 8px 30px rgba(0,0,0,.45)}
@@ -3184,7 +3184,7 @@ function playAudio(it){
       const go=()=>{ ayt.loadVideoById({videoId:it.vid,startSeconds:a,endSeconds:it.end||undefined}); ayt.setVolume(A.vol); };
       if(ayt&&ayReady) go();
       else if(!ayt) ayt=new YT.Player('aytBox',{width:320,height:180,videoId:it.vid,playerVars:{controls:0,playsinline:1,disablekb:1,fs:0},
-        events:{onReady:()=>{ ayReady=true; go(); }, onError:e=>aErr('YouTube kan ikke spille denne videoen (feilkode '+e.data+').') }});
+        events:{onReady:()=>{ ayReady=true; go(); }, onError:e=>aErr((e.data==150||e.data==101)?'Eieren av videoen tillater ikke avspilling utenfor YouTube (feilkode '+e.data+'). Prøv en annen opplasting av sangen, for eksempel en tekstvideo eller et album fra artistens egen kanal.':'YouTube kan ikke spille denne videoen (feilkode '+e.data+').') }});
     });
   }
   aTimer=setInterval(aUpdate,400); aUpdate(); render();
@@ -3304,6 +3304,18 @@ $('updDo').onclick=async()=>{
   };
   poll();
 };
+
+// Lydspilleren kan flyttes ved å dra i den øverste linjen
+(function(){ const a=document.getElementById('aud'); if(!a) return; const top=a.querySelector('.aTop'); if(!top) return;
+  const put=(x,y)=>{ x=Math.max(0,Math.min(innerWidth-a.offsetWidth,x)); y=Math.max(0,Math.min(innerHeight-a.offsetHeight,y)); a.style.left=x+'px'; a.style.top=y+'px'; a.style.right='auto'; a.style.bottom='auto'; return [x,y]; };
+  try{ const p=JSON.parse(localStorage.getItem('audPos')||'null'); if(p) put(p[0],p[1]); }catch(e){}
+  let dx=0,dy=0,drag=false;
+  top.addEventListener('pointerdown',e=>{ if(e.target.closest('button')) return; const r=a.getBoundingClientRect(); dx=e.clientX-r.left; dy=e.clientY-r.top; drag=true; top.setPointerCapture(e.pointerId); });
+  top.addEventListener('pointermove',e=>{ if(drag) put(e.clientX-dx,e.clientY-dy); });
+  const end=()=>{ if(!drag) return; drag=false; try{ localStorage.setItem('audPos',JSON.stringify([parseInt(a.style.left),parseInt(a.style.top)])); }catch(e){} };
+  top.addEventListener('pointerup',end); top.addEventListener('pointercancel',end);
+  addEventListener('resize',()=>{ if(a.style.left) put(parseInt(a.style.left),parseInt(a.style.top)); });
+})();
 setTimeout(()=>updCheck(false),5000);
 $('bQuit').onclick=async()=>{
   if(!confirm('Avslutte Sangvisning helt?\nProjektorvinduet og alle andre sider som er koblet til slutter å virke.')) return;
