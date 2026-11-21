@@ -290,7 +290,7 @@ header button,header .btn{min-height:30px}
   <section id="libSec"><h2>Bibliotek <span id="cnt" class="hint"></span> <button class="qm" data-help="Alle sangene, videoene og lysbildene dine.&#10;Søk i tittel, tekst og kategori. Trykk / for å hoppe til søkefeltet.&#10;▶ sender rett til skjermen, + legger i møteplanen, ✎ redigerer.">?</button></h2>
     <input id="q" type="search" placeholder="Søk i tittel, tekst og kategori  ( / )">
     <select id="kindSel"><option value="all">Alt i biblioteket</option><option value="song">Bare sanger</option><option value="yt">Bare video</option><option value="pres">Bare lysbilder</option></select>
-    <select id="sortSel"><option value="title">Sorter etter tittel</option><option value="line">Sorter etter første tekstlinje</option></select>
+    <select id="sortSel"><option value="rel">Beste treff først (ved søk)</option><option value="title">Sorter etter tittel</option><option value="line">Sorter etter første tekstlinje</option></select>
     <div class="chips" id="chips"></div><div class="letters" id="letters"></div>
     <div id="lib"></div>
     <div class="bar" style="margin:6px 0 4px;flex:none;position:relative"><button id="bBulk" style="flex:1" title="Importer sanger fra filer, mappe, PDF, Word eller innlimt tekst">⇪ Importer sanger ▾</button>
@@ -725,7 +725,7 @@ const ch = { postMessage(m){ bcRaw.postMessage(m); if(m&&(m.type!=='v'||(m.cmd&&
 function relayStart(){ if(relayES) return; relayOn=true; relayES=new EventSource('/api/relay/from-output');
   relayES.onmessage=e=>{ try{ if(msgHandler) msgHandler({data:JSON.parse(e.data)}); }catch(_){} }; }
 function relayStop(){ relayOn=false; if(relayES){ relayES.close(); relayES=null; } }
-const S = {hideText:false, plans:[], media:[], libKind:'all', songs:[], plan:[], pvPres:null, pres:null, pidx:0, cur:null, idx:-1, blank:false, vid:null, themes:[], thv:0, pvKind:null, pvVid:null, liveKind:null, lv:null, armed:null, vShow:false, settings:{}, sort:'title', letter:null, tag:null};
+const S = {hideText:false, plans:[], media:[], libKind:'all', songs:[], plan:[], pvPres:null, pres:null, pidx:0, cur:null, idx:-1, blank:false, vid:null, themes:[], thv:0, pvKind:null, pvVid:null, liveKind:null, lv:null, armed:null, vShow:false, settings:{}, sort:'rel', letter:null, tag:null};
 const $ = id => document.getElementById(id);
 let outWin = null;
 
@@ -907,7 +907,9 @@ function render(){
   let list=base.filter(({s})=>!S.tag||(s.tags||[]).includes(S.tag));
   const letters=[...new Set(list.map(({s})=>letterOf(s)))].sort((a,b)=>a.localeCompare(b,'no'));
   list=list.filter(({s})=>!S.letter||letterOf(s)===S.letter)
-           .sort((a,b)=>sortKey(a.s).localeCompare(sortKey(b.s),'no'));
+           .sort((a,b)=>{
+             if(S.sort==='rel'&&q.trim()){ const d=relScore(b.s,q)-relScore(a.s,q); if(d) return d; }
+             return sortKey(a.s).localeCompare(sortKey(b.s),'no'); });
   if(S.libKind==='yt'||S.libKind==='pres') list=[];
   found=list;
   const mk=(t,on,fn)=>{ const b=document.createElement('button'); b.textContent=t; if(on) b.className='on'; b.onclick=fn; return b; };
@@ -1257,6 +1259,19 @@ function saveYt(){
 // ---- Søk ----
 const firstLine=s=>(s.verses[s.order[0]]||'').split('\n')[0]||'';
 const sortKey=s=>(S.sort==='line'?firstLine(s):s.title).toLowerCase();
+function relScore(s,q){
+  const w=q.split(/\s+/).filter(Boolean); if(!w.length) return 0;
+  const t=(s.title||'').toLowerCase(), ph=w.join(' '); let sc=0;
+  if(t===ph) sc+=200; else if(t.includes(ph)) sc+=120;
+  if(t.startsWith(w[0])) sc+=25;
+  for(const x of w){ if(t.includes(x)){ sc+=30; if(new RegExp('(^|[^a-zæøåäöü0-9])'+x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).test(t)) sc+=10; } }
+  const oth=((s.authors||'')+' '+(s.words||'')+' '+(s.music||'')+' '+(s.tags||[]).join(' ')+' '+(s.book||'')).toLowerCase();
+  for(const x of w) if(oth.includes(x)) sc+=8;
+  const lines=Object.values(s.verses||{}).join('\n').toLowerCase().split('\n');
+  if(lines.some(l=>w.every(x=>l.includes(x)))) sc+=15;
+  if(lines.some(l=>l.includes(ph))) sc+=20;
+  return sc;
+}
 const letterOf=s=>{ const c=sortKey(s).replace(/^[^a-zæøåäöü0-9]+/i,'').charAt(0).toUpperCase(); return !c||/[0-9]/.test(c)?'#':c; };
 let found=[];
 function hit(s,q){
