@@ -190,6 +190,7 @@ main>section.fp{outline:2px solid var(--acc);outline-offset:-2px}
 dialog .qm{margin-left:6px;vertical-align:middle}.qm{cursor:help}@media (pointer:coarse){.qm{width:24px;height:24px;font-size:13px}}
 .cmp select{font-size:13px}
 .shopt{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin:0;cursor:pointer}.shopt input{margin:3px 0 0;width:auto}.shopt small{color:var(--mut,#8a93a6)}
+#shBook{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}.mchip{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--bg)}.mchip button{border:0;background:transparent;color:var(--text);padding:5px 10px;font:inherit;cursor:pointer;border-radius:0}.mchip button:last-child{padding:5px 9px 5px 4px;color:var(--mute)}.mchip.on{background:var(--accent,#3b82f6);border-color:var(--accent,#3b82f6)}.mchip.on button{color:#fff}
 #impMenu,#expMenu{position:absolute;left:0;right:0;bottom:calc(100% + 6px);z-index:60;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px;box-shadow:0 10px 28px #0005;display:flex;flex-direction:column;gap:4px}
 #expMenu button,#impMenu button,#impMenu .btn{text-align:left;width:100%;box-sizing:border-box;margin:0}
 #moreMenu button,#moreMenu .btn{text-align:left;width:100%;box-sizing:border-box;margin:0}
@@ -574,7 +575,8 @@ header button,header .btn{min-height:30px}
   </div>
   <div class="bar" style="margin:0 0 8px;flex-wrap:wrap"><button id="shPdf" class="pri">📄 Lagre som PDF</button><button id="shPrint">🖨 Skriv ut</button><button id="shTxt">📄 Tekstfil</button><button id="shJson" title="For å åpne planen på en annen PC med Sangvisning">💾 Fil til annen PC</button></div>
   <label>Send på e-post (sangarket følger med som PDF)</label>
-  <div class="bar" style="margin:0 0 4px"><input id="shTo" list="shToList" placeholder="navn@epost.no, flere med komma" style="flex:1;min-width:0"><datalist id="shToList"></datalist><button id="shMail" class="pri">✉ Send</button></div>
+  <div class="bar" style="margin:0 0 4px"><input id="shTo" placeholder="navn@epost.no, flere med komma" style="flex:1;min-width:0"><button id="shAdd" title="Lagrer adressene i lista under uten å sende">+ Lagre</button><button id="shMail" class="pri">✉ Send</button></div>
+  <div id="shBook" hidden></div><div id="shBookHint" class="hint" style="margin:2px 0 0" hidden>Trykk på en adresse for å velge den eller velge den bort. × fjerner den fra lista.</div>
   <div id="shMsg" class="hint" style="margin:2px 0 0"></div>
   <p class="hint" style="margin:6px 0 0">E-posten sendes fra kontoen som er satt opp under Innstillinger → E-post (<a href="#" id="shSet">åpne e-postoppsett</a>). Ingenting her legges i bruksloggen. Det gjør du med «Logg møtet» under møteplanen.</p>
 </dialog>
@@ -2904,7 +2906,21 @@ function expJson(){
   if(skipped) alert(skipped+' lysbildepresentasjon(er) er ikke med i filen. Bildene må legges inn på nytt på den andre PC-en.');
 }
 const shSay=(m,ok)=>{ const e=$('shMsg'); e.textContent=m; e.className='hint'+(ok===true?' ok':ok===false?' err':''); };
-function shRecent(){ const dl=$('shToList'); dl.replaceChildren(); (S.settings.mailTo||[]).forEach(a=>{ const o=document.createElement('option'); o.value=a; dl.append(o); }); }
+const mailBook=()=>{ const b=S.settings.mailBook; if(Array.isArray(b)) return b; const s=new Set(); (S.settings.mailTo||[]).forEach(x=>String(x).split(/[,;\s]+/).filter(Boolean).forEach(a=>s.add(a))); return [...s]; };
+const shAddrs=()=>$('shTo').value.split(/[,;\s]+/).map(x=>x.trim()).filter(Boolean);
+const shRemember=l=>{ const low=x=>x.toLowerCase(); S.settings.mailBook=[...l,...mailBook().filter(a=>!l.some(x=>low(x)===low(a)))].slice(0,40); };
+function shRecent(){
+  const box=$('shBook'), cur=new Set(shAddrs().map(a=>a.toLowerCase())); box.replaceChildren();
+  mailBook().forEach(a=>{ const on=cur.has(a.toLowerCase()), w=document.createElement('span'); w.className='mchip'+(on?' on':'');
+    const b=document.createElement('button'); b.type='button'; b.textContent=(on?'✓ ':'')+a;
+    b.onclick=()=>{ const l=shAddrs(), i=l.findIndex(x=>x.toLowerCase()===a.toLowerCase()); if(i>=0) l.splice(i,1); else l.push(a); $('shTo').value=l.join(', '); shRecent(); };
+    const x=document.createElement('button'); x.type='button'; x.textContent='×'; x.title='Fjern fra lista';
+    x.onclick=()=>{ S.settings.mailBook=mailBook().filter(y=>y!==a); save(); shRecent(); };
+    w.append(b,x); box.append(w); });
+  box.hidden=$('shBookHint').hidden=!box.children.length;
+}
+$('shTo').oninput=shRecent;
+$('shAdd').onclick=()=>{ const l=shAddrs(), bad=l.filter(a=>!/^\S+@\S+\.\S+$/.test(a)); if(!l.length) return shSay('Skriv inn en adresse først.',false); if(bad.length) return shSay('Dette ser ikke ut som en e-postadresse: '+bad[0],false); shRemember(l); save(); shRecent(); shSay('Lagret '+l.length+' adresse'+(l.length>1?'r':'')+' i lista.',true); };
 $('bPlanExp').onclick=()=>{ if(!S.plan.length) return alert('Møteplanen er tom.'); $('shName').value=S.settings.planName||''; $('shDate').value=nextSunday(); if(!$('shTo').value&&(S.settings.mailTo||[])[0]) $('shTo').value=S.settings.mailTo[0]; shRecent(); shSay(''); $('shDlg').showModal(); };
 $('shClose').onclick=()=>$('shDlg').close();
 $('shSet').onclick=e=>{ e.preventDefault(); $('shDlg').close(); $('bSet').click(); };
@@ -2919,7 +2935,7 @@ $('shMail').onclick=async()=>{
   try{
     const pdf=btoa(pdfBuild(lay)), list=planEntries().map((x,i)=>(i+1)+'. '+entTitle(x)).join('\n');
     await cloudReq('/api/mail/plan',{to,subject:'Sanger '+shTitle(),text:shTitle()+'\n\n'+list+(lay!=='titles'?'\n\nSangtekstene ligger i vedlagt PDF.':'')+'\n',pdf,pdfName:safeName(shTitle())+'.pdf'});
-    const rec=[to,...(S.settings.mailTo||[]).filter(a=>a!==to)].slice(0,8); S.settings.mailTo=rec; save(); shRecent();
+    const rec=[to,...(S.settings.mailTo||[]).filter(a=>a!==to)].slice(0,8); S.settings.mailTo=rec; shRemember(shAddrs()); save(); shRecent();
     shSay('✔ Sendt til '+to+'.',true);
   }catch(e){ shSay('⚠ '+e.message,false); }
   $('shMail').disabled=false;
