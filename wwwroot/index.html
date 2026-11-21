@@ -297,6 +297,7 @@ header button,header .btn{min-height:30px}
       <div id="impMenu" hidden>
         <label class="btn" title="Sangfiler du har eksportert fra et annet sangprogram (OpenLyrics, .xml). Velg én eller flere filer.">📄 Sangfiler fra annet program (.xml) …<input id="impXml" type="file" accept=".xml,.xmll" multiple hidden></label>
         <label class="btn" title="Samme type sangfiler som over, men du velger hele mappen i stedet for filer.">📁 Hel mappe med sangfiler …<input id="impDir" type="file" webkitdirectory multiple hidden></label>
+        <label class="btn" title="Velg mappen med PowerPoint-sanger (.pptx). Hvert lysbilde blir et vers. Du ser og kan rette alt før noe legges i biblioteket.">🎞 Mappe med PowerPoint-sanger (.pptx) …<input id="impPpt" type="file" webkitdirectory multiple hidden></label>
         <button id="impPdf" title="Lim inn tekst, eller velg en PDF, Word-fil eller tekstfil. Du kan rette før noe legges i biblioteket.">✎ Tekst, PDF eller Word …</button>
         <button id="impDraft" title="QR-kode til mobilsiden, og sanger som er sendt inn derfra">📱 Fra mobil: QR og utkast</button>
       </div></div><p class="hint" id="libHint">Eller slipp sangfiler her.</p></section>
@@ -2911,6 +2912,62 @@ async function olReview(fileList){
   $('libHint').textContent=files.length+' filer lest'+(bad?' ('+bad+' hoppet over som ikke var sanger eller var dobbelt)':'')+'.';
   $('bkStep1').hidden=true; $('bkStep2').hidden=false; bkRender(); $('bulkDlg').showModal();
 }
+// ---- PowerPoint-sanger (.pptx): hvert lysbilde blir et vers ----
+async function zipMap(buf){
+  const dv=new DataView(buf.buffer,buf.byteOffset,buf.byteLength); let e=buf.length-22; while(e>=0&&dv.getUint32(e,true)!==0x06054b50) e--;
+  if(e<0) throw new Error('Ikke en .pptx-fil.');
+  const n=dv.getUint16(e+10,true); let p=dv.getUint32(e+16,true); const m={};
+  for(let i=0;i<n;i++){ if(dv.getUint32(p,true)!==0x02014b50) break;
+    const meth=dv.getUint16(p+10,true), csz=dv.getUint32(p+20,true), nl=dv.getUint16(p+28,true), el=dv.getUint16(p+30,true), cl=dv.getUint16(p+32,true), off=dv.getUint32(p+42,true);
+    m[new TextDecoder().decode(buf.subarray(p+46,p+46+nl))]={meth,csz,off}; p+=46+nl+el+cl; }
+  return m;
+}
+async function zipText(buf,ent){
+  const dv=new DataView(buf.buffer,buf.byteOffset,buf.byteLength), start=ent.off+30+dv.getUint16(ent.off+26,true)+dv.getUint16(ent.off+28,true), data=buf.subarray(start,start+ent.csz);
+  if(ent.meth===0) return new TextDecoder().decode(data);
+  const ds=new DecompressionStream('deflate-raw'), w=ds.writable.getWriter(); w.write(data); w.close(); return await new Response(ds.readable).text();
+}
+async function pptxSong(file){
+  const buf=new Uint8Array(await file.arrayBuffer()), z=await zipMap(buf), get=async n=>z[n]?zipText(buf,z[n]):null;
+  const pres=await get('ppt/presentation.xml'), rels=await get('ppt/_rels/presentation.xml.rels'); let order=[];
+  if(pres&&rels){ const rm={}; for(const m of rels.matchAll(/<Relationship\b[^>]*>/g)){ const id=/\bId="([^"]+)"/.exec(m[0]), tg=/\bTarget="([^"]+)"/.exec(m[0]); if(id&&tg) rm[id[1]]=tg[1]; }
+    for(const m of pres.matchAll(/<p:sldId\b[^>]*\br:id="([^"]+)"/g)){ const t=rm[m[1]]; if(t) order.push('ppt/'+t.replace(/^\/?(ppt\/)?/,'')); } }
+  order=order.filter(n=>z[n]);
+  if(!order.length) order=Object.keys(z).filter(n=>/^ppt\/slides\/slide\d+\.xml$/.test(n)).sort((a,b)=>parseInt(a.match(/(\d+)\.xml/)[1])-parseInt(b.match(/(\d+)\.xml/)[1]));
+  const P='http://schemas.openxmlformats.org/presentationml/2006/main', A='http://schemas.openxmlformats.org/drawingml/2006/main';
+  const title=file.name.replace(/\.pptx$/i,'').replace(/[_]+/g,' ').trim(), norm=t=>t.toLowerCase().replace(/[^a-zæøåäö0-9]+/g,'');
+  const blocks=[], auth=[];
+  for(const name of order){
+    const doc=new DOMParser().parseFromString(await get(name),'application/xml'), lines=[];
+    for(const sp of doc.getElementsByTagNameNS(P,'sp')){
+      const ph=sp.getElementsByTagNameNS(P,'ph')[0], pt=ph?(ph.getAttribute('type')||''):''; if(/^(sldNum|ftr|dt|hdr)$/.test(pt)) continue;
+      for(const para of sp.getElementsByTagNameNS(A,'p')){ let t='';
+        for(const el of para.childNodes){ const ln=el.localName; if(ln==='r'||ln==='fld'){ const tt=el.getElementsByTagNameNS(A,'t')[0]; if(tt) t+=tt.textContent; } else if(ln==='br') t+='\n'; }
+        t=t.replace(/\u000b/g,'\n').split('\n').map(x=>x.trim()).filter(Boolean); lines.push(...t); } }
+    if(!lines.length) continue;
+    const all=lines.join(' ');
+    if(!blocks.length&&norm(all)&&norm(all)===norm(title)) continue; // tittellysbilde
+    if(lines.every(l=>BK_CRED.test(l))){ auth.push(...lines); continue; }
+    { const nm=bkLabelName(lines[0]); if(nm) lines[0]='['+nm+']'; }
+    blocks.push(lines.join('\n'));
+  }
+  return {title,authors:auth.join(', '),number:'',text:blocks.join('\n\n'),on:true,slides:order.length};
+}
+async function pptReview(fileList){
+  const all=[...fileList], files=all.filter(f=>/\.pptx$/i.test(f.name)&&!f.name.startsWith('~$')), old=all.filter(f=>/\.ppt$/i.test(f.name)).length;
+  if(!files.length){ $('libHint').textContent=old?'Fant bare gamle .ppt-filer. Lagre dem som .pptx i PowerPoint først.':'Fant ingen PowerPoint-filer (.pptx) der.'; return; }
+  const out=[]; let bad=0, dup=0; const seen=new Set();
+  for(let i=0;i<files.length;i++){
+    if(i%20===0){ $('libHint').textContent='Leser PowerPoint-filer … '+i+' av '+files.length; await new Promise(r=>setTimeout(r)); }
+    try{ const sg=await pptxSong(files[i]); const k=sg.title.toLowerCase(); if(!sg.text.trim()){ bad++; continue; } if(seen.has(k)){ dup++; continue; } seen.add(k); out.push(sg); }catch(e){ bad++; console.log("pptx-feil",files[i].name,e.message); } }
+  if(!out.length){ $('libHint').textContent='Fant ingen sanger i filene.'; return; }
+  const have=new Set(S.songs.map(x=>x.title.toLowerCase()));
+  out.forEach(x=>{ x.on=!have.has(x.title.trim().toLowerCase()); });
+  out.sort((a,b)=>a.title.localeCompare(b.title,'no')); bkSongs=out; $('bkQ').value='';
+  $('libHint').textContent=files.length+' filer lest'+((bad||dup||old)?' ('+[bad&&bad+' uten tekst eller ulesbare',dup&&dup+' med samme tittel',old&&old+' gamle .ppt-filer'].filter(Boolean).join(', ')+' hoppet over)':'')+'.';
+  $('bkStep1').hidden=true; $('bkStep2').hidden=false; bkRender(); $('bulkDlg').showModal();
+}
+$('impPpt').onchange=e=>{ const f=e.target.files; pptReview(f).finally(()=>{ e.target.value=''; }); };
 $('impDir').onchange=e=>{ const f=e.target.files; olReview(f).finally(()=>{ e.target.value=''; }); };
 $('impXml').onchange=e=>{ const f=e.target.files; olReview(f).finally(()=>{ e.target.value=''; }); };
 $('bkNew').onclick=()=>{ const have=new Set(S.songs.map(x=>x.title.toLowerCase())); bkSongs.forEach(x=>{ x.on=!have.has(x.title.trim().toLowerCase()); }); bkRender(); };
