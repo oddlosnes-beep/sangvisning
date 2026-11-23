@@ -191,6 +191,7 @@ dialog .qm{margin-left:6px;vertical-align:middle}.qm{cursor:help}@media (pointer
 .cmp select{font-size:13px}
 .shopt{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin:0;cursor:pointer}.shopt input{margin:3px 0 0;width:auto}.shopt small{color:var(--mut,#8a93a6)}
 #shBook{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0;max-height:132px;overflow-y:auto;padding:2px}#shFind{display:flex;gap:6px;margin:4px 0}#shFind input{flex:1;min-width:0}.mchip{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--bg)}.mchip button{border:0;background:transparent;color:var(--text);padding:5px 10px;font:inherit;cursor:pointer;border-radius:0}.mchip button:last-child{padding:5px 9px 5px 4px;color:var(--mute)}.mchip.on{background:var(--accent,#3b82f6);border-color:var(--accent,#3b82f6)}.mchip.on button{color:#fff}
+#tgList{max-height:58vh;overflow:auto}#tgList details{border:1px solid var(--line);border-radius:8px;margin:4px 0;padding:4px 8px}#tgList summary{cursor:pointer;display:flex;gap:8px;align-items:center}#tgList summary small{color:var(--mute)}#tgList .tr{display:flex;gap:8px;align-items:baseline;padding:3px 0}#tgList .tr small{color:var(--mute)}
 #impMenu,#expMenu{position:absolute;left:0;right:0;bottom:calc(100% + 6px);z-index:60;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px;box-shadow:0 10px 28px #0005;display:flex;flex-direction:column;gap:4px}
 #expMenu button,#impMenu button,#impMenu .btn{text-align:left;width:100%;box-sizing:border-box;margin:0}
 #moreMenu button,#moreMenu .btn{text-align:left;width:100%;box-sizing:border-box;margin:0}
@@ -300,6 +301,7 @@ header button,header .btn{min-height:30px}
         <label class="btn" title="Samme type sangfiler som over, men du velger hele mappen i stedet for filer.">📁 Hel mappe med sangfiler …<input id="impDir" type="file" webkitdirectory multiple hidden></label>
         <label class="btn" title="Velg mappen med PowerPoint-sanger (.pptx). Hvert lysbilde blir et vers. Du ser og kan rette alt før noe legges i biblioteket.">🎞 Mappe med PowerPoint-sanger (.pptx) …<input id="impPpt" type="file" webkitdirectory multiple hidden></label>
         <button id="impPdf" title="Lim inn tekst, eller velg en PDF, Word-fil eller tekstfil. Du kan rette før noe legges i biblioteket.">✎ Tekst, PDF eller Word …</button>
+        <button id="impTag" title="Leser alle sangtekstene og foreslår emner. Du godkjenner før noe lagres.">🏷 Foreslå emner ut fra teksten</button>
         <button id="impFix" title="Flytter linjer som «T: … M: …» ut av versene og over i opphav, og fjerner tittellinjen som ble med i første vers. Du får se hvor mange som rettes før noe endres.">🧹 Rett opp sanger med kreditlinje i teksten</button>
         <button id="impDraft" title="QR-kode til mobilsiden, og sanger som er sendt inn derfra">📱 Fra mobil: QR og utkast</button>
       </div></div><p class="hint" id="libHint">Eller slipp sangfiler her.</p></section>
@@ -350,7 +352,7 @@ header button,header .btn{min-height:30px}
   <div class="rh"><b id="rSel" class="hint"></b>
     <input id="rTag" list="dlTags" placeholder="Kategori …"><button id="rAdd">Legg til på valgte</button><button id="rDel">Fjern fra valgte</button>
     <input id="rBook" list="dlBooks" placeholder="Bok …"><button id="rSetBook">Sett bok på valgte</button>
-    <select id="rWhoF"><option value="words">Tekstforfatter</option><option value="music">Komponist</option><option value="authors">Annet opphav</option><option value="copyright">Opphavsrett</option></select><input id="rWho" list="dlPeople" placeholder="Navn …"><button id="rSetWho">Sett på valgte</button><span class="sp"></span><button id="rFix" title="Flytter linjer som «T: … M: …» ut av versene og over i tekstforfatter/komponist">🧹 Rett opp kreditlinjer</button><button id="rDelSongs" title="Sletter alle avkryssede sanger fra biblioteket" style="color:#d6334a">🗑 Slett valgte sanger</button></div>
+    <select id="rWhoF"><option value="words">Tekstforfatter</option><option value="music">Komponist</option><option value="authors">Annet opphav</option><option value="copyright">Opphavsrett</option></select><input id="rWho" list="dlPeople" placeholder="Navn …"><button id="rSetWho">Sett på valgte</button><span class="sp"></span><button id="rTag" title="Leser alle sangtekstene og foreslår emner som Nåde, Påske og Lovsang. Du godkjenner før noe lagres.">🏷 Foreslå emner</button><button id="rFix" title="Flytter linjer som «T: … M: …» ut av versene og over i tekstforfatter/komponist">🧹 Rett opp kreditlinjer</button><button id="rDelSongs" title="Sletter alle avkryssede sanger fra biblioteket" style="color:#d6334a">🗑 Slett valgte sanger</button></div>
   <div id="rWrap"><table id="rTab"></table></div>
   <datalist id="dlTags"></datalist><datalist id="dlBooks"></datalist>
 </dialog>
@@ -579,6 +581,12 @@ header button,header .btn{min-height:30px}
   <div id="shFind" hidden><input id="shQ" placeholder="Søk i adresselista …"><button id="shClr" type="button" title="Fjerner alle valgte adresser fra feltet">Fjern valg</button></div><div id="shBook" hidden></div><div id="shBookHint" class="hint" style="margin:2px 0 0" hidden>Trykk på en adresse for å velge den eller velge den bort. × fjerner den fra lista.</div>
   <div id="shMsg" class="hint" style="margin:2px 0 0"></div>
   <p class="hint" style="margin:6px 0 0">E-posten sendes fra kontoen som er satt opp under Innstillinger → E-post (<a href="#" id="shSet">åpne e-postoppsett</a>). Ingenting her legges i bruksloggen. Det gjør du med «Logg møtet» under møteplanen.</p>
+</dialog>
+<dialog id="tgDlg" style="width:min(760px,96vw)">
+  <div class="rh"><h2 style="margin:0;font-size:16px">Foreslå emner</h2><span class="sp"></span><button id="tgClose">Lukk</button></div>
+  <p class="hint" id="tgInfo" style="margin:6px 0"></p>
+  <div id="tgList"></div>
+  <div class="bar" style="margin-top:8px"><span id="tgSum" class="hint"></span><span class="sp"></span><button id="tgApply" class="pri">Legg til emner</button></div>
 </dialog>
 <dialog id="exLogDlg" style="width:min(420px,96vw)">
   <h2 style="margin:0 0 4px;font-size:16px">Logg møtet <button class="qm" data-help="Loggen er til å se tilbake på: hva har vi sunget, og når sist?&#10;Den lagres bare når du trykker Logg møtet. Samme dato og navn erstattes, så du kan trykke på nytt etter endringer.">?</button></h2>
@@ -909,9 +917,10 @@ function render(){
   if(S.tag&&!(S.tag in tagCount)) tagCount[S.tag]=0;
   let list=base.filter(({s})=>!S.tag||(s.tags||[]).includes(S.tag));
   const letters=[...new Set(list.map(({s})=>letterOf(s)))].sort((a,b)=>a.localeCompare(b,'no'));
+  const rel=(S.sort==='rel'&&q.trim())?new Map(list.map(({s})=>[s.id,relScore(s,q)])):null;
   list=list.filter(({s})=>!S.letter||letterOf(s)===S.letter)
            .sort((a,b)=>{
-             if(S.sort==='rel'&&q.trim()){ const d=relScore(b.s,q)-relScore(a.s,q); if(d) return d; }
+             if(rel){ const d=rel.get(b.s.id)-rel.get(a.s.id); if(d) return d; }
              return sortKey(a.s).localeCompare(sortKey(b.s),'no'); });
   if(S.libKind==='yt'||S.libKind==='pres') list=[];
   found=list;
@@ -1262,6 +1271,10 @@ function saveYt(){
 // ---- Søk ----
 const firstLine=s=>(s.verses[s.order[0]]||'').split('\n')[0]||'';
 const sortKey=s=>(S.sort==='line'?firstLine(s):s.title).toLowerCase();
+const escRe=x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+const stemOf=x=>{ const n=x.length; return n<=3?x:n<=5?x.slice(0,n-1):x.slice(0,n-2); };
+let _stemQ=null, _stemR=[];
+function stemRes(q){ if(q!==_stemQ){ _stemQ=q; _stemR=q.split(/\s+/).filter(Boolean).map(x=>new RegExp('(?<![a-zæøåäöü0-9])'+escRe(stemOf(x)))); } return _stemR; }
 function relScore(s,q){
   const w=q.split(/\s+/).filter(Boolean); if(!w.length) return 0;
   const t=(s.title||'').toLowerCase(), ph=w.join(' '); let sc=0;
@@ -1273,6 +1286,8 @@ function relScore(s,q){
   const lines=Object.values(s.verses||{}).join('\n').toLowerCase().split('\n');
   if(lines.some(l=>w.every(x=>l.includes(x)))) sc+=15;
   if(lines.some(l=>l.includes(ph))) sc+=20;
+  { const R=stemRes(q), body=lines.join('\n'); let c=0; for(const r of R) c+=Math.min(8,body.split(r).length-1); sc+=c*3;
+    const first=(Object.values(s.verses||{})[0]||'').toLowerCase(); if(R.every(r=>first.search(r)>=0)) sc+=10; }
   return sc;
 }
 const letterOf=s=>{ const c=sortKey(s).replace(/^[^a-zæøåäöü0-9]+/i,'').charAt(0).toUpperCase(); return !c||/[0-9]/.test(c)?'#':c; };
@@ -1283,7 +1298,10 @@ function hit(s,q){
   const head=(s.title+' '+(s.authors||'')+' '+(s.words||'')+' '+(s.music||'')+' '+(s.tags||[]).join(' ')+' '+(s.book||'')+' '+(s.number||'')).toLowerCase();
   const lines=Object.values(s.verses).join('\n').split('\n');
   const all=head+'\n'+lines.join('\n').toLowerCase();
-  if(!w.every(x=>all.includes(x))) return null;
+  if(!w.every(x=>all.includes(x))){
+    const R=stemRes(q); if(!R.every(r=>all.search(r)>=0)) return null;
+    return lines.find(l=>R.some(r=>l.toLowerCase().search(r)>=0))||'';
+  }
   if(w.every(x=>head.includes(x))) return '';
   return lines.find(l=>w.some(x=>l.toLowerCase().includes(x)))||'';
 }
@@ -2598,6 +2616,92 @@ function fixCredScan(apply){
   }
   return n;
 }
+// ---- Foreslå emner ut fra teksten ----
+const TG_THEMES=[
+ ['Nåde og tilgivelse',['nåd','miskunn','tilgi','tilgje','tilgiv','benåd','syndenes forlat']],
+ ['Kors og forsoning',['kors$','korset','golgata','lammet','guds lam','forson','forløs','tornekrone','blodet','offerlam']],
+ ['Påske og oppstandelse',['påske','oppstand','oppstod','oppstå','tomme grav','graven er tom','seier over døden']],
+ ['Advent og jul',['advent','jul$','julen','julaften','betlehem','krybbe','hyrde','gloria','jomfru maria','stjernen']],
+ ['Lovsang og tilbedelse',['lovsyng','lovpris','lov$','halleluja','tilbed','tilbe$','opphøy','høylov','pris$','prise','ære$','æren']],
+ ['Takk',['takk','takknem']],
+ ['Tro og tillit',['tro$','troen','tillit','stole','stol$','trygg','forlat deg','klippe','fast grunn']],
+ ['Håp',['håp']],
+ ['Kjærlighet',['kjærlighet','kjærlig','elsker','elske']],
+ ['Frelse',['frelse','frelser','frelst']],
+ ['Den hellige ånd',['hellig ånd','ånden','åndens','pinse','fyll meg','kom, hellig']],
+ ['Bønn',['bønn','påkall','hør min','hør vår','be$','ber$']],
+ ['Nattverd',['nattverd','brødet','vinen','kalken','bordet']],
+ ['Dåp',['dåp','døpt','døpe','døper']],
+ ['Misjon og vitnesbyrd',['misjon','vitne','all verden','folkeslag','nasjon','sendt ut','gå ut']],
+ ['Trøst og styrke',['trøst','styrke','frykt ikke','redd ikke','hvile','bekymr']],
+ ['Fred',['fred']],
+ ['Evighet og himmel',['evig','himmel','paradis','jerusalem','kanaan','hjemlengsel','hjemme hos']],
+ ['Død og sorg',['død','gravferd','begravelse','sorg','tårer','savn','avskjed']],
+ ['Kristi gjenkomst og dommen',['gjenkomst','kommer igjen','komme igjen','brudgom','dommedag','dommen','kommer snart']],
+ ['Skaperverk og natur',['skaper','skapt','skap$','skapning','jorden','blomst','fugl','solen','sommer']],
+ ['Barn',['barn']],
+ ['Nytt år og tidens gang',['nytt år','det nye år','årets','året','tidens']],
+ ['Høst og takkefest',['høst','avling','markens','åker','kornet']],
+ ['Guds ord og Bibelen',['guds ord','ditt ord','ordet','bibel','skrift','lampe for min fot']],
+ ['Følge Jesus',['følge','følg','etterfølg','disippel','ta opp sitt kors','vandre med','veien']],
+ ['Synd og omvendelse',['synd','omvend','anger','bot$','skyld','tilbake til deg']],
+ ['Guds trofasthet',['trofast','aldri svik','sviker ikke','tro mot']],
+ ['Menighet og fellesskap',['menighet','fellesskap','brødre','søsken','sammen','enhet']]
+];
+let tgRes=[], tgSel=new Map();
+function tgScan(){
+  const T=TG_THEMES.map(([name,kws])=>({name,kws:kws.map(k=>{ const w=k.endsWith('$'); return new RegExp('(?<![a-zæøåäöü0-9])'+escRe(w?k.slice(0,-1):k)+(w?'(?![a-zæøåäöü0-9])':'')); })}));
+  const res=T.map(x=>({name:x.name,list:[]}));
+  for(const s of S.songs){
+    if((s.tags||[]).includes('Eksempel')) continue;
+    const body=Object.values(s.verses||{}).join('\n').toLowerCase(), ti=(s.title||'').toLowerCase(), have=(s.tags||[]).map(x=>x.toLowerCase());
+    T.forEach((th,i)=>{
+      if(have.includes(th.name.toLowerCase())) return;
+      let sc=0,d=0;
+      for(const r of th.kws){ const c=body.split(r).length-1, tc=ti.search(r)>=0; if(c||tc){ d++; sc+=Math.min(5,c)+(tc?3:0); } }
+      if(sc>=5||(sc>=3&&d>=2)){ const line=body.split('\n').find(l=>th.kws.some(r=>l.search(r)>=0))||''; res[i].list.push({s,sc,line}); }
+    });
+  }
+  res.forEach(r=>r.list.sort((a,b)=>b.sc-a.sc||a.s.title.localeCompare(b.s.title,'no')));
+  return res.filter(r=>r.list.length);
+}
+function tgSum(){ let n=0; tgSel.forEach(v=>n+=v.size); $('tgSum').textContent=n+' emnemerker legges til'; $('tgApply').disabled=!n; }
+function tgOpen(){
+  if($('impMenu')) $('impMenu').hidden=true;
+  $('tgInfo').textContent='Leser '+S.songs.length+' sanger …'; $('tgList').replaceChildren(); $('tgDlg').showModal();
+  setTimeout(()=>{
+    tgRes=tgScan(); tgSel=new Map();
+    const tot=tgRes.reduce((a,r)=>a+r.list.length,0);
+    $('tgInfo').textContent=tot?'Programmet har funnet '+tot+' mulige emner ut fra ordene i tekstene. Åpne et emne for å se sangene. Sangene som passer best er huket av på forhånd. Fjern haken ved dem som ikke passer, så trykker du «Legg til emner».':'Fant ingen nye emneforslag.';
+    const box=$('tgList');
+    for(const r of tgRes){
+      const sel=new Set(r.list.filter(x=>x.sc>=5).map(x=>x.s.id)); tgSel.set(r.name,sel);
+      const det=document.createElement('details'), sm=document.createElement('summary'), cnt=document.createElement('small');
+      const nm=document.createElement('b'); nm.textContent=r.name; const upd=()=>{ cnt.textContent=sel.size+' valgt av '+r.list.length; tgSum(); };
+      const mkb=(txt,fn)=>{ const b=document.createElement('button'); b.type='button'; b.textContent=txt; b.style.cssText='padding:2px 8px;margin-left:auto'; b.onclick=e=>{ e.preventDefault(); e.stopPropagation(); fn(); det.dataset.done=''; if(det.open) draw(); upd(); }; return b; };
+      const all=mkb('Alle',()=>r.list.forEach(x=>sel.add(x.s.id))), none=mkb('Ingen',()=>sel.clear()); none.style.marginLeft='0';
+      sm.append(nm,cnt,all,none); det.append(sm);
+      const body=document.createElement('div'); det.append(body);
+      const draw=()=>{ body.replaceChildren(...r.list.map(x=>{
+        const row=document.createElement('label'); row.className='tr'; const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=sel.has(x.s.id);
+        cb.onchange=()=>{ cb.checked?sel.add(x.s.id):sel.delete(x.s.id); upd(); };
+        const tt=document.createElement('span'); tt.textContent=x.s.title; const sm2=document.createElement('small'); sm2.textContent='– '+x.line.slice(0,70);
+        row.append(cb,tt,sm2); return row; })); det.dataset.done='1'; };
+      det.ontoggle=()=>{ if(det.open&&!det.dataset.done) draw(); };
+      upd(); box.append(det);
+    }
+    tgSum();
+  },30);
+}
+$('tgClose').onclick=()=>$('tgDlg').close();
+$('rTag').onclick=$('impTag').onclick=tgOpen;
+$('tgApply').onclick=()=>{
+  const known=new Map(); S.songs.forEach(s=>(s.tags||[]).forEach(x=>known.set(x.toLowerCase(),x))); let n=0, songs=new Set();
+  const byId=new Map(S.songs.map(s=>[s.id,s]));
+  tgSel.forEach((ids,name)=>{ const tag=known.get(name.toLowerCase())||name; ids.forEach(id=>{ const s=byId.get(id); if(!s) return; s.tags=s.tags||[]; if(!s.tags.includes(tag)){ s.tags.push(tag); n++; songs.add(id); } }); });
+  save(); render(); try{ regRender(); }catch(e){}
+  $('tgDlg').close(); $('libHint').textContent=n+' emnemerker er lagt til på '+songs.size+' sanger.';
+};
 $('rFix').onclick=$('impFix').onclick=()=>{
   $('impMenu').hidden=true;
   const n=fixCredScan(false);
