@@ -1700,7 +1700,8 @@ function regRender(){
   }
   const ed=(val,fn,list,req)=>{
     const td=document.createElement('td'), inp=document.createElement('input'); inp.value=val;
-    if(list) inp.addEventListener('focus',()=>{ if(!inp.hasAttribute('list')) inp.setAttribute('list',list); });
+    // Forslagslisten kobles til først når cellen tas i bruk (1400 sanger × 3 lister ble for tregt), men før klikket slik at listen åpner seg
+    if(list){ const lk=()=>{ if(!inp.hasAttribute('list')) inp.setAttribute('list',list); }; ['pointerenter','pointerdown','focus'].forEach(ev=>inp.addEventListener(ev,lk)); }
     inp.onchange=()=>{ const v=inp.value.trim(); if(req&&!v){ inp.value=val; return; } fn(v); save(); render(); fillFilters(); };
     // Piltaster som i et regneark: opp/ned bytter rad, venstre/høyre bytter celle når markøren står ved kanten
     inp.onkeydown=e=>{
