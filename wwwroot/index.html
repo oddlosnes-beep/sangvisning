@@ -197,6 +197,7 @@ dialog .qm{margin-left:6px;vertical-align:middle}.qm{cursor:help}@media (pointer
 #pvBar button{padding:2px 8px;font-size:12px;line-height:1.5;border-radius:7px}
 .bgrp{display:inline-flex;gap:6px;white-space:nowrap}
 #dbList{max-height:56vh;overflow:auto}#dbList .dbr{display:grid;grid-template-columns:20px minmax(0,1fr);gap:2px 10px;padding:8px 2px;margin:0;border-top:1px solid var(--line);cursor:pointer;text-align:left;width:auto;color:var(--text)}#dbList .dbr input{width:auto;min-width:0;margin:3px 0 0;padding:0;grid-row:1/4}#dbList .dbr b{font-size:13px}#dbList .dbr div{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#dbList .dbr .x{text-decoration:line-through;color:#d6334a}
+.qrow{display:flex;gap:6px;margin-bottom:8px;align-items:stretch}.qrow input[type=search]{margin:0;flex:1;min-width:0}#qScope{padding:0 10px;font-size:13px;font-weight:600}#qScope.on{background:var(--acc);border-color:var(--acc);color:#fff}
 #impMenu,#expMenu{position:absolute;left:0;right:0;bottom:calc(100% + 6px);z-index:60;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px;box-shadow:0 10px 28px #0005;display:flex;flex-direction:column;gap:4px}
 #expMenu button,#impMenu button,#impMenu .btn{text-align:left;width:100%;box-sizing:border-box;margin:0}
 #moreMenu button,#moreMenu .btn{text-align:left;width:100%;box-sizing:border-box;margin:0}
@@ -295,7 +296,7 @@ header button,header .btn{min-height:30px}
 </header>
 <main id="drop">
   <section id="libSec"><h2>Bibliotek <span id="cnt" class="hint"></span> <button class="qm" data-help="Alle sangene, videoene og lysbildene dine.&#10;Søk i tittel, tekst og kategori. Trykk / for å hoppe til søkefeltet.&#10;▶ sender rett til skjermen, + legger i møteplanen, ✎ redigerer.">?</button></h2>
-    <input id="q" type="search" placeholder="Søk: tittel, tekst, emne, forfatter, komponist  ( / )" title="Søker i tittel, sangtekst, emner, tekstforfatter og komponist. Trykk / for å hoppe hit.">
+    <div class="qrow"><input id="q" type="search" placeholder="Søk: tittel, tekst, emne, forfatter, komponist  ( / )" title="Søker i tittel, sangtekst, emner, tekstforfatter og komponist. Trykk / for å hoppe hit."><button id="qScope" type="button" title="Av: søker i hele sangteksten. På: søker bare i tittel og første linje.">Aa</button></div>
     <div class="filt"><select id="kindSel" title="Hva vises i biblioteket"><option value="all">Alt</option><option value="song">Sanger</option><option value="yt">Video</option><option value="pres">Lysbilder</option><option value="arch">🗄 Arkiv</option></select>
     <select id="sortSel" title="Sortering. «Beste treff» rangerer etter søket, ellers alfabetisk."><option value="rel">Beste treff</option><option value="title">Tittel</option><option value="line">Første linje</option></select>
     <select id="tagSel" title="Vis bare sanger med dette emnet"></select></div><div class="letters" id="letters"></div>
@@ -927,7 +928,7 @@ function render(){
   updateDatalists();
   const q=$('q').value.toLowerCase();
   const arcMode=S.libKind==='arch', arcN=S.songs.filter(s=>s.arch).length;
-  const base=S.songs.filter(s=>arcMode?!!s.arch:!s.arch).map(s=>({s,h:hit(s,q)})).filter(x=>x.h!==null);
+  const base=S.songs.filter(s=>arcMode?!!s.arch:!s.arch).map(s=>({s,h:hit(s,q,S.qTitle)})).filter(x=>x.h!==null);
   const tagCount={}; base.forEach(({s})=>(s.tags||[]).forEach(t=>tagCount[t]=(tagCount[t]||0)+1));
   if(S.tag&&!(S.tag in tagCount)) tagCount[S.tag]=0;
   let list=base.filter(({s})=>!S.tag||(s.tags||[]).includes(S.tag));
@@ -948,7 +949,7 @@ function render(){
   $('cnt').textContent=list.length+' av '+(arcMode?arcN:S.songs.length-arcN)+(arcMode?' sanger i arkivet':' sanger')+(!arcMode&&arcN?' · '+arcN+' i arkiv':'')+(!arcMode&&S.media&&S.media.length?' · '+S.media.length+' media':'');
   $('bClearSamples').hidden=!S.songs.some(x=>(x.tags||[]).includes('Eksempel'));
   const rows=[]; let lastL=null;
-  const capKey=q+'|'+S.tag+'|'+S.letter+'|'+S.libKind+'|'+S.sort; if(capKey!==S._capKey){ S._capKey=capKey; S.libCap=150; }
+  const capKey=q+'|'+S.tag+'|'+S.letter+'|'+S.libKind+'|'+S.sort+'|'+S.qTitle; if(capKey!==S._capKey){ S._capKey=capKey; S.libCap=150; }
   const cap=S.libCap||150; let shown=0;
   for(const {s,h} of list){
     if(shown>=cap) break; shown++;
@@ -1305,6 +1306,7 @@ function relScore(s,q){
   const t=(s.title||'').toLowerCase(), ph=w.join(' '); let sc=0;
   if(t===ph) sc+=200; else if(t.includes(ph)) sc+=120;
   if(t.startsWith(w[0])) sc+=25;
+  { const fl=firstLine(s).toLowerCase(); if(fl.includes(ph)) sc+=60; else if(w.every(x=>fl.includes(x))) sc+=35; }
   for(const x of w){ if(t.includes(x)){ sc+=30; if(new RegExp('(^|[^a-zæøåäöü0-9])'+x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).test(t)) sc+=10; } }
   const oth=((s.authors||'')+' '+(s.words||'')+' '+(s.music||'')+' '+(s.tags||[]).join(' ')+' '+(s.book||'')).toLowerCase();
   for(const x of w) if(oth.includes(x)) sc+=8;
@@ -1317,9 +1319,10 @@ function relScore(s,q){
 }
 const letterOf=s=>{ const c=sortKey(s).replace(/^[^a-zæøåäöü0-9]+/i,'').charAt(0).toUpperCase(); return !c||/[0-9]/.test(c)?'#':c; };
 let found=[];
-function hit(s,q){
+function hit(s,q,narrow){
   const w=q.split(/\s+/).filter(Boolean);
   if(!w.length) return '';
+  if(narrow){ const tl=(s.title+'\n'+firstLine(s)).toLowerCase(); if(w.every(x=>tl.includes(x))) return ''; return stemRes(q).every(r=>tl.search(r)>=0)?'':null; }
   const head=(s.title+' '+(s.authors||'')+' '+(s.words||'')+' '+(s.music||'')+' '+(s.tags||[]).join(' ')+' '+(s.book||'')+' '+(s.number||'')).toLowerCase();
   const lines=Object.values(s.verses).join('\n').split('\n');
   const all=head+'\n'+lines.join('\n').toLowerCase();
@@ -2505,6 +2508,7 @@ $('bOut').onclick=openOutput;
 $('bOutX').onclick=closeOutput;
 $('outSel').onchange=e=>{ S.settings.screen=e.target.value; save(); };
 $('q').oninput=render;
+$('qScope').onclick=()=>{ S.qTitle=!S.qTitle; $('qScope').classList.toggle('on',S.qTitle); $('q').placeholder=S.qTitle?'Søk bare i tittel og første linje  ( / )':'Søk: tittel, tekst, emne, forfatter, komponist  ( / )'; S.letter=null; render(); $('q').focus(); };
 $('bBlank').onclick=()=>{S.blank=!S.blank; render(); send();};
 $('bHideTxt').onclick=()=>{S.hideText=!S.hideText; render(); send();};
 const SAMPLE_TITLES=['Nåde for hver morgen','Lys i vinduet','Du er min fred','Jeg løfter mine hender','Vi samles rundt bordet','Takk for denne dagen','Barnas sang om stjernene','Kom, Herre, vær hos oss','Over fjell og daler','Hjerter fylt av glede','Veien hjem','Under dine vinger','Den stille natten','Åpne mine øyne','Brød og vin','Håpets hav','Morgenstund','Hver stjerne synger','Den gode hyrde','Fyll meg på nytt','Ære være lammet','Jeg vil takke deg','Tro som fjell','En ny dag','Lovsang fra dypet','Ved korsets fot','Påskemorgen','Englene synger','Adventslys','Din kjærlighet bærer','Et trygt sted','Sol over sjøen','Fred på jord','Ta min hånd','Ordet ble kjød','Øyeblikk av nåde','Jubel i byen','Gi oss i dag','Kjærlighetens vei','Velsignet være navnet'];
