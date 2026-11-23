@@ -401,7 +401,7 @@ header button,header .btn{min-height:30px}
   <p class="hint" style="margin:0 0 6px">Det du velger legges til her. Ingenting slettes eller overskrives.</p>
   <div class="bar" style="margin:0 0 6px;flex-wrap:wrap"><input id="pkQ" type="search" placeholder="Søk i tittel eller tekst …" style="flex:1;min-width:160px"><button id="pkAll">Velg viste</button><button id="pkNone">Fjern valg</button><button id="pkPlan" title="Velg bare sangene som ligger i møteplanen i skyen">Bare møteplanens</button></div>
   <div id="pkList" style="max-height:42vh;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:4px"></div>
-  <label id="pkUpWrap" style="display:flex;gap:8px;align-items:center;margin:8px 0 0;color:var(--text)" hidden><input type="checkbox" id="pkUp" style="width:auto"><span>Oppdater også <b id="pkUpN"></b> sanger som er endret i skyen (erstatter teksten her)</span></label>
+  <label id="pkUpWrap" style="display:flex;gap:8px;align-items:center;margin:8px 0 0;color:var(--text)" hidden><input type="checkbox" id="pkUp" style="width:auto"><span>Oppdater også <b id="pkUpN"></b> sanger som er endret i skyen (tekst, emner og arkiv erstattes med skyens versjon)</span></label>
   <div class="bar"><span class="hint" id="pkSum" style="flex:1"></span><button id="pkCancel">Avbryt</button><button id="pkGo" class="pri">Hent valgte</button></div>
 </dialog>
 <dialog id="askDlg" style="width:min(520px,94vw)">
@@ -3271,7 +3271,7 @@ const folderT={ say:(t,ok)=>clSay(t,ok), prep:o=>o,
   after:async fromBar=>{ await cloudLoad(); if(!fromBar) cloudDraw(); } };
 const cloudPush=quiet=>pushFlow(quiet,folderT);
 function cloudSoon(){ const sy=!!(syncCfg.id&&syncCfg.auto); if(!sy&&!(cloudInfo.auto&&cloudInfo.dir)) return; clearTimeout(cloudT); cloudT=setTimeout(()=>sy?syncPush(true):cloudPush(true),20000); }
-const sigOf=x=>JSON.stringify([x.title,x.order,x.verses,x.authors||'',x.words||'',x.music||'',x.number||'']);
+const sigOf=x=>JSON.stringify([x.title,x.order,x.verses,x.authors||'',x.words||'',x.music||'',x.number||'',x.book||'',[...(x.tags||[])].sort(),!!x.arch]);
 function pickSongs(songs,planIds,nChanged){
   return new Promise(res=>{
     const d=$('pickDlg'); const on=new Set(songs.length<=10?songs.map(x=>x.id):[]); let done=false;
