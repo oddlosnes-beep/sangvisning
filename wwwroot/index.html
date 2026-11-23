@@ -192,6 +192,7 @@ dialog .qm{margin-left:6px;vertical-align:middle}.qm{cursor:help}@media (pointer
 .shopt{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin:0;cursor:pointer}.shopt input{margin:3px 0 0;width:auto}.shopt small{color:var(--mut,#8a93a6)}
 #shBook{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0;max-height:132px;overflow-y:auto;padding:2px}#shFind{display:flex;gap:6px;margin:4px 0}#shFind input{flex:1;min-width:0}.mchip{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--bg)}.mchip button{border:0;background:transparent;color:var(--text);padding:5px 10px;font:inherit;cursor:pointer;border-radius:0}.mchip button:last-child{padding:5px 9px 5px 4px;color:var(--mute)}.mchip.on{background:var(--accent,#3b82f6);border-color:var(--accent,#3b82f6)}.mchip.on button{color:#fff}
 #tgList{max-height:58vh;overflow:auto}#tgList details{border:1px solid var(--line);border-radius:8px;margin:4px 0;padding:4px 8px}#tgList summary{cursor:pointer;display:flex;gap:8px;align-items:center}#tgList summary small{color:var(--mute)}#tgList .tgr{display:grid;grid-template-columns:20px minmax(0,1fr);gap:1px 10px;align-items:start;padding:6px 2px;margin:0;border-top:1px solid var(--line);cursor:pointer;text-align:left;width:auto}#tgList .tgr input{width:auto;min-width:0;margin:3px 0 0;padding:0;grid-row:1/3}#tgList .tgr span{display:block;margin:0;text-align:left}#tgList .tgr small{display:block;margin:0;color:var(--mute);text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#tgList summary button{padding:2px 8px}
+#rTab tr.arc td{opacity:.6}#rTab td.ro{cursor:pointer}#rPrev{flex:none;max-height:36vh;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:6px;padding:8px 12px;background:var(--panel)}#rPrev h3{margin:0 8px 4px 0;font-size:15px;display:inline}#rPrev pre{white-space:pre-wrap;font:inherit;margin:6px 0 0;line-height:1.4}#rPrev .pv{display:flex;gap:6px;align-items:center;flex-wrap:wrap}#rPrev b.vn{display:block;margin-top:8px;font-size:11px;text-transform:uppercase;color:var(--mute)}
 #impMenu,#expMenu{position:absolute;left:0;right:0;bottom:calc(100% + 6px);z-index:60;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px;box-shadow:0 10px 28px #0005;display:flex;flex-direction:column;gap:4px}
 #expMenu button,#impMenu button,#impMenu .btn{text-align:left;width:100%;box-sizing:border-box;margin:0}
 #moreMenu button,#moreMenu .btn{text-align:left;width:100%;box-sizing:border-box;margin:0}
@@ -291,7 +292,7 @@ header button,header .btn{min-height:30px}
 <main id="drop">
   <section id="libSec"><h2>Bibliotek <span id="cnt" class="hint"></span> <button class="qm" data-help="Alle sangene, videoene og lysbildene dine.&#10;Søk i tittel, tekst og kategori. Trykk / for å hoppe til søkefeltet.&#10;▶ sender rett til skjermen, + legger i møteplanen, ✎ redigerer.">?</button></h2>
     <input id="q" type="search" placeholder="Søk i tittel, tekst og kategori  ( / )">
-    <select id="kindSel"><option value="all">Alt i biblioteket</option><option value="song">Bare sanger</option><option value="yt">Bare video</option><option value="pres">Bare lysbilder</option></select>
+    <select id="kindSel"><option value="all">Alt i biblioteket</option><option value="song">Bare sanger</option><option value="yt">Bare video</option><option value="pres">Bare lysbilder</option><option value="arch">🗄 Arkiv (skjulte sanger)</option></select>
     <select id="sortSel"><option value="rel">Beste treff først (ved søk)</option><option value="title">Sorter etter tittel</option><option value="line">Sorter etter første tekstlinje</option></select>
     <select id="tagSel" title="Vis bare sanger med dette emnet"></select><div class="letters" id="letters"></div>
     <div id="lib"></div>
@@ -348,12 +349,13 @@ header button,header .btn{min-height:30px}
     <button id="rExp">Eksporter til Excel (CSV)</button><button id="rExpSel" title="Eksporterer de avkryssede sangene">Eksporter valgte (OpenLyrics)</button>
     <label class="btn">Importer fra Excel (CSV)<input id="rImp" type="file" accept=".csv,.tsv,.txt" hidden></label>
     <button id="rClose">Lukk</button></div>
-  <div class="rh"><input id="rQ" type="search" placeholder="Søk i register"><select id="rFTag"></select><select id="rFBook"></select><select id="rFWho" title="Finn sanger som mangler navn på tekstforfatter eller komponist"><option value="">Alle sanger</option><option value="w">Mangler tekstforfatter</option><option value="m">Mangler komponist</option><option value="any">Mangler tekstforfatter eller komponist</option></select></div>
+  <div class="rh"><input id="rQ" type="search" placeholder="Søk i register"><select id="rFTag"></select><select id="rFBook"></select><select id="rFArch" title="Arkiverte sanger er skjult i biblioteket, men ligger trygt her"><option value="">Aktive og arkiv</option><option value="act">Bare aktive</option><option value="arc">Bare arkiv</option></select><select id="rFWho" title="Finn sanger som mangler navn på tekstforfatter eller komponist"><option value="">Alle sanger</option><option value="w">Mangler tekstforfatter</option><option value="m">Mangler komponist</option><option value="any">Mangler tekstforfatter eller komponist</option></select></div>
   <div class="rh"><b id="rSel" class="hint"></b>
     <input id="rTag" list="dlTags" placeholder="Kategori …"><button id="rAdd">Legg til på valgte</button><button id="rDel">Fjern fra valgte</button>
     <input id="rBook" list="dlBooks" placeholder="Bok …"><button id="rSetBook">Sett bok på valgte</button>
-    <select id="rWhoF"><option value="words">Tekstforfatter</option><option value="music">Komponist</option><option value="authors">Annet opphav</option><option value="copyright">Opphavsrett</option></select><input id="rWho" list="dlPeople" placeholder="Navn …"><button id="rSetWho">Sett på valgte</button><span class="sp"></span><button id="rTag" title="Leser alle sangtekstene og foreslår emner som Nåde, Påske og Lovsang. Du godkjenner før noe lagres.">🏷 Foreslå emner</button><button id="rFix" title="Flytter linjer som «T: … M: …» ut av versene og over i tekstforfatter/komponist">🧹 Rett opp kreditlinjer</button><button id="rDelSongs" title="Sletter alle avkryssede sanger fra biblioteket" style="color:#d6334a">🗑 Slett valgte sanger</button></div>
+    <select id="rWhoF"><option value="words">Tekstforfatter</option><option value="music">Komponist</option><option value="authors">Annet opphav</option><option value="copyright">Opphavsrett</option></select><input id="rWho" list="dlPeople" placeholder="Navn …"><button id="rSetWho">Sett på valgte</button><span class="sp"></span><button id="rArc" title="Skjuler valgte sanger fra biblioteket. De slettes ikke, og kan hentes tilbake når som helst.">🗄 Flytt til arkiv</button><button id="rUnarc" title="Henter valgte sanger tilbake fra arkivet">↩ Hent tilbake</button><button id="rTag" title="Leser alle sangtekstene og foreslår emner som Nåde, Påske og Lovsang. Du godkjenner før noe lagres.">🏷 Foreslå emner</button><button id="rFix" title="Flytter linjer som «T: … M: …» ut av versene og over i tekstforfatter/komponist">🧹 Rett opp kreditlinjer</button><button id="rDelSongs" title="Sletter alle avkryssede sanger fra biblioteket" style="color:#d6334a">🗑 Slett valgte sanger</button></div>
   <div id="rWrap"><table id="rTab"></table></div>
+  <div id="rPrev" hidden></div>
   <datalist id="dlTags"></datalist><datalist id="dlBooks"></datalist>
 </dialog>
 <dialog id="drDlg" style="width:min(640px,96vw)">
@@ -913,7 +915,8 @@ function liveStep(d){
 function render(){
   updateDatalists();
   const q=$('q').value.toLowerCase();
-  const base=S.songs.map(s=>({s,h:hit(s,q)})).filter(x=>x.h!==null);
+  const arcMode=S.libKind==='arch', arcN=S.songs.filter(s=>s.arch).length;
+  const base=S.songs.filter(s=>arcMode?!!s.arch:!s.arch).map(s=>({s,h:hit(s,q)})).filter(x=>x.h!==null);
   const tagCount={}; base.forEach(({s})=>(s.tags||[]).forEach(t=>tagCount[t]=(tagCount[t]||0)+1));
   if(S.tag&&!(S.tag in tagCount)) tagCount[S.tag]=0;
   let list=base.filter(({s})=>!S.tag||(s.tags||[]).includes(S.tag));
@@ -931,7 +934,7 @@ function render(){
     sel.value=S.tag||''; sel.hidden=!names.length; }
   $('letters').replaceChildren(mk('Alle',!S.letter,()=>{S.letter=null; render();}),
     ...letters.map(l=>mk(l,S.letter===l,()=>{S.letter=S.letter===l?null:l; render();})));
-  $('cnt').textContent=list.length+' av '+S.songs.length+' sanger'+(S.media&&S.media.length?' · '+S.media.length+' media':'');
+  $('cnt').textContent=list.length+' av '+(arcMode?arcN:S.songs.length-arcN)+(arcMode?' sanger i arkivet':' sanger')+(!arcMode&&arcN?' · '+arcN+' i arkiv':'')+(!arcMode&&S.media&&S.media.length?' · '+S.media.length+' media':'');
   $('bClearSamples').hidden=!S.songs.some(x=>(x.tags||[]).includes('Eksempel'));
   const rows=[]; let lastL=null;
   for(const {s,h} of list){
@@ -946,6 +949,7 @@ function render(){
     r.children[1].onclick=e=>{e.stopPropagation(); openEditor(s.id);};
     r.children[2].onclick=e=>{e.stopPropagation(); goLive(s.id);};
     r.lastChild.onclick=e=>{e.stopPropagation(); S.plan.push(s.id); save(); render();};
+    if(arcMode){ const b=document.createElement('button'); b.textContent='↩'; b.title='Hent tilbake fra arkivet'; b.onclick=e=>{ e.stopPropagation(); s.arch=false; save(); render(); }; r.append(b); }
     rows.push(r);
   }
   // Video og lysbilder i biblioteket
@@ -1639,10 +1643,11 @@ function sortRows(list){
     :String(val(a)).toLowerCase().localeCompare(String(val(b)).toLowerCase(),'no')));
 }
 function regRender(){
-  const q=$('rQ').value.toLowerCase(), ft=$('rFTag').value, fb=$('rFBook').value, fw=$('rFWho').value;
+  const q=$('rQ').value.toLowerCase(), ft=$('rFTag').value, fb=$('rFBook').value, fw=$('rFWho').value, fa=$('rFArch').value;
   regRows=sortRows(S.songs.filter(s=>hit(s,q)!==null)
     .filter(s=>!ft||(ft==='__none'?!(s.tags||[]).length:(s.tags||[]).includes(ft)))
     .filter(s=>!fb||(fb==='__none'?!s.book:s.book===fb))
+    .filter(s=>!fa||(fa==='act'?!s.arch:!!s.arch))
     .filter(s=>!fw||(fw==='w'?noWho(s.words):fw==='m'?noWho(s.music):(noWho(s.words)||noWho(s.music)))));
   const wrap=$('rWrap'), st=wrap.scrollTop;
   const tr0=document.createElement('tr');
@@ -1666,7 +1671,7 @@ function regRender(){
   };
   const tb=document.createElement('tbody');
   regRows.forEach((s,i)=>{
-    const tr=document.createElement('tr'); if(regSel.has(s.id)) tr.className='sel';
+    const tr=document.createElement('tr'); tr.className=(regSel.has(s.id)?'sel':'')+(s.arch?' arc':'');
     const c0=document.createElement('td'), cb=document.createElement('input'); cb.type='checkbox'; cb.checked=regSel.has(s.id);
     cb.onclick=e=>{
       if(e.shiftKey&&regLast>=0){ for(let j=Math.min(regLast,i);j<=Math.max(regLast,i);j++) regSel.add(regRows[j].id); regLast=i; regRender(); return; }
@@ -1674,7 +1679,7 @@ function regRender(){
       tr.classList.toggle('sel',cb.checked); $('rSel').textContent=regSel.size+' valgt';
     };
     c0.append(cb);
-    const ro=document.createElement('td'); ro.className='ro'; ro.textContent=firstLine(s);
+    const ro=document.createElement('td'); ro.className='ro'; ro.textContent=(s.arch?'🗄 ':'')+firstLine(s); ro.title='Klikk for å lese hele teksten'; ro.onclick=()=>regPreview(s.id);
     tr.append(c0, ed(s.number||'',v=>{s.number=v;}), ed(s.book||'',v=>{s.book=v;},'dlBooks'),
       ed(s.title,v=>{s.title=v;},null,true), ed(s.words||'',v=>{s.words=v;},'dlPeople'), ed(s.music||'',v=>{s.music=v;},'dlPeople'), ro,
       ed((s.tags||[]).join(', '),v=>{s.tags=v.split(',').map(x=>x.trim()).filter(Boolean);}));
@@ -2656,7 +2661,7 @@ function tgScan(){
   const T=TG_THEMES.map(([name,kws])=>({name,kws:kws.map(k=>{ const w=k.endsWith('$'); return new RegExp('(?<![a-zæøåäöü0-9])'+escRe(w?k.slice(0,-1):k)+(w?'(?![a-zæøåäöü0-9])':'')); })}));
   const res=T.map(x=>({name:x.name,list:[]}));
   for(const s of S.songs){
-    if((s.tags||[]).includes('Eksempel')) continue;
+    if((s.tags||[]).includes('Eksempel')||s.arch) continue;
     const body=Object.values(s.verses||{}).join('\n').toLowerCase(), ti=(s.title||'').toLowerCase(), have=(s.tags||[]).map(x=>x.toLowerCase());
     T.forEach((th,i)=>{
       if(have.includes(th.name.toLowerCase())) return;
@@ -2707,6 +2712,21 @@ $('tgApply').onclick=()=>{
   save(); render(); try{ regRender(); }catch(e){}
   $('tgDlg').close(); $('libHint').textContent=n+' emnemerker er lagt til på '+songs.size+' sanger.';
 };
+// ---- Arkiv og lesing i Registeret ----
+function regPreview(id){
+  const s=song(id), box=$('rPrev'); if(!s){ box.hidden=true; return; }
+  box.hidden=false; box.replaceChildren();
+  const bar=document.createElement('div'); bar.className='pv'; const h=document.createElement('h3'); h.textContent=s.title; bar.append(h);
+  const mk=(txt,fn)=>{ const b=document.createElement('button'); b.type='button'; b.textContent=txt; b.onclick=fn; bar.append(b); };
+  mk(s.arch?'↩ Hent tilbake':'🗄 Flytt til arkiv',()=>{ s.arch=s.arch?false:true; save(); render(); regRender(); regPreview(id); });
+  mk('✎ Rediger',()=>openEditor(id)); mk('Lukk',()=>{ box.hidden=true; });
+  box.append(bar);
+  for(const n of (s.order&&s.order.length?[...new Set(s.order)]:Object.keys(s.verses||{}))){ const l=document.createElement('b'); l.className='vn'; l.textContent=n; const pre=document.createElement('pre'); pre.textContent=(s.verses||{})[n]||''; box.append(l,pre); }
+  const meta=[s.words&&'Tekst: '+s.words,s.music&&'Musikk: '+s.music].filter(Boolean).join(' · '); if(meta){ const m=document.createElement('div'); m.className='hint'; m.style.marginTop='8px'; m.textContent=meta; box.append(m); }
+}
+$('rFArch').onchange=()=>regRender();
+$('rArc').onclick=()=>{ const n=regSel.size; if(!n) return alert('Merk sanger først (avkrysning til venstre i tabellen).'); bulk(s=>{ s.arch=true; }); regSel.clear(); regRender(); $('libHint').textContent=n+' sanger er flyttet til arkivet. Du finner dem under «🗄 Arkiv» i biblioteket.'; };
+$('rUnarc').onclick=()=>{ const n=regSel.size; if(!n) return alert('Merk sanger først (avkrysning til venstre i tabellen).'); bulk(s=>{ s.arch=false; }); regSel.clear(); regRender(); $('libHint').textContent=n+' sanger er hentet tilbake fra arkivet.'; };
 $('rFix').onclick=$('impFix').onclick=()=>{
   $('impMenu').hidden=true;
   const n=fixCredScan(false);
