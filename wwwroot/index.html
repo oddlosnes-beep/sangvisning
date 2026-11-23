@@ -585,6 +585,7 @@ header button,header .btn{min-height:30px}
 <dialog id="tgDlg" style="width:min(760px,96vw)">
   <div class="rh"><h2 style="margin:0;font-size:16px">Foreslå emner</h2><span class="sp"></span><button id="tgClose">Lukk</button></div>
   <p class="hint" id="tgInfo" style="margin:6px 0"></p>
+  <div class="bar" style="margin:0 0 6px;align-items:center"><span class="hint">Hvor mange skal hukes av?</span><select id="tgLvl" style="width:auto"><option value="7">Bare de sikreste (anbefalt)</option><option value="5">Middels</option><option value="0">Alle forslag</option></select></div>
   <div id="tgList"></div>
   <div class="bar" style="margin-top:8px"><span id="tgSum" class="hint"></span><span class="sp"></span><button id="tgApply" class="pri">Legg til emner</button></div>
 </dialog>
@@ -2670,14 +2671,14 @@ function tgScan(){
 function tgSum(){ let n=0; tgSel.forEach(v=>n+=v.size); $('tgSum').textContent=n+' emnemerker legges til'; $('tgApply').disabled=!n; }
 function tgOpen(){
   if($('impMenu')) $('impMenu').hidden=true;
-  $('tgInfo').textContent='Leser '+S.songs.length+' sanger …'; $('tgList').replaceChildren(); $('tgDlg').showModal();
+  $('tgLvl').value='7'; $('tgInfo').textContent='Leser '+S.songs.length+' sanger …'; $('tgList').replaceChildren(); $('tgDlg').showModal();
   setTimeout(()=>{
     tgRes=tgScan(); tgSel=new Map();
     const tot=tgRes.reduce((a,r)=>a+r.list.length,0);
-    $('tgInfo').textContent=tot?'Programmet har funnet '+tot+' mulige emner ut fra ordene i tekstene. Åpne et emne for å se sangene. Sangene som passer best er huket av på forhånd. Fjern haken ved dem som ikke passer, så trykker du «Legg til emner».':'Fant ingen nye emneforslag.';
+    $('tgInfo').textContent=tot?'Programmet har funnet '+tot+' mulige emner ut fra ordene i tekstene. Åpne et emne for å se sangene. Sangene er sortert med de sikreste først (●●●). Bare de sikreste er huket av på forhånd, og du kan velge hvor mange som skal være med i lista over. Fjern eller sett haker som du vil, og trykk «Legg til emner».':'Fant ingen nye emneforslag.';
     const box=$('tgList');
     for(const r of tgRes){
-      const sel=new Set(r.list.filter(x=>x.sc>=5).map(x=>x.s.id)); tgSel.set(r.name,sel);
+      const sel=new Set(r.list.filter(x=>x.sc>=+$('tgLvl').value).map(x=>x.s.id)); tgSel.set(r.name,sel); r.sel=sel;
       const det=document.createElement('details'), sm=document.createElement('summary'), cnt=document.createElement('small');
       const nm=document.createElement('b'); nm.textContent=r.name; const upd=()=>{ cnt.textContent=sel.size+' valgt av '+r.list.length; tgSum(); };
       const mkb=(txt,fn)=>{ const b=document.createElement('button'); b.type='button'; b.textContent=txt; b.style.cssText='padding:2px 8px;margin-left:auto'; b.onclick=e=>{ e.preventDefault(); e.stopPropagation(); fn(); det.dataset.done=''; if(det.open) draw(); upd(); }; return b; };
@@ -2687,14 +2688,16 @@ function tgOpen(){
       const draw=()=>{ body.replaceChildren(...r.list.map(x=>{
         const row=document.createElement('label'); row.className='tgr'; const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=sel.has(x.s.id);
         cb.onchange=()=>{ cb.checked?sel.add(x.s.id):sel.delete(x.s.id); upd(); };
-        const tt=document.createElement('span'); tt.textContent=x.s.title; const sm2=document.createElement('small'); sm2.textContent=x.line.slice(0,90);
+        const tt=document.createElement('span'); tt.textContent=x.s.title; const sm2=document.createElement('small'); sm2.textContent=(x.sc>=7?'●●● ':x.sc>=5?'●●○ ':'●○○ ')+x.line.slice(0,90);
         row.append(cb,tt,sm2); return row; })); det.dataset.done='1'; };
+      r.det=det; r.draw=draw; r.upd=upd;
       det.ontoggle=()=>{ if(det.open){ box.querySelectorAll('details[open]').forEach(d=>{ if(d!==det) d.open=false; }); if(!det.dataset.done) draw(); setTimeout(()=>det.scrollIntoView({block:'nearest'}),0); } };
       upd(); box.append(det);
     }
     tgSum();
   },30);
 }
+$('tgLvl').onchange=()=>{ const min=+$('tgLvl').value; for(const r of tgRes){ if(!r.sel) continue; r.sel.clear(); r.list.filter(x=>x.sc>=min).forEach(x=>r.sel.add(x.s.id)); if(r.det.open) r.draw(); else r.det.dataset.done=''; r.upd(); } };
 $('tgClose').onclick=()=>$('tgDlg').close();
 $('rTag').onclick=$('impTag').onclick=tgOpen;
 $('tgApply').onclick=()=>{
