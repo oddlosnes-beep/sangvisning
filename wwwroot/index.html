@@ -2687,7 +2687,7 @@ function tgOpen(){
         cb.onchange=()=>{ cb.checked?sel.add(x.s.id):sel.delete(x.s.id); upd(); };
         const tt=document.createElement('span'); tt.textContent=x.s.title; const sm2=document.createElement('small'); sm2.textContent=x.line.slice(0,90);
         row.append(cb,tt,sm2); return row; })); det.dataset.done='1'; };
-      det.ontoggle=()=>{ if(det.open&&!det.dataset.done) draw(); };
+      det.ontoggle=()=>{ if(det.open){ box.querySelectorAll('details[open]').forEach(d=>{ if(d!==det) d.open=false; }); if(!det.dataset.done) draw(); setTimeout(()=>det.scrollIntoView({block:'nearest'}),0); } };
       upd(); box.append(det);
     }
     tgSum();
