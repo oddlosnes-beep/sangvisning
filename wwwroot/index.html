@@ -2639,7 +2639,11 @@ function fixCredScan(apply){
     let dup=false;
     { const k0=(s.order&&s.order[0])||Object.keys(s.verses||{})[0];
       if(k0&&s.verses[k0]!=null){ const L=String(s.verses[k0]).split('\n'), nm=x=>x.toLowerCase().replace(/[^a-zæøåäö0-9]+/g,'');
-        if(L.length>=2){ const a=nm(L[0]), b=nm(L[1]); if(a&&a===nm(s.title||'')&&((b===a&&(s.title||'').trim().split(/\s+/).length>=3)||(b.startsWith(a)&&b!==a&&L[1].length>=50))){ dup=true; if(apply){ L.shift(); s.verses[k0]=L.join('\n').trim(); } } } } }
+        if(L.length>=2){ const a=nm(L[0]), b=nm(L[1]), tt=nm(s.title||''), n0=L.filter(x=>x.trim()).length;
+          const cnt=Object.keys(s.verses).filter(k=>k!==k0&&/^vers\b/i.test(k)).map(k=>String(s.verses[k]).split('\n').filter(x=>x.trim()).length);
+          let m=0; if(cnt.length){ const f={}; cnt.forEach(c=>f[c]=(f[c]||0)+1); m=+Object.keys(f).sort((x,y)=>f[y]-f[x]||x-y)[0]; }
+          const hit=a&&(cnt.length ? (n0===m+1&&(a===b||(a===tt&&b.startsWith(a)))) : (a===tt&&((b===a&&(s.title||'').trim().split(/\s+/).length>=3)||(b.startsWith(a)&&b!==a&&L[1].length>=50))));
+          if(hit){ dup=true; if(apply){ L.shift(); s.verses[k0]=L.join('\n').trim(); } } } } }
     if(ch||dup) n++;
     if(ch){ if(apply){
       const W=[],M=[],O=[];
