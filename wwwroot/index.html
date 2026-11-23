@@ -255,6 +255,22 @@ dialog select{width:100%;padding:7px 10px;border:1px solid var(--line);border-ra
 #plan .item.dropB{box-shadow:0 -3px 0 var(--acc)}
 #plan .item.dropA{box-shadow:0 3px 0 var(--acc)}
 #plan .empty{color:var(--mute);font-size:13px;text-align:center;padding:18px 8px}
+/* Møteplan: knappene under listen blir stående, og selve listen ruller. Toppen er kompakt slik at flere sanger får plass. */
+#planSec{display:flex;flex-direction:column;overflow:hidden}
+#planSec>*{flex:none}
+#planSec>#plan{flex:1 1 auto;min-height:90px;max-height:none}
+#planSec .thRow span{display:none}
+#planSec .thRow{margin:0 0 5px;flex-wrap:nowrap}#planSec .thRow select{flex:1;min-width:0}
+#planSec #planSel{margin:0 0 5px}
+#planSec select,#planSec .pbar button,#planSec .thRow button{min-height:28px;padding:3px 8px;font-size:13px}
+#planSec .pbar{margin:0 0 6px;gap:5px}
+#planSec #plan .item{padding:3px 6px;margin-bottom:3px}
+#planSec #plan .item button{padding:2px 8px}
+#planSec>.hint{display:none}
+#planSec>.bar{margin:0 0 4px!important}
+#planSec>.bar button,#planSec>.bar .btn{padding:3px 6px!important;font-size:12.5px;min-height:28px;box-sizing:border-box}
+#planSec #planLbl{margin:0 0 2px}
+@media(max-width:800px){#planSec #plan{max-height:50vh}}
 header button,header .btn{min-height:30px}
 #tPrev{margin-top:8px}
 .thF input[type=color]{height:34px;padding:2px}
@@ -345,7 +361,7 @@ header button,header .btn{min-height:30px}
     <div class="thRow"><span>Tema</span><select id="thSel" title="Tema for fremvisningen"></select><button id="bTh2" title="Rediger temaer, bakgrunner og egne bilder">Rediger</button></div>
     <select id="planSel" title="Åpne en lagret møteplan"></select>
     <div class="pbar"><button id="planSave" title="Lagre møteplanen med et navn">Lagre</button><button id="planDel" title="Slett den lagrede møteplanen som vises nå">Slett</button><button id="planClear" title="Tøm møteplanen">Tøm</button></div>
-    <div id="planLbl"><span>Sanger i møteplanen</span><span title="Dra en sang opp eller ned for å endre rekkefølgen">⋮⋮ dra for å flytte</span></div><div id="plan"></div><p class="hint">+ i biblioteket legger til. ▶ eller dobbeltklikk sender til fremvisning.</p>
+    <div id="planLbl" title="+ i biblioteket legger til. ▶ eller dobbeltklikk viser sangen på skjermen."><span>Sanger i møteplanen</span><span title="Dra en sang opp eller ned for å endre rekkefølgen">⋮⋮ dra for å flytte</span></div><div id="plan"></div><p class="hint">+ i biblioteket legger til. ▶ eller dobbeltklikk viser.</p>
     <div class="bar" style="position:relative;margin:0 0 6px;flex:none"><button id="bPlanExp" style="flex:1;min-width:0;white-space:nowrap;padding-left:6px;padding-right:6px" title="Skriv ut sangark, send på e-post eller lagre planen">📤 Del / skriv ut …</button><label class="btn" style="flex:1;min-width:0;margin:0;justify-content:center;white-space:nowrap;padding-left:6px;padding-right:6px" title="Åpne en plan som er eksportert fra Sangvisning">⇧ Importer plan<input id="planImp" type="file" accept=".json,application/json" hidden></label></div>
     <div class="bar" style="margin:0 0 6px;flex:none;align-items:center;flex-wrap:wrap"><button id="bPlanLog" style="flex:1;min-width:0;white-space:nowrap;padding-left:6px;padding-right:6px" title="Lagre hva vi sang i bruksloggen. Gjør du når møtet er planlagt eller holdt.">📋 Logg møtet</button><button id="bPlanUse" style="flex:1;min-width:0;white-space:nowrap;padding-left:6px;padding-right:6px" title="Se hva vi har sunget og vist tidligere">📊 Rapport</button><button class="qm" data-help="Sangene du skal bruke i møtet.&#10;Dra for å endre rekkefølgen.&#10;Lagre gir planen et navn så du kan åpne den senere.&#10;Del / skriv ut lager sangark eller sender på e-post.&#10;Logg møtet lagrer hva dere sang i bruksloggen.">?</button><span id="logSt" class="hint" style="flex-basis:100%;margin:2px 0 0"></span></div></section>
 </main>
