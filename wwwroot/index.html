@@ -730,7 +730,6 @@ header button,header .btn{min-height:30px}
 <dialog id="abDlg" style="width:min(520px,94vw)">
   <div style="display:flex;gap:14px;align-items:center"><div id="abLogo" style="flex:none"></div><div><h2 style="margin:0">Sangvisning</h2><div class="hint" id="abVer">Versjon …</div></div></div>
   <p style="margin:12px 0 4px">Lokalt program for sangtekster, videoer og lysbilder på projektor i møter og gudstjenester. Alt kjører på denne PC-en. Sangene dine lagres bare her og sendes ikke noe sted.</p>
-  <label for="abBy">Laget av (vises her, valgfritt)</label><input id="abBy" placeholder="For eksempel navn eller gruppe">
   <p style="margin:12px 0 2px"><b>Laget sammen med Claude</b> (Anthropic).</p>
   <p class="hint" style="margin:2px 0">Prosjektside og nyeste versjon: <a href="https://github.com/oddlosnes-beep/sangvisning" target="_blank" rel="noopener">github.com/oddlosnes-beep/sangvisning</a></p>
   <p class="hint" style="margin:2px 0">Sangene ligger i: <span id="abDir" style="user-select:all"></span></p>
@@ -3705,11 +3704,9 @@ $('skClose').onclick=()=>$('skDlg').close();
 $('bAbout').onclick=async()=>{
   $('moreMenu').hidden=true;
   const lg=document.querySelector('header .logo'); $('abLogo').innerHTML=lg?lg.outerHTML.replace(/width="\d+"/,'width="56"').replace(/height="\d+"/,'height="56"'):'';
-  $('abBy').value=(S.settings&&S.settings.aboutBy)||'';
   try{ const d=await (await fetch('/api/version')).json(); $('abVer').textContent='Versjon '+d.version+(d.installed?'':' (kjører fra utviklermappen)'); $('abDir').textContent=d.dataDir||''; }catch(e){ $('abVer').textContent='Versjon ukjent'; }
   $('abDlg').showModal();
 };
-$('abBy').onchange=()=>{ S.settings=S.settings||{}; S.settings.aboutBy=$('abBy').value.trim(); save(); };
 $('abClose').onclick=()=>$('abDlg').close();
 async function updCheck(manual){
   try{
