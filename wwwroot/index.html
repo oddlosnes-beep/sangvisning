@@ -307,7 +307,7 @@ header button,header .btn{min-height:30px}
         <button id="impDraft" title="QR-kode til mobilsiden, og sanger som er sendt inn derfra">📱 Fra mobil: QR og utkast</button>
       </div></div><p class="hint" id="libHint">Eller slipp sangfiler her.</p></section>
   <section id="pvSec"><h2>Forhåndsvisning <button class="qm" data-help="Klikk på et vers for å se det her.&#10;Dobbeltklikk, eller ▶ Fremvisning, sender det til skjermen.&#10;Piltaster blar mellom vers." title="Tips">?</button></h2>
-    <div id="pvBar" hidden><div class="bar" style="margin:0 0 6px"><b id="pvTitle" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></b><button id="pvLive" class="pri" title="Send til fremvisning (dobbeltklikk på et vers starter derfra)">▶ Fremvisning</button><button id="pvAdd">+ Møteplan</button></div></div>
+    <div id="pvBar" hidden><div class="bar" style="margin:0 0 6px"><b id="pvTitle" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></b><button id="pvLive" class="pri" title="Send til fremvisning (dobbeltklikk på et vers starter derfra)">▶ Fremvisning</button><button id="pvAdd">+ Møteplan</button><button id="pvArc" title="Skjuler sangen fra biblioteket uten å slette den. Du finner den under «Arkiv»."></button></div></div>
     <div class="area"><div id="pvSlides"></div>
     <div id="pvVid" hidden><div id="pvvTitle" style="font-weight:600"></div><div class="hint" id="pvvInfo"></div>
       <div class="bar" style="margin-top:8px"><button id="pvvLive" class="pri">▶ Fremvisning</button><button id="pvvEdit">Rediger video</button></div></div>
@@ -1021,7 +1021,7 @@ function render(){
   $('pvSlides').hidden=!pvSong; $('pvBar').hidden=!pvSong; $('pvVid').hidden=!pvVidMode; $('pvPres').hidden=!pvPresMode; $('pvHint').hidden=!!(pvSong||pvVidMode||pvPresMode);
   if(pvPresMode){ $('pvpTitle').textContent=S.pvPres.name; $('pvpInfo').textContent=S.pvPres.n+' lysbilder. Dobbeltklikk på et bilde, eller ▶ Fremvisning, sender det til skjermen.';
     presGrid($('pvpGrid'),S.pvPres,S.pidx,S.liveKind==='pres'&&S.pres&&S.pres.item===S.pvPres?S.pres.idx:-1,i=>{S.pidx=i;render();},i=>goPres(S.pvPres,i)); }
-  if(pvSong){ $('pvTitle').textContent=S.cur.title; $('pvAdd').hidden=S.plan.includes(S.cur.id); }
+  if(pvSong){ $('pvTitle').textContent=S.cur.title; $('pvAdd').hidden=S.plan.includes(S.cur.id); $('pvArc').textContent=S.cur.arch?'↩ Hent tilbake':'🗄 Arkiver'; }
   if(pvVidMode){ const v=S.pvVid; $('pvvTitle').textContent=v.title||(vname(v));
     $('pvvInfo').textContent=(v.start||v.end)?'Spiller '+fmt(v.start||0)+(v.end?' – '+fmt(v.end):' – slutten'):'Hele videoen'; }
   $('pvSlides').replaceChildren(...(pvSong?slidesOf(S.cur):[]).map((sl,i)=>{
@@ -2305,6 +2305,8 @@ try{
 }catch(e){}
 // ---- Hendelser ----
 $('pvLive').onclick=()=>{ if(S.cur) goLive(S.cur.id,S.idx>=0?S.idx:0); };
+$('pvArc').onclick=()=>{ const s=S.cur; if(!s) return; if(s.arch){ s.arch=false; save(); render(); return; }
+  s.arch=true; save(); render(); undoToast('«'+s.title+'» er flyttet til arkivet.',()=>{ s.arch=false; save(); render(); }); };
 $('pvAdd').onclick=()=>{ if(S.cur){ S.plan.push(S.cur.id); save(); render(); } };
 $('pvvLive').onclick=()=>{ if(S.pvVid) liveVideo(S.pvVid); };
 $('pvpLive').onclick=()=>{ if(S.pvPres) goPres(S.pvPres,S.pidx); };
