@@ -349,7 +349,7 @@ header button,header .btn{min-height:30px}
     <button id="rExp">Eksporter til Excel (CSV)</button><button id="rExpSel" title="Eksporterer de avkryssede sangene">Eksporter valgte (OpenLyrics)</button>
     <label class="btn">Importer fra Excel (CSV)<input id="rImp" type="file" accept=".csv,.tsv,.txt" hidden></label>
     <button id="rClose">Lukk</button></div>
-  <div class="rh"><input id="rQ" type="search" placeholder="Søk i register"><select id="rFTag"></select><select id="rFBook"></select><select id="rFArch" title="Arkiverte sanger er skjult i biblioteket, men ligger trygt her"><option value="">Aktive og arkiv</option><option value="act">Bare aktive</option><option value="arc">Bare arkiv</option></select><select id="rFWho" title="Finn sanger som mangler navn på tekstforfatter eller komponist"><option value="">Alle sanger</option><option value="w">Mangler tekstforfatter</option><option value="m">Mangler komponist</option><option value="any">Mangler tekstforfatter eller komponist</option></select></div>
+  <div class="rh"><input id="rQ" type="search" placeholder="Søk i register"><select id="rFTag"></select><select id="rFBook"></select><select id="rFArch" title="Arkiverte sanger er skjult i biblioteket, men ligger trygt her"><option value="act">Bare aktive (arkiv skjult)</option><option value="">Aktive og arkiv</option><option value="arc">Bare arkiv</option></select><select id="rFWho" title="Finn sanger som mangler navn på tekstforfatter eller komponist"><option value="">Alle sanger</option><option value="w">Mangler tekstforfatter</option><option value="m">Mangler komponist</option><option value="any">Mangler tekstforfatter eller komponist</option></select></div>
   <div class="rh"><b id="rSel" class="hint"></b>
     <input id="rTag" list="dlTags" placeholder="Kategori …"><button id="rAdd">Legg til på valgte</button><button id="rDel">Fjern fra valgte</button>
     <input id="rBook" list="dlBooks" placeholder="Bok …"><button id="rSetBook">Sett bok på valgte</button>
@@ -1687,7 +1687,7 @@ function regRender(){
   });
   const thead=document.createElement('thead'); thead.append(tr0);
   $('rTab').replaceChildren(thead,tb); wrap.scrollTop=st;
-  $('rCnt').textContent=regRows.length+' av '+S.songs.length+' sanger';
+  { const an=S.songs.filter(s=>s.arch).length; $('rCnt').textContent=regRows.length+' av '+S.songs.length+' sanger'+(fa==='act'&&an?' · '+an+' skjult i arkiv':''); }
   $('rSel').textContent=regSel.size+' valgt';
 }
 function openReg(){ fillFilters(); regRender(); $('reg').showModal(); }
