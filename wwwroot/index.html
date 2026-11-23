@@ -1289,7 +1289,7 @@ const sortKey=s=>(S.sort==='line'?firstLine(s):s.title).toLowerCase();
 const escRe=x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 const stemOf=x=>{ const n=x.length; return n<=3?x:n<=5?x.slice(0,n-1):x.slice(0,n-2); };
 let _stemQ=null, _stemR=[];
-function stemRes(q){ if(q!==_stemQ){ _stemQ=q; _stemR=q.split(/\s+/).filter(Boolean).map(x=>new RegExp('(?<![a-zæøåäöü0-9])'+escRe(stemOf(x)))); } return _stemR; }
+function stemRes(q){ if(q!==_stemQ){ _stemQ=q; _stemR=q.split(/\s+/).filter(Boolean).map(x=>new RegExp('(?<![a-zæøåäöü0-9])'+escRe(stemOf(x))+(stemOf(x).length>=3?'(?!'+escRe(stemOf(x).slice(-1))+')':''))); } return _stemR; }
 function relScore(s,q){
   const w=q.split(/\s+/).filter(Boolean); if(!w.length) return 0;
   const t=(s.title||'').toLowerCase(), ph=w.join(' '); let sc=0;
@@ -2650,7 +2650,7 @@ function fixCredScan(apply){
 }
 // ---- Foreslå emner ut fra teksten ----
 const TG_THEMES=[
- ['Nåde og tilgivelse',['nåd','miskunn','tilgi','tilgje','tilgiv','benåd','syndenes forlat']],
+ ['Nåde og tilgivelse',['nåd(?!d)','miskunn','tilgi','tilgje','tilgiv','benåd','syndenes forlat']],
  ['Kors og forsoning',['kors$','korset','golgata','lammet','guds lam','forson','forløs','tornekrone','blodet','offerlam']],
  ['Påske og oppstandelse',['påske','oppstand','oppstod','oppstå','tomme grav','graven er tom','seier over døden']],
  ['Advent og jul',['advent','jul$','julen','julaften','betlehem','krybbe','hyrde','gloria','jomfru maria','stjernen']],
@@ -2666,23 +2666,23 @@ const TG_THEMES=[
  ['Dåp',['dåp','døpt','døpe','døper']],
  ['Misjon og vitnesbyrd',['misjon','vitne','all verden','folkeslag','nasjon','sendt ut','gå ut']],
  ['Trøst og styrke',['trøst','styrke','frykt ikke','redd ikke','hvile','bekymr']],
- ['Fred',['fred']],
+ ['Fred',['fred(?!ag)']],
  ['Evighet og himmel',['evig','himmel','paradis','jerusalem','kanaan','hjemlengsel','hjemme hos']],
  ['Død og sorg',['død','gravferd','begravelse','sorg','tårer','savn','avskjed']],
  ['Kristi gjenkomst og dommen',['gjenkomst','kommer igjen','komme igjen','brudgom','dommedag','dommen','kommer snart']],
- ['Skaperverk og natur',['skaper','skapt','skap$','skapning','jorden','blomst','fugl','solen','sommer']],
+ ['Skaperverk og natur',['skaper','skapt','skap$','skapning','blomst','fugl','sommer']],
  ['Barn',['barn']],
  ['Nytt år og tidens gang',['nytt år','det nye år','årets','året','tidens']],
  ['Høst og takkefest',['høst','avling','markens','åker','kornet']],
  ['Guds ord og Bibelen',['guds ord','ditt ord','ordet','bibel','skrift','lampe for min fot']],
- ['Følge Jesus',['følge','følg','etterfølg','disippel','ta opp sitt kors','vandre med','veien']],
+ ['Følge Jesus',['etterfølg','disippel','ta opp sitt kors','følg meg','vandre med']],
  ['Synd og omvendelse',['synd','omvend','anger','bot$','skyld','tilbake til deg']],
  ['Guds trofasthet',['trofast','aldri svik','sviker ikke','tro mot']],
- ['Menighet og fellesskap',['menighet','fellesskap','brødre','søsken','sammen','enhet']]
+ ['Menighet og fellesskap',['menighet','fellesskap','brødre og søstre','søsken']]
 ];
 let tgRes=[], tgSel=new Map();
 function tgScan(){
-  const T=TG_THEMES.map(([name,kws])=>({name,kws:kws.map(k=>{ const w=k.endsWith('$'); return new RegExp('(?<![a-zæøåäöü0-9])'+escRe(w?k.slice(0,-1):k)+(w?'(?![a-zæøåäöü0-9])':'')); })}));
+  const T=TG_THEMES.map(([name,kws])=>({name,kws:kws.map(k=>{ const w=k.endsWith('$'); return new RegExp('(?<![a-zæøåäöü0-9])'+(k.includes('(')?k:escRe(w?k.slice(0,-1):k))+(w?'(?![a-zæøåäöü0-9])':'')); })}));
   const res=T.map(x=>({name:x.name,list:[]}));
   for(const s of S.songs){
     if((s.tags||[]).includes('Eksempel')||s.arch) continue;
@@ -2691,7 +2691,7 @@ function tgScan(){
       if(have.includes(th.name.toLowerCase())) return;
       let sc=0,d=0;
       for(const r of th.kws){ const c=body.split(r).length-1, tc=ti.search(r)>=0; if(c||tc){ d++; sc+=Math.min(5,c)+(tc?3:0); } }
-      if(sc>=5||(sc>=3&&d>=2)){ const line=body.split('\n').find(l=>th.kws.some(r=>l.search(r)>=0))||''; res[i].list.push({s,sc,line}); }
+      if(sc>=5||(sc>=3&&d>=2)){ let line='',mi=-1,ml=0; for(const l of body.split('\n')){ let best=null; for(const r of th.kws){ const m=r.exec(l); if(m&&(!best||m.index<best.index)) best=m; } if(best){ line=l; mi=best.index; ml=best[0].length; while(mi+ml<l.length&&/[a-zæøåäöü0-9]/.test(l[mi+ml])) ml++; break; } } res[i].list.push({s,sc,line,mi,ml}); }
     });
   }
   res.forEach(r=>r.list.sort((a,b)=>b.sc-a.sc||a.s.title.localeCompare(b.s.title,'no')));
@@ -2717,7 +2717,8 @@ function tgOpen(){
       const draw=()=>{ body.replaceChildren(...r.list.map(x=>{
         const row=document.createElement('label'); row.className='tgr'; const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=sel.has(x.s.id);
         cb.onchange=()=>{ cb.checked?sel.add(x.s.id):sel.delete(x.s.id); upd(); };
-        const tt=document.createElement('span'); tt.textContent=x.s.title; const sm2=document.createElement('small'); sm2.textContent=(x.sc>=7?'●●● ':x.sc>=5?'●●○ ':'●○○ ')+x.line.slice(0,90);
+        const tt=document.createElement('span'); tt.textContent=x.s.title; const sm2=document.createElement('small'); sm2.append((x.sc>=7?'●●● ':x.sc>=5?'●●○ ':'●○○ ')+(x.mi>30?'…':'')+x.line.slice(Math.max(0,x.mi-30),Math.max(0,x.mi)));
+        if(x.mi>=0){ const mk=document.createElement('mark'); mk.textContent=x.line.slice(x.mi,x.mi+x.ml); mk.style.cssText='background:transparent;color:var(--text);font-weight:700'; sm2.append(mk,x.line.slice(x.mi+x.ml,x.mi+x.ml+50)); } else sm2.append(x.line.slice(0,80));
         row.append(cb,tt,sm2); return row; })); det.dataset.done='1'; };
       r.det=det; r.draw=draw; r.upd=upd;
       det.ontoggle=()=>{ if(det.open){ box.querySelectorAll('details[open]').forEach(d=>{ if(d!==det) d.open=false; }); if(!det.dataset.done) draw(); setTimeout(()=>det.scrollIntoView({block:'nearest'}),0); } };
