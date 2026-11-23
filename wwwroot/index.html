@@ -401,7 +401,8 @@ header button,header .btn{min-height:30px}
   <p class="hint" style="margin:0 0 6px">Det du velger legges til her. Ingenting slettes eller overskrives.</p>
   <div class="bar" style="margin:0 0 6px;flex-wrap:wrap"><input id="pkQ" type="search" placeholder="Søk i tittel eller tekst …" style="flex:1;min-width:160px"><button id="pkAll">Velg viste</button><button id="pkNone">Fjern valg</button><button id="pkPlan" title="Velg bare sangene som ligger i møteplanen i skyen">Bare møteplanens</button></div>
   <div id="pkList" style="max-height:42vh;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:4px"></div>
-  <label id="pkUpWrap" style="display:flex;gap:8px;align-items:center;margin:8px 0 0;color:var(--text)" hidden><input type="checkbox" id="pkUp" style="width:auto"><span>Oppdater også <b id="pkUpN"></b> sanger som er endret i skyen (tekst, emner og arkiv erstattes med skyens versjon)</span></label>
+  <label id="pkUpWrap" style="display:flex;gap:8px;align-items:center;margin:8px 0 0;color:var(--text)" hidden><input type="checkbox" id="pkUp" style="width:auto"><span>Oppdater <b id="pkUpN"></b> sanger der teksten er endret i skyen (erstatter teksten her)</span></label>
+  <label id="pkUpMWrap" style="display:flex;gap:8px;align-items:center;margin:6px 0 0;color:var(--text)" hidden><input type="checkbox" id="pkUpM" style="width:auto"><span>Oppdater emner og arkiv på <b id="pkUpMN"></b> sanger (bruker skyens emner og arkiv)</span></label>
   <div class="bar"><span class="hint" id="pkSum" style="flex:1"></span><button id="pkCancel">Avbryt</button><button id="pkGo" class="pri">Hent valgte</button></div>
 </dialog>
 <dialog id="askDlg" style="width:min(520px,94vw)">
@@ -3271,11 +3272,12 @@ const folderT={ say:(t,ok)=>clSay(t,ok), prep:o=>o,
   after:async fromBar=>{ await cloudLoad(); if(!fromBar) cloudDraw(); } };
 const cloudPush=quiet=>pushFlow(quiet,folderT);
 function cloudSoon(){ const sy=!!(syncCfg.id&&syncCfg.auto); if(!sy&&!(cloudInfo.auto&&cloudInfo.dir)) return; clearTimeout(cloudT); cloudT=setTimeout(()=>sy?syncPush(true):cloudPush(true),20000); }
-const sigOf=x=>JSON.stringify([x.title,x.order,x.verses,x.authors||'',x.words||'',x.music||'',x.number||'',x.book||'',[...(x.tags||[])].sort(),!!x.arch]);
-function pickSongs(songs,planIds,nChanged){
+const sigOf=x=>JSON.stringify([x.title,x.order,x.verses,x.authors||'',x.words||'',x.music||'',x.number||'']);
+const sigMeta=x=>JSON.stringify([x.book||'',[...(x.tags||[])].sort(),!!x.arch]);
+function pickSongs(songs,planIds,nChanged,nMeta){
   return new Promise(res=>{
     const d=$('pickDlg'); const on=new Set(songs.length<=10?songs.map(x=>x.id):[]); let done=false;
-    $('pkQ').value=''; $('pkUp').checked=false; $('pkUpWrap').hidden=!nChanged; $('pkUpN').textContent=nChanged; $('pkPlan').hidden=!planIds.size;
+    $('pkQ').value=''; $('pkUp').checked=false; $('pkUp').checked=false; $('pkUpM').checked=false; $('pkUpWrap').hidden=!nChanged; $('pkUpN').textContent=nChanged; $('pkUpMWrap').hidden=!nMeta; $('pkUpMN').textContent=nMeta; $('pkPlan').hidden=!planIds.size;
     const draw=()=>{
       const q=$('pkQ').value.trim().toLowerCase(), box=$('pkList'); box.replaceChildren(); let shown=0;
       songs.forEach(sg=>{
@@ -3288,27 +3290,32 @@ function pickSongs(songs,planIds,nChanged){
       if(!shown){ const e=document.createElement('div'); e.className='hint'; e.style.padding='12px'; e.textContent='Ingen sanger passer med søket.'; box.append(e); }
       sum();
     };
-    const sum=()=>{ $('pkSum').textContent=on.size+' av '+songs.length+' valgt'; $('pkGo').disabled=!on.size&&!$('pkUp').checked; };
+    const sum=()=>{ $('pkSum').textContent=on.size+' av '+songs.length+' valgt'; $('pkGo').disabled=!on.size&&!$('pkUp').checked&&!$('pkUpM').checked; };
     const fin=v=>{ if(done) return; done=true; d.close(); res(v); };
-    $('pkQ').oninput=draw; $('pkUp').onchange=sum;
+    $('pkQ').oninput=draw; $('pkUp').onchange=sum; $('pkUpM').onchange=sum;
     $('pkAll').onclick=()=>{ const q=$('pkQ').value.trim().toLowerCase(); songs.forEach(sg=>{ if(!q||tkey(sg).includes(q)||Object.values(sg.verses||{}).join(' ').toLowerCase().includes(q)) on.add(sg.id); }); draw(); };
     $('pkNone').onclick=()=>{ on.clear(); draw(); };
     $('pkPlan').onclick=()=>{ on.clear(); songs.forEach(sg=>{ if(planIds.has(sg.id)) on.add(sg.id); }); draw(); };
     $('pkCancel').onclick=()=>fin(null);
-    $('pkGo').onclick=()=>fin({ids:new Set(on),update:$('pkUp').checked});
+    $('pkGo').onclick=()=>fin({ids:new Set(on),update:$('pkUp').checked,meta:$('pkUpM').checked});
     d.oncancel=()=>fin(null);
     draw(); d.showModal();
   });
 }
-function pullBuild(local,remote,sel,updIds,withPlan){
+function pullBuild(local,remote,sel,updIds,withPlan,metaIds){
   const m=mergeData(local,{songs:sel,plans:remote.plans,themes:remote.themes,media:remote.media}), out=m.data;
-  if(updIds&&updIds.size){ const byId=new Map(remote.songs.map(x=>[x.id,x])); out.songs=out.songs.map(x=>updIds.has(x.id)&&byId.has(x.id)?byId.get(x.id):x); }
+  if((updIds&&updIds.size)||(metaIds&&metaIds.size)){ const byId=new Map(remote.songs.map(x=>[x.id,x]));
+    out.songs=out.songs.map(x=>{ const r=byId.get(x.id); if(!r) return x; const tx=!!(updIds&&updIds.has(x.id)), me=!!(metaIds&&metaIds.has(x.id)); if(!tx&&!me) return x;
+      const b=tx?Object.assign({},r):Object.assign({},x);
+      if(tx&&!me){ b.book=x.book; b.tags=x.tags; b.arch=x.arch; }
+      if(me){ b.book=r.book; b.tags=r.tags; b.arch=r.arch; }
+      return b; }); }
   if(withPlan){ const t2=new Map(out.songs.map(x=>[tkey(x),x.id])), rid=new Map(remote.songs.map(x=>[x.id,t2.get(tkey(x))||x.id])), mp=x=>typeof x==='string'?(rid.get(x)||x):x, k=x=>typeof x==='string'?x:JSON.stringify(x), have=new Set((out.plan||[]).map(k)); out.plan=[...(out.plan||[]),...(remote.plan||[]).map(mp).filter(x=>!have.has(k(x)))]; }
   return {data:out,added:m.added};
 }
 async function pullFlow(remote,fromBar,T){
   const local=backupObject(), lay=S.settings.layout, newOnes=onlyIn(remote,local), mine=onlyIn(local,remote).length;
-  const lById=new Map(local.songs.map(x=>[x.id,x])), changed=remote.songs.filter(x=>lById.has(x.id)&&sigOf(lById.get(x.id))!==sigOf(x));
+  const lById=new Map(local.songs.map(x=>[x.id,x])), changedT=remote.songs.filter(x=>lById.has(x.id)&&sigOf(lById.get(x.id))!==sigOf(x)), changedM=remote.songs.filter(x=>lById.has(x.id)&&sigMeta(lById.get(x.id))!==sigMeta(x)), changed=[...new Set([...changedT,...changedM])];
   const planIds=new Set((remote.plan||[]).filter(x=>typeof x==='string'));
   const say=t=>{ setStatus(t); if(!fromBar) T.say(t,true); };
   const done=async()=>{ $('cloudBar').hidden=true; await T.after(fromBar); };
@@ -3323,7 +3330,7 @@ async function pullFlow(remote,fromBar,T){
   let r;
   if(c.k==='merge') r=pullBuild(local,remote,newOnes,null,false);
   else if(c.k==='plan'){ const ids=new Set([...planIds]); r=pullBuild(local,remote,remote.songs.filter(x=>ids.has(x.id)&&!lById.has(x.id)),null,true); }
-  else { const pk=await pickSongs(newOnes,planIds,changed.length); if(!pk) return; r=pullBuild(local,remote,newOnes.filter(x=>pk.ids.has(x.id)),pk.update?new Set(changed.map(x=>x.id)):null,false); }
+  else { const pk=await pickSongs(newOnes,planIds,changedT.length,changedM.length); if(!pk) return; r=pullBuild(local,remote,newOnes.filter(x=>pk.ids.has(x.id)),pk.update?new Set(changedT.map(x=>x.id)):null,false,pk.meta?new Set(changedM.map(x=>x.id)):null); }
   restoreData(r.data,{cloud:true,silent:true,layout:lay});
   say('Hentet '+r.added+' sanger fra skyen.');
   return done();
