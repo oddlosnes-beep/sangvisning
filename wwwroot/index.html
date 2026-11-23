@@ -191,7 +191,7 @@ dialog .qm{margin-left:6px;vertical-align:middle}.qm{cursor:help}@media (pointer
 .cmp select{font-size:13px}
 .shopt{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin:0;cursor:pointer}.shopt input{margin:3px 0 0;width:auto}.shopt small{color:var(--mut,#8a93a6)}
 #shBook{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0;max-height:132px;overflow-y:auto;padding:2px}#shFind{display:flex;gap:6px;margin:4px 0}#shFind input{flex:1;min-width:0}.mchip{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--bg)}.mchip button{border:0;background:transparent;color:var(--text);padding:5px 10px;font:inherit;cursor:pointer;border-radius:0}.mchip button:last-child{padding:5px 9px 5px 4px;color:var(--mute)}.mchip.on{background:var(--accent,#3b82f6);border-color:var(--accent,#3b82f6)}.mchip.on button{color:#fff}
-#tgList{max-height:58vh;overflow:auto}#tgList details{border:1px solid var(--line);border-radius:8px;margin:4px 0;padding:4px 8px}#tgList summary{cursor:pointer;display:flex;gap:8px;align-items:center}#tgList summary small{color:var(--mute)}#tgList .tr{display:flex;gap:8px;align-items:baseline;padding:3px 0}#tgList .tr small{color:var(--mute)}
+#tgList{max-height:58vh;overflow:auto}#tgList details{border:1px solid var(--line);border-radius:8px;margin:4px 0;padding:4px 8px}#tgList summary{cursor:pointer;display:flex;gap:8px;align-items:center}#tgList summary small{color:var(--mute)}#tgList .tgr{display:grid;grid-template-columns:20px minmax(0,1fr);gap:1px 10px;align-items:start;padding:6px 2px;margin:0;border-top:1px solid var(--line);cursor:pointer;text-align:left;width:auto}#tgList .tgr input{width:auto;min-width:0;margin:3px 0 0;padding:0;grid-row:1/3}#tgList .tgr span{display:block;margin:0;text-align:left}#tgList .tgr small{display:block;margin:0;color:var(--mute);text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#tgList summary button{padding:2px 8px}
 #impMenu,#expMenu{position:absolute;left:0;right:0;bottom:calc(100% + 6px);z-index:60;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px;box-shadow:0 10px 28px #0005;display:flex;flex-direction:column;gap:4px}
 #expMenu button,#impMenu button,#impMenu .btn{text-align:left;width:100%;box-sizing:border-box;margin:0}
 #moreMenu button,#moreMenu .btn{text-align:left;width:100%;box-sizing:border-box;margin:0}
@@ -2683,9 +2683,9 @@ function tgOpen(){
       sm.append(nm,cnt,all,none); det.append(sm);
       const body=document.createElement('div'); det.append(body);
       const draw=()=>{ body.replaceChildren(...r.list.map(x=>{
-        const row=document.createElement('label'); row.className='tr'; const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=sel.has(x.s.id);
+        const row=document.createElement('label'); row.className='tgr'; const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=sel.has(x.s.id);
         cb.onchange=()=>{ cb.checked?sel.add(x.s.id):sel.delete(x.s.id); upd(); };
-        const tt=document.createElement('span'); tt.textContent=x.s.title; const sm2=document.createElement('small'); sm2.textContent='– '+x.line.slice(0,70);
+        const tt=document.createElement('span'); tt.textContent=x.s.title; const sm2=document.createElement('small'); sm2.textContent=x.line.slice(0,90);
         row.append(cb,tt,sm2); return row; })); det.dataset.done='1'; };
       det.ontoggle=()=>{ if(det.open&&!det.dataset.done) draw(); };
       upd(); box.append(det);
