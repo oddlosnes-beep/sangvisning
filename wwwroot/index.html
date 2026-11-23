@@ -116,7 +116,7 @@ dialog textarea{height:30vh}
 .part button{padding:2px 8px}
 main{grid-template-columns:1.3fr 1fr 1.3fr}
 @media(max-width:800px){main{grid-template-columns:1fr}}
-#kindSel,#sortSel{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font:inherit;margin-bottom:6px}
+#kindSel,#sortSel,#tagSel{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font:inherit;margin-bottom:6px}
 .chips,.letters{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
 .chips button{padding:1px 9px;font-size:12px;border-radius:12px}
 .letters button{padding:1px 7px;font-size:12px;border-radius:6px}
@@ -293,7 +293,7 @@ header button,header .btn{min-height:30px}
     <input id="q" type="search" placeholder="Søk i tittel, tekst og kategori  ( / )">
     <select id="kindSel"><option value="all">Alt i biblioteket</option><option value="song">Bare sanger</option><option value="yt">Bare video</option><option value="pres">Bare lysbilder</option></select>
     <select id="sortSel"><option value="rel">Beste treff først (ved søk)</option><option value="title">Sorter etter tittel</option><option value="line">Sorter etter første tekstlinje</option></select>
-    <div class="chips" id="chips"></div><div class="letters" id="letters"></div>
+    <select id="tagSel" title="Vis bare sanger med dette emnet"></select><div class="letters" id="letters"></div>
     <div id="lib"></div>
     <div class="bar" style="margin:6px 0 4px;flex:none;position:relative"><button id="bBulk" style="flex:1" title="Importer sanger fra filer, mappe, PDF, Word eller innlimt tekst">⇪ Importer sanger ▾</button>
       <div id="impMenu" hidden>
@@ -925,8 +925,9 @@ function render(){
   if(S.libKind==='yt'||S.libKind==='pres') list=[];
   found=list;
   const mk=(t,on,fn)=>{ const b=document.createElement('button'); b.textContent=t; if(on) b.className='on'; b.onclick=fn; return b; };
-  $('chips').replaceChildren(...Object.keys(tagCount).sort((a,b)=>a.localeCompare(b,'no')).map(t=>
-    mk(t+' '+tagCount[t],S.tag===t,()=>{S.tag=S.tag===t?null:t; S.letter=null; render();})));
+  { const sel=$('tagSel'), names=Object.keys(tagCount).sort((a,b)=>a.localeCompare(b,'no'));
+    sel.replaceChildren(new Option('Alle emner'+(names.length?' ('+names.length+')':''),''),...names.map(n=>new Option(n+' ('+tagCount[n]+')',n)));
+    sel.value=S.tag||''; sel.hidden=!names.length; }
   $('letters').replaceChildren(mk('Alle',!S.letter,()=>{S.letter=null; render();}),
     ...letters.map(l=>mk(l,S.letter===l,()=>{S.letter=S.letter===l?null:l; render();})));
   $('cnt').textContent=list.length+' av '+S.songs.length+' sanger'+(S.media&&S.media.length?' · '+S.media.length+' media':'');
@@ -2526,6 +2527,7 @@ $('planDel').onclick=()=>{
   if(!confirm('Slette den lagrede møteplanen «'+p.name+'»? Møteplanen som vises nå blir stående.')) return;
   S.plans=S.plans.filter(x=>x!==p); S.settings.planName=''; save(); render();
 };
+$('tagSel').onchange=e=>{ S.tag=e.target.value||null; S.letter=null; render(); };
 $('sortSel').onchange=e=>{S.sort=e.target.value; S.letter=null; render();};
 addEventListener('keydown',e=>{
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||document.querySelector("dialog[open]")) return;
