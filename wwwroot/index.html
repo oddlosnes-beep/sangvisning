@@ -304,7 +304,7 @@ header button,header .btn{min-height:30px}
         <label class="btn" title="Velg mappen med PowerPoint-sanger (.pptx). Hvert lysbilde blir et vers. Du ser og kan rette alt før noe legges i biblioteket.">🎞 Mappe med PowerPoint-sanger (.pptx) …<input id="impPpt" type="file" webkitdirectory multiple hidden></label>
         <button id="impPdf" title="Lim inn tekst, eller velg en PDF, Word-fil eller tekstfil. Du kan rette før noe legges i biblioteket.">✎ Tekst, PDF eller Word …</button>
         <button id="impTag" title="Leser alle sangtekstene og foreslår emner. Du godkjenner før noe lagres.">🏷 Foreslå emner ut fra teksten</button>
-        <button id="impFix" title="Flytter linjer som «T: … M: …» ut av versene og over i opphav, og fjerner tittellinjen som ble med i første vers. Du får se hvor mange som rettes før noe endres.">🧹 Rett opp sanger med kreditlinje i teksten</button>
+        <button id="impFix" title="Flytter linjer som «T: … M: …» ut av versene og over i opphav, og fjerner tittellinjen som ble med i første vers. Du får se hvor mange som rettes før noe endres.">🧹 Rett opp kreditlinjer og dobbel tittel</button>
         <button id="impDraft" title="QR-kode til mobilsiden, og sanger som er sendt inn derfra">📱 Fra mobil: QR og utkast</button>
       </div></div><p class="hint" id="libHint">Eller slipp sangfiler her.</p></section>
   <section id="pvSec"><h2>Forhåndsvisning <button class="qm" data-help="Klikk på et vers for å se det her.&#10;Dobbeltklikk, eller ▶ Fremvisning, sender det til skjermen.&#10;Piltaster blar mellom vers." title="Tips">?</button></h2>
@@ -354,7 +354,7 @@ header button,header .btn{min-height:30px}
   <div class="rh"><b id="rSel" class="hint"></b>
     <input id="rTag" list="dlTags" placeholder="Kategori …"><button id="rAdd">Legg til på valgte</button><button id="rDel">Fjern fra valgte</button>
     <input id="rBook" list="dlBooks" placeholder="Bok …"><button id="rSetBook">Sett bok på valgte</button>
-    <select id="rWhoF"><option value="words">Tekstforfatter</option><option value="music">Komponist</option><option value="authors">Annet opphav</option><option value="copyright">Opphavsrett</option></select><input id="rWho" list="dlPeople" placeholder="Navn …"><button id="rSetWho">Sett på valgte</button><span class="sp"></span><button id="rArc" title="Skjuler valgte sanger fra biblioteket. De slettes ikke, og kan hentes tilbake når som helst.">🗄 Flytt til arkiv</button><button id="rUnarc" title="Henter valgte sanger tilbake fra arkivet">↩ Hent tilbake</button><button id="rTag" title="Leser alle sangtekstene og foreslår emner som Nåde, Påske og Lovsang. Du godkjenner før noe lagres.">🏷 Foreslå emner</button><button id="rFix" title="Flytter linjer som «T: … M: …» ut av versene og over i tekstforfatter/komponist">🧹 Rett opp kreditlinjer</button><button id="rDelSongs" title="Sletter alle avkryssede sanger fra biblioteket" style="color:#d6334a">🗑 Slett valgte sanger</button></div>
+    <select id="rWhoF"><option value="words">Tekstforfatter</option><option value="music">Komponist</option><option value="authors">Annet opphav</option><option value="copyright">Opphavsrett</option></select><input id="rWho" list="dlPeople" placeholder="Navn …"><button id="rSetWho">Sett på valgte</button><span class="sp"></span><button id="rArc" title="Skjuler valgte sanger fra biblioteket. De slettes ikke, og kan hentes tilbake når som helst.">🗄 Flytt til arkiv</button><button id="rUnarc" title="Henter valgte sanger tilbake fra arkivet">↩ Hent tilbake</button><button id="rTag" title="Leser alle sangtekstene og foreslår emner som Nåde, Påske og Lovsang. Du godkjenner før noe lagres.">🏷 Foreslå emner</button><button id="rFix" title="Flytter linjer som «T: … M: …» ut av versene og over i tekstforfatter/komponist">🧹 Rett opp kreditlinjer og dobbel tittel</button><button id="rDelSongs" title="Sletter alle avkryssede sanger fra biblioteket" style="color:#d6334a">🗑 Slett valgte sanger</button></div>
   <div id="rWrap"><table id="rTab"></table></div>
   <div id="rPrev" hidden></div>
   <datalist id="dlTags"></datalist><datalist id="dlBooks"></datalist>
@@ -2624,7 +2624,7 @@ const BK_CRED=/^(?:T\/M|T|M|O|Tekst|Musikk|Text|Music|Words|Melodi)\s*[:\/]\s*\S
 function stripCreds(L,title){
   const nm=x=>x.toLowerCase().replace(/[^a-zæøåäö0-9]+/g,''), cred=[], out=[]; let tl=false;
   for(const raw of L){ const l=raw.trim(); if(BK_CRED.test(l)){ cred.push(l); if(out.length===1&&nm(out[0])===nm(title)) tl=true; } else out.push(raw); }
-  if(tl&&out.length>1&&nm(out[1])===nm(out[0])) out.shift();
+  if(tl&&out.length>1) out.shift();
   return {lines:out,cred};
 }
 function fixCredScan(apply){
@@ -2636,7 +2636,12 @@ function fixCredScan(apply){
       const r=stripCreds(L,s.title||''); cred.push(...r.cred); ch=true;
       if(apply){ const txt=r.lines.join('\n').trim(); if(txt) s.verses[k]=txt; else { delete s.verses[k]; s.order=(s.order||[]).filter(x=>x!==k); } }
     }
-    if(ch){ n++; if(apply){
+    let dup=false;
+    { const k0=(s.order&&s.order[0])||Object.keys(s.verses||{})[0];
+      if(k0&&s.verses[k0]!=null){ const L=String(s.verses[k0]).split('\n'), nm=x=>x.toLowerCase().replace(/[^a-zæøåäö0-9]+/g,'');
+        if(L.length>=2){ const a=nm(L[0]), b=nm(L[1]); if(a&&a===nm(s.title||'')&&((b===a&&(s.title||'').trim().split(/\s+/).length>=3)||(b.startsWith(a)&&b!==a&&L[1].length>=50))){ dup=true; if(apply){ L.shift(); s.verses[k0]=L.join('\n').trim(); } } } } }
+    if(ch||dup) n++;
+    if(ch){ if(apply){
       const W=[],M=[],O=[];
       for(const line of [...new Set(cred)]) for(const part of line.split(/,\s*(?=(?:T\/M|T|M|O|Tekst|Musikk|Text|Music|Words|Melodi)\s*[:\/])/i)){
         const m=/^(T\/M|T|M|O|Tekst|Musikk|Text|Music|Words|Melodi)\s*[:\/]\s*(.+)$/i.exec(part.trim()); if(!m){ O.push(part.trim()); continue; }
@@ -2755,8 +2760,8 @@ $('rUnarc').onclick=()=>{ const n=regSel.size; if(!n) return alert('Merk sanger 
 $('rFix').onclick=$('impFix').onclick=()=>{
   $('impMenu').hidden=true;
   const n=fixCredScan(false);
-  if(!n){ $('libHint').textContent='Fant ingen sanger med kreditlinjer inne i teksten.'; return; }
-  if(!confirm('Fant '+n+' sanger med linjer som «T: … M: …» inne i versene.\n\nVil du flytte dem til opphav og fjerne tittellinjen som ble med i første vers?\n\nProgrammet tar daglig kopi, så du kan gå tilbake via Sikkerhetskopi.')) return;
+  if(!n){ $('libHint').textContent='Fant ingen sanger som trenger opprydding.'; return; }
+  if(!confirm('Fant '+n+' sanger som kan ryddes:\n• linjer som «T: … M: …» inne i versene flyttes til tekstforfatter og komponist\n• tittelen som står som første linje i første vers, og som gjentas i linjen under, fjernes\n\nVil du rette dem?\n\nProgrammet tar daglig kopi, så du kan gå tilbake via Sikkerhetskopi.')) return;
   const m=fixCredScan(true); save(); render(); try{ regRender(); }catch(e){} $('libHint').textContent=m+' sanger er rettet opp.';
 };
 const BK_RF=/^(?:refreng|refrain|refr|ref|chorus)\b\.?\s*(\d{1,2})?\s*(?:\(?\s*x\s*(\d)\s*\)?)?\s*(:)?\s*(.*)$/i;
