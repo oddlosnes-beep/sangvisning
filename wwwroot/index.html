@@ -937,7 +937,10 @@ function render(){
   $('cnt').textContent=list.length+' av '+(arcMode?arcN:S.songs.length-arcN)+(arcMode?' sanger i arkivet':' sanger')+(!arcMode&&arcN?' · '+arcN+' i arkiv':'')+(!arcMode&&S.media&&S.media.length?' · '+S.media.length+' media':'');
   $('bClearSamples').hidden=!S.songs.some(x=>(x.tags||[]).includes('Eksempel'));
   const rows=[]; let lastL=null;
+  const capKey=q+'|'+S.tag+'|'+S.letter+'|'+S.libKind+'|'+S.sort; if(capKey!==S._capKey){ S._capKey=capKey; S.libCap=150; }
+  const cap=S.libCap||150; let shown=0;
   for(const {s,h} of list){
+    if(shown>=cap) break; shown++;
     const L=letterOf(s);
     const r=document.createElement('div'); r.className='item'+(S.cur&&S.cur.id===s.id?' sel':'');
     r.innerHTML='<span></span><button title="Rediger">✎</button><button title="Vis direkte på skjermen">▶</button><button title="Legg til i møteplan">+</button>';
@@ -951,6 +954,11 @@ function render(){
     r.lastChild.onclick=e=>{e.stopPropagation(); S.plan.push(s.id); save(); render();};
     if(arcMode){ const b=document.createElement('button'); b.textContent='↩'; b.title='Hent tilbake fra arkivet'; b.onclick=e=>{ e.stopPropagation(); s.arch=false; save(); render(); }; r.append(b); }
     rows.push(r);
+  }
+  if(list.length>cap){
+    const m=document.createElement('div'); m.className='item'; m.style.justifyContent='center';
+    const b=document.createElement('button'); b.textContent='Viser '+cap+' av '+list.length+' – vis flere'; const more=()=>{ S.libCap=cap+300; render(); }; b.onclick=more; m.append(b); rows.push(m);
+    if('IntersectionObserver' in window){ const io=new IntersectionObserver(es=>{ if(es[0].isIntersecting){ io.disconnect(); more(); } }); setTimeout(()=>io.observe(m),0); }
   }
   // Video og lysbilder i biblioteket
   {
