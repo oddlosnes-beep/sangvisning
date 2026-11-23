@@ -1628,14 +1628,18 @@ function deleteSong(){
 }
 
 // ---- Register ----
+let regKey='', regCap=200;
 const regSel=new Set(); let regSort={k:'title',d:1}, regRows=[], regLast=-1;
 const uniq=a=>[...new Set(a)].sort((x,y)=>x.localeCompare(y,'no'));
 const allTags=()=>uniq(S.songs.flatMap(s=>s.tags||[]));
 const allBooks=()=>uniq(S.songs.map(s=>s.book||'').filter(Boolean));
+let _dlSig='';
 function updateDatalists(){
-  $('dlTags').replaceChildren(...allTags().map(t=>new Option(t)));
-  $('dlBooks').replaceChildren(...allBooks().map(t=>new Option(t)));
-  $('dlPeople').replaceChildren(...uniq(S.songs.flatMap(s=>[s.words,s.music,s.authors]).filter(v=>v&&!noWho(v))).map(t=>new Option(t)));
+  const tg=allTags(), bk=allBooks(), pe=uniq(S.songs.flatMap(s=>[s.words,s.music,s.authors]).filter(v=>v&&!noWho(v)));
+  const sig=tg.join('\u0001')+'\u0002'+bk.join('\u0001')+'\u0002'+pe.join('\u0001'); if(sig===_dlSig) return; _dlSig=sig;
+  $('dlTags').replaceChildren(...tg.map(x=>new Option(x)));
+  $('dlBooks').replaceChildren(...bk.map(x=>new Option(x)));
+  $('dlPeople').replaceChildren(...pe.map(x=>new Option(x)));
 }
 function fillFilters(){
   const set=(id,first,none,vals)=>{ const el=$(id), v=el.value;
@@ -1652,6 +1656,7 @@ function sortRows(list){
     :String(val(a)).toLowerCase().localeCompare(String(val(b)).toLowerCase(),'no')));
 }
 function regRender(){
+  if(!$('reg').open) return;
   const q=$('rQ').value.toLowerCase(), ft=$('rFTag').value, fb=$('rFBook').value, fw=$('rFWho').value, fa=$('rFArch').value;
   regRows=sortRows(S.songs.filter(s=>hit(s,q)!==null)
     .filter(s=>!ft||(ft==='__none'?!(s.tags||[]).length:(s.tags||[]).includes(ft)))
@@ -1670,7 +1675,7 @@ function regRender(){
   }
   const ed=(val,fn,list,req)=>{
     const td=document.createElement('td'), inp=document.createElement('input'); inp.value=val;
-    if(list) inp.setAttribute('list',list);
+    if(list) inp.addEventListener('focus',()=>{ if(!inp.hasAttribute('list')) inp.setAttribute('list',list); });
     inp.onchange=()=>{ const v=inp.value.trim(); if(req&&!v){ inp.value=val; return; } fn(v); save(); render(); fillFilters(); };
     inp.onkeydown=e=>{ if(e.key!=='Enter') return;
       const tr=td.parentElement, nx=e.shiftKey?tr.previousElementSibling:tr.nextElementSibling;
@@ -1679,7 +1684,9 @@ function regRender(){
     td.append(inp); return td;
   };
   const tb=document.createElement('tbody');
-  regRows.forEach((s,i)=>{
+  const rkey=[q,ft,fb,fw,fa,regSort.k,regSort.d].join('|'); if(rkey!==regKey){ regKey=rkey; regCap=200; }
+  const rcap=regCap;
+  regRows.slice(0,rcap).forEach((s,i)=>{
     const tr=document.createElement('tr'); tr.className=(regSel.has(s.id)?'sel':'')+(s.arch?' arc':'');
     const c0=document.createElement('td'), cb=document.createElement('input'); cb.type='checkbox'; cb.checked=regSel.has(s.id);
     cb.onclick=e=>{
@@ -1694,12 +1701,18 @@ function regRender(){
       ed((s.tags||[]).join(', '),v=>{s.tags=v.split(',').map(x=>x.trim()).filter(Boolean);}));
     tb.append(tr);
   });
+  if(regRows.length>rcap){
+    const tr=document.createElement('tr'), td=document.createElement('td'), b=document.createElement('button'); td.colSpan=8; td.style.padding='8px'; td.style.textAlign='center';
+    const more=()=>{ regCap=rcap+400; regRender(); }; b.textContent='Viser '+rcap+' av '+regRows.length+' – vis flere'; b.onclick=more; td.append(b); tr.append(td); tb.append(tr);
+    if('IntersectionObserver' in window){ const io=new IntersectionObserver(es=>{ if(es[0].isIntersecting){ io.disconnect(); more(); } },{root:$('rWrap')}); setTimeout(()=>io.observe(tr),0); }
+  }
   const thead=document.createElement('thead'); thead.append(tr0);
   $('rTab').replaceChildren(thead,tb); wrap.scrollTop=st;
   { const an=S.songs.filter(s=>s.arch).length; $('rCnt').textContent=regRows.length+' av '+S.songs.length+' sanger'+(fa==='act'&&an?' · '+an+' skjult i arkiv':''); }
   $('rSel').textContent=regSel.size+' valgt';
 }
-function openReg(){ fillFilters(); regRender(); $('reg').showModal(); }
+function openReg(){ fillFilters(); $('reg').showModal(); regRender(); }
+$('reg').addEventListener('close',()=>{ $('rTab').replaceChildren(); $('rPrev').hidden=true; });
 function bulk(fn){
   const l=S.songs.filter(s=>regSel.has(s.id));
   if(!l.length) return alert('Merk sanger først (avkrysning til venstre i tabellen).');
