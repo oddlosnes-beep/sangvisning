@@ -1702,10 +1702,23 @@ function regRender(){
     const td=document.createElement('td'), inp=document.createElement('input'); inp.value=val;
     if(list) inp.addEventListener('focus',()=>{ if(!inp.hasAttribute('list')) inp.setAttribute('list',list); });
     inp.onchange=()=>{ const v=inp.value.trim(); if(req&&!v){ inp.value=val; return; } fn(v); save(); render(); fillFilters(); };
-    inp.onkeydown=e=>{ if(e.key!=='Enter') return;
-      const tr=td.parentElement, nx=e.shiftKey?tr.previousElementSibling:tr.nextElementSibling;
-      const t=nx&&nx.children[[...tr.children].indexOf(td)].querySelector('input');
-      if(t){ e.preventDefault(); t.focus(); t.select(); } };
+    // Piltaster som i et regneark: opp/ned bytter rad, venstre/høyre bytter celle når markøren står ved kanten
+    inp.onkeydown=e=>{
+      const k=e.key; if(e.ctrlKey||e.altKey||e.metaKey) return;
+      const tr=td.parentElement, ci=[...tr.children].indexOf(td);
+      const cell=(row,c)=>row&&row.children[c]&&row.children[c].querySelector('input:not([type=checkbox])');
+      const to=t=>{ if(!t) return false; e.preventDefault(); t.focus(); t.select(); return true; };
+      const vert=down=>{
+        let row=down?tr.nextElementSibling:tr.previousElementSibling;
+        if(down&&row&&row.lastElementChild&&row.firstElementChild.colSpan===8&&!row.hidden){ addRows(300); row=tr.nextElementSibling; }
+        if(!to(cell(row,ci))) e.preventDefault();
+      };
+      if(k==='Enter') vert(!e.shiftKey);
+      else if(k==='ArrowDown') vert(true);
+      else if(k==='ArrowUp') vert(false);
+      else if(k==='ArrowRight'&&!e.shiftKey&&inp.selectionEnd===inp.value.length){ for(let c=ci+1;c<tr.children.length;c++) if(to(cell(tr,c))) break; }
+      else if(k==='ArrowLeft'&&!e.shiftKey&&inp.selectionStart===0){ for(let c=ci-1;c>0;c--) if(to(cell(tr,c))) break; }
+    };
     td.append(inp); return td;
   };
   const tb=document.createElement('tbody');
