@@ -299,7 +299,7 @@ header button,header .btn{min-height:30px}
   <section id="libSec"><h2>Bibliotek <span id="cnt" class="hint"></span> <button class="qm" data-help="Alle sangene, videoene og lysbildene dine.&#10;Søk i tittel, tekst og kategori. Trykk / for å hoppe til søkefeltet.&#10;▶ sender rett til skjermen, + legger i møteplanen, ✎ redigerer.">?</button></h2>
     <div class="qrow"><input id="q" type="search" placeholder="Søk: tittel, tekst, emne, forfatter, komponist  ( / )" title="Søker i tittel, sangtekst, emner, tekstforfatter og komponist. Trykk / for å hoppe hit."><button id="qScope" type="button" title="Av: søker i hele sangteksten. På: søker bare i tittel og første linje.">Aa</button></div>
     <div class="filt"><select id="kindSel" title="Hva vises i biblioteket"><option value="all">Alt</option><option value="song">Sanger</option><option value="yt">Video</option><option value="pres">Lysbilder</option><option value="arch">🗄 Arkiv</option></select>
-    <select id="sortSel" title="Sortering. «Beste treff» rangerer etter søket, ellers alfabetisk."><option value="rel">Beste treff</option><option value="title">Tittel</option><option value="line">Første linje</option></select>
+    <select id="sortSel" title="Sortering. Ved søk kommer de beste treffene først (tittel som starter med søkeordet), deretter etter dette valget."><option value="rel">Beste treff</option><option value="title">Tittel</option><option value="line">Første linje</option></select>
     <select id="tagSel" title="Vis bare sanger med dette emnet"></select></div><div class="letters" id="letters"></div>
     <div id="lib"></div>
     <div class="bar" style="margin:6px 0 4px;flex:none;position:relative"><button id="bBulk" style="flex:1" title="Importer sanger fra filer, mappe, PDF, Word eller innlimt tekst">⇪ Importer sanger ▾</button>
@@ -941,7 +941,10 @@ function render(){
              return sortKey(a.s).localeCompare(sortKey(b.s),'no'); });
   let grp=null;
   if(q.trim()&&!S.qTitle&&list.length){ const nr=list.filter(x=>hit(x.s,q,true)!==null), rest=list.filter(x=>hit(x.s,q,true)===null);
-    if(rest.length){ list=[...nr,...rest]; grp={n:nr.length,m:rest.length}; } }
+    { const w=q.trim().split(/\s+/), ph=w.join(' ');
+      const tier=({s})=>{ const ti=(s.title||'').toLowerCase(), fl=firstLine(s).toLowerCase(); if(ti.startsWith(ph)) return 1; if(ti.includes(ph)||fl.includes(ph)||w.every(x=>(ti+' '+fl).includes(x))) return 2; return 3; };
+      const tr=new Map(nr.map(x=>[x.s.id,tier(x)])); nr.sort((a,b)=>tr.get(a.s.id)-tr.get(b.s.id)); }
+    if(rest.length){ list=[...nr,...rest]; grp={n:nr.length,m:rest.length}; } else list=nr; }
   if(S.libKind==='yt'||S.libKind==='pres') list=[];
   found=list;
   const mk=(t,on,fn)=>{ const b=document.createElement('button'); b.textContent=t; if(on) b.className='on'; b.onclick=fn; return b; };
