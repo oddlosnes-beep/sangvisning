@@ -371,7 +371,7 @@ header button,header .btn{min-height:30px}
     <button id="rExp">Eksporter til Excel (CSV)</button><button id="rExpSel" title="Eksporterer de avkryssede sangene">Eksporter valgte (OpenLyrics)</button>
     <label class="btn">Importer fra Excel (CSV)<input id="rImp" type="file" accept=".csv,.tsv,.txt" hidden></label>
     <button id="rClose">Lukk</button></div>
-  <div class="rh"><input id="rQ" type="search" placeholder="Søk i register"><select id="rFTag"></select><select id="rFBook"></select><select id="rFArch" title="Arkiverte sanger er skjult i biblioteket, men ligger trygt her"><option value="act">Bare aktive (arkiv skjult)</option><option value="">Aktive og arkiv</option><option value="arc">Bare arkiv</option></select><select id="rFWho" title="Finn sanger som mangler navn på tekstforfatter eller komponist"><option value="">Alle sanger</option><option value="w">Mangler tekstforfatter</option><option value="m">Mangler komponist</option><option value="any">Mangler tekstforfatter eller komponist</option></select></div>
+  <div class="rh"><input id="rQ" type="search" placeholder="Søk i register"><select id="rFTag"></select><select id="rFBook"></select><select id="rFArch" title="Arkiverte sanger er skjult i biblioteket, men ligger trygt her"><option value="act">Bare aktive (arkiv skjult)</option><option value="">Aktive og arkiv</option><option value="arc">Bare arkiv</option></select><select id="rFWho" title="Finn sanger som mangler navn på tekstforfatter eller komponist"><option value="">Alle sanger</option><option value="w">Mangler tekstforfatter</option><option value="m">Mangler komponist</option><option value="any">Mangler tekstforfatter eller komponist</option><option value="o">Har bare «Annet opphav» (ingen tekstforfatter/komponist)</option></select></div>
   <div class="rh"><b id="rSel" class="hint"></b><span id="rBulkHint" class="hint">Huk av sanger i tabellen for å redigere flere om gangen (shift-klikk velger en rekke).</span><span id="rBulk" style="display:none">
     <input id="rTag" list="dlTags" placeholder="Kategori …"><button id="rAdd">Legg til på valgte</button><button id="rDel">Fjern fra valgte</button>
     <input id="rBook" list="dlBooks" placeholder="Bok …"><button id="rSetBook">Sett bok på valgte</button>
@@ -1704,10 +1704,10 @@ function regRender(){
     .filter(s=>!ft||(ft==='__none'?!(s.tags||[]).length:(s.tags||[]).includes(ft)))
     .filter(s=>!fb||(fb==='__none'?!s.book:s.book===fb))
     .filter(s=>!fa||(fa==='act'?!s.arch:!!s.arch))
-    .filter(s=>!fw||(fw==='w'?noWho(s.words):fw==='m'?noWho(s.music):(noWho(s.words)||noWho(s.music)))));
+    .filter(s=>!fw||(fw==='w'?noWho(s.words):fw==='m'?noWho(s.music):fw==='o'?(noWho(s.words)&&noWho(s.music)&&!noWho(s.authors)):(noWho(s.words)||noWho(s.music)))));
   const wrap=$('rWrap'), st=wrap.scrollTop;
   const tr0=document.createElement('tr');
-  for(const [k,t] of [[null,''],['number','Nr'],['book','Bok'],['title','Tittel'],['words','Tekstforfatter'],['music','Komponist'],['line','Første linje'],['tags','Kategorier']]){
+  for(const [k,t] of [[null,''],['number','Nr'],['book','Bok'],['title','Tittel'],['words','Tekstforfatter'],['music','Komponist'],['authors','Annet opphav'],['line','Første linje'],['tags','Kategorier']]){
     const th=document.createElement('th');
     if(!k){ const a=document.createElement('input'); a.type='checkbox'; a.checked=regRows.length>0&&regRows.every(s=>regSel.has(s.id));
       a.onclick=()=>{ regRows.forEach(s=>a.checked?regSel.add(s.id):regSel.delete(s.id)); regRender(); }; th.append(a); }
@@ -1728,7 +1728,7 @@ function regRender(){
       const to=t=>{ if(!t) return false; e.preventDefault(); t.focus(); t.select(); return true; };
       const vert=down=>{
         let row=down?tr.nextElementSibling:tr.previousElementSibling;
-        if(down&&row&&row.lastElementChild&&row.firstElementChild.colSpan===8&&!row.hidden){ addRows(300); row=tr.nextElementSibling; }
+        if(down&&row&&row.lastElementChild&&row.firstElementChild.colSpan===9&&!row.hidden){ addRows(300); row=tr.nextElementSibling; }
         if(!to(cell(row,ci))) e.preventDefault();
       };
       if(k==='Enter') vert(!e.shiftKey);
@@ -1753,12 +1753,12 @@ function regRender(){
     c0.append(cb);
     const ro=document.createElement('td'); ro.className='ro'; ro.textContent=(s.arch?'🗄 ':'')+firstLine(s); ro.title='Klikk for å lese hele teksten'; ro.onclick=()=>regPreview(s.id);
     tr.append(c0, ed(s.number||'',v=>{s.number=v;}), ed(s.book||'',v=>{s.book=v;},'dlBooks'),
-      ed(s.title,v=>{s.title=v;},null,true), ed(s.words||'',v=>{s.words=v;},'dlPeople'), ed(s.music||'',v=>{s.music=v;},'dlPeople'), ro,
+      ed(s.title,v=>{s.title=v;},null,true), ed(s.words||'',v=>{s.words=v;},'dlPeople'), ed(s.music||'',v=>{s.music=v;},'dlPeople'), ed(s.authors||'',v=>{s.authors=v;},'dlPeople'), ro,
       ed((s.tags||[]).join(', '),v=>{s.tags=v.split(',').map(x=>x.trim()).filter(Boolean);}));
     return tr;
   };
   if(regIO){ regIO.disconnect(); regIO=null; }
-  const sen=document.createElement('tr'), sTd=document.createElement('td'), sB=document.createElement('button'); sTd.colSpan=8; sTd.style.padding='8px'; sTd.style.textAlign='center'; sTd.append(sB); sen.append(sTd); tb.append(sen);
+  const sen=document.createElement('tr'), sTd=document.createElement('td'), sB=document.createElement('button'); sTd.colSpan=9; sTd.style.padding='8px'; sTd.style.textAlign='center'; sTd.append(sB); sen.append(sTd); tb.append(sen);
   let shown=0;
   const addRows=n=>{
     const end=Math.min(shown+n,regRows.length), fr=document.createDocumentFragment();
@@ -1773,7 +1773,7 @@ function regRender(){
     setTimeout(()=>regIO&&regIO.observe(sen),0);
   }
   const thead=document.createElement('thead'); thead.append(tr0);
-  const cg=document.createElement('colgroup'); ['36px','56px','12%','22%','13%','13%','22%',''].forEach(w=>{ const c=document.createElement('col'); if(w) c.style.width=w; cg.append(c); });
+  const cg=document.createElement('colgroup'); ['36px','52px','10%','19%','11%','11%','13%','19%',''].forEach(w=>{ const c=document.createElement('col'); if(w) c.style.width=w; cg.append(c); });
   $('rTab').replaceChildren(cg,thead,tb); wrap.scrollTop=st;
   { const an=S.songs.filter(s=>s.arch).length; $('rCnt').textContent=regRows.length+' av '+S.songs.length+' sanger'+(fa==='act'&&an?' · '+an+' skjult i arkiv':'')+(regRel?' · beste treff først (klikk en kolonne for å sortere selv)':''); }
   regSelDraw();
