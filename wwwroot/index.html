@@ -988,7 +988,7 @@ function render(){
              if(rel){ const d=rel.get(b.s.id)-rel.get(a.s.id); if(d) return d; }
              return sortKey(a.s).localeCompare(sortKey(b.s),'no'); });
   let grp=null;
-  if(q.trim()&&!S.qTitle&&list.length){ const nr=list.filter(x=>hit(x.s,q,true)!==null), rest=list.filter(x=>hit(x.s,q,true)===null);
+  if(q.trim()&&list.length){ const nr=S.qTitle?list.slice():list.filter(x=>hit(x.s,q,true)!==null), rest=S.qTitle?[]:list.filter(x=>hit(x.s,q,true)===null);
     { const w=q.trim().split(/\s+/), ph=w.join(' ');
       const tier=({s})=>{ const ti=(s.title||'').toLowerCase(), fl=firstLine(s).toLowerCase(); if(ti.startsWith(ph)) return 1; if(fl.startsWith(ph)) return 2; if(ti.includes(ph)||fl.includes(ph)) return 3; if(w.every(x=>(ti+' '+fl).includes(x))) return 4; return 5; };
       const tr=new Map(nr.map(x=>[x.s.id,tier(x)])); nr.sort((a,b)=>tr.get(a.s.id)-tr.get(b.s.id)); }
