@@ -124,6 +124,16 @@ main{grid-template-columns:1.3fr 1fr 1.3fr}
 #reg{width:97vw;max-width:none;height:92vh;padding:12px;overflow:hidden}
 #reg[open]{display:flex;flex-direction:column;gap:8px}
 #reg input,#reg select{width:auto;padding:5px 8px}
+/* Verktøylinjene i Register: samme høyde, grupper med skillelinje */
+#reg .rh{gap:6px 8px;align-items:center}
+#reg .rh button,#reg .rh select,#reg .rh input:not([type=checkbox]){height:32px;box-sizing:border-box;padding:0 10px;font-size:13px}
+#reg .rh button:disabled{opacity:.45;cursor:default}
+#reg .rh label.btn{height:32px;box-sizing:border-box;padding:0 10px;font-size:13px;display:inline-flex;align-items:center;margin:0}
+#reg .rg{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
+#reg .rTool .rg+.rg{padding-left:10px;border-left:1px solid var(--line)}
+#reg .rBulk{flex:1 1 100%;gap:8px 16px;flex-wrap:wrap;align-items:center}
+#reg .rSelRow{min-height:32px}
+#reg #rQ{width:200px}#reg #rTag,#reg #rBook,#reg #rWho{width:150px}
 #reg label{display:inline-block;margin:0;font-size:15px;color:var(--text)}
 .rh{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.rh .sp{flex:1}
 #rWrap{flex:1;overflow:auto;border:1px solid var(--line);border-radius:8px}
@@ -383,10 +393,16 @@ header button,header .btn{min-height:30px}
     <label class="btn">Importer fra Excel (CSV)<input id="rImp" type="file" accept=".csv,.tsv,.txt" hidden></label>
     <button id="rClose">Lukk</button></div>
   <div class="rh"><input id="rQ" type="search" placeholder="Søk i register"><select id="rFTag"></select><select id="rFBook"></select><select id="rFArch" title="Arkiverte sanger er skjult i biblioteket, men ligger trygt her"><option value="act">Bare aktive (arkiv skjult)</option><option value="">Aktive og arkiv</option><option value="arc">Bare arkiv</option></select><select id="rFWho" title="Finn sanger som mangler navn på tekstforfatter eller komponist"><option value="">Alle sanger</option><option value="w">Mangler tekstforfatter</option><option value="m">Mangler komponist</option><option value="any">Mangler tekstforfatter eller komponist</option><option value="o">Har bare «Annet opphav» (ingen tekstforfatter/komponist)</option></select></div>
-  <div class="rh"><b id="rSel" class="hint"></b><span id="rBulkHint" class="hint">Huk av sanger i tabellen for å redigere flere om gangen (shift-klikk velger en rekke).</span><span id="rBulk" style="display:none">
-    <input id="rTag" list="dlTags" placeholder="Kategori …"><button id="rAdd">Legg til på valgte</button><button id="rDel">Fjern fra valgte</button>
-    <input id="rBook" list="dlBooks" placeholder="Bok …"><button id="rSetBook">Sett bok på valgte</button>
-    <select id="rWhoF"><option value="words">Tekstforfatter</option><option value="music">Komponist</option><option value="authors">Annet opphav</option><option value="copyright">Opphavsrett</option></select><input id="rWho" list="dlPeople" placeholder="Navn …"><button id="rSetWho">Sett på valgte</button></span><span class="sp"></span><span class="bgrp"><button id="rArc" title="Skjuler valgte sanger fra biblioteket. De slettes ikke, og kan hentes tilbake når som helst.">🗄 Flytt til arkiv</button><button id="rUnarc" title="Henter valgte sanger tilbake fra arkivet">↩ Hent tilbake</button></span><button id="rCats" title="Gi kategorier nytt navn, slå dem sammen eller slett dem">🏷 Kategorier …</button><button id="rTagSug" title="Leser alle sangtekstene og foreslår emner som Nåde, Påske og Lovsang. Du godkjenner før noe lagres.">🏷 Foreslå emner</button><button id="rFix" title="Flytter «T: … M: …» fra Annet opphav og ut av versene over i tekstforfatter og komponist, og fjerner dobbel tittel">🧹 Rett opp kreditlinjer og dobbel tittel</button><button id="rDelSongs" title="Sletter alle avkryssede sanger fra biblioteket" style="color:#d6334a">🗑 Slett valgte sanger</button></div>
+  <div class="rh rSelRow"><b id="rSel" class="hint"></b><span id="rBulkHint" class="hint">Huk av sanger i tabellen for å redigere flere om gangen (shift-klikk velger en rekke).</span>
+    <div id="rBulk" class="rBulk" style="display:none">
+      <span class="rg"><input id="rTag" list="dlTags" placeholder="Kategori …"><button id="rAdd">Legg til på valgte</button><button id="rDel">Fjern fra valgte</button></span>
+      <span class="rg"><input id="rBook" list="dlBooks" placeholder="Bok …"><button id="rSetBook">Sett bok på valgte</button></span>
+      <span class="rg"><select id="rWhoF"><option value="words">Tekstforfatter</option><option value="music">Komponist</option><option value="authors">Annet opphav</option><option value="copyright">Opphavsrett</option></select><input id="rWho" list="dlPeople" placeholder="Navn …"><button id="rSetWho">Sett på valgte</button></span>
+    </div></div>
+  <div class="rh rTool">
+    <span class="rg"><button id="rArc" title="Skjuler valgte sanger fra biblioteket. De slettes ikke, og kan hentes tilbake når som helst.">Flytt til arkiv</button><button id="rUnarc" title="Henter valgte sanger tilbake fra arkivet">Hent tilbake</button></span>
+    <span class="rg"><button id="rCats" title="Gi kategorier nytt navn, slå dem sammen eller slett dem">Kategorier …</button><button id="rTagSug" title="Leser alle sangtekstene og foreslår emner som Nåde, Påske og Lovsang. Du godkjenner før noe lagres.">Foreslå emner</button><button id="rFix" title="Flytter «T: … M: …» fra Annet opphav og ut av versene over i tekstforfatter og komponist, og fjerner dobbel tittel">Rett opp kreditlinjer og dobbel tittel</button></span>
+    <span class="sp"></span><button id="rDelSongs" title="Sletter alle avkryssede sanger fra biblioteket" style="color:#d6334a">Slett valgte sanger</button></div>
   <div id="rWrap"><table id="rTab"></table></div>
   <div id="rPrev" hidden></div>
   <datalist id="dlTags"></datalist><datalist id="dlTagCell"></datalist><datalist id="dlBooks"></datalist>
@@ -1819,7 +1835,7 @@ function regRender(){
   { const an=S.songs.filter(s=>s.arch).length; $('rCnt').textContent=regRows.length+' av '+S.songs.length+' sanger'+(fa==='act'&&an?' · '+an+' skjult i arkiv':'')+(regRel?' · beste treff først (klikk en kolonne for å sortere selv)':''); }
   regSelDraw();
 }
-function regSelDraw(){ const n=regSel.size; $('rSel').textContent=n+' valgt'; const b=$('rBulk'); if(b) b.style.display=n?'contents':'none'; const h=$('rBulkHint'); if(h) h.style.display=n?'none':''; }
+function regSelDraw(){ const n=regSel.size; $('rSel').textContent=n+' valgt'; const b=$('rBulk'); if(b) b.style.display=n?'flex':'none'; for(const id of ['rArc','rUnarc','rDelSongs']){ const x=$(id); if(x) x.disabled=!n; } const h=$('rBulkHint'); if(h) h.style.display=n?'none':''; }
 function openReg(){ fillFilters(); $('reg').showModal(); regRender(); }
 $('reg').addEventListener('close',()=>{ $('rTab').replaceChildren(); $('rPrev').hidden=true; });
 function bulk(fn){
