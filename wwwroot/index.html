@@ -990,7 +990,7 @@ function render(){
   let grp=null;
   if(q.trim()&&!S.qTitle&&list.length){ const nr=list.filter(x=>hit(x.s,q,true)!==null), rest=list.filter(x=>hit(x.s,q,true)===null);
     { const w=q.trim().split(/\s+/), ph=w.join(' ');
-      const tier=({s})=>{ const ti=(s.title||'').toLowerCase(), fl=firstLine(s).toLowerCase(); if(ti.startsWith(ph)) return 1; if(ti.includes(ph)||fl.includes(ph)||w.every(x=>(ti+' '+fl).includes(x))) return 2; return 3; };
+      const tier=({s})=>{ const ti=(s.title||'').toLowerCase(), fl=firstLine(s).toLowerCase(); if(ti.startsWith(ph)) return 1; if(fl.startsWith(ph)) return 2; if(ti.includes(ph)||fl.includes(ph)) return 3; if(w.every(x=>(ti+' '+fl).includes(x))) return 4; return 5; };
       const tr=new Map(nr.map(x=>[x.s.id,tier(x)])); nr.sort((a,b)=>tr.get(a.s.id)-tr.get(b.s.id)); }
     if(rest.length){ list=[...nr,...rest]; grp={n:nr.length,m:rest.length}; } else list=nr; }
   if(S.libKind==='yt'||S.libKind==='pres') list=[];
@@ -1737,7 +1737,7 @@ function regRender(){
   if(!$('reg').open) return;
   const q=$('rQ').value.toLowerCase(), ft=$('rFTag').value, fb=$('rFBook').value, fw=$('rFWho').value, fa=$('rFArch').value;
   const regRel=!!q.trim()&&!!regSort.auto;
-  regRows=(regRel?(l=>{ const w=q.split(/\s+/).filter(Boolean), ph=w.join(' '), sc=new Map(l.map(s=>{ const ti=(s.title||'').toLowerCase(), fl=firstLine(s).toLowerCase(); const t=ti.startsWith(ph)?1:(ti.includes(ph)||fl.includes(ph)||w.every(x=>(ti+' '+fl).includes(x)))?2:3; return [s.id,[t,-relScore(s,q)]]; })); return l.sort((a,b)=>sc.get(a.id)[0]-sc.get(b.id)[0]||sc.get(a.id)[1]-sc.get(b.id)[1]||(a.title||'').localeCompare(b.title||'','no')); }):sortRows)(S.songs.filter(s=>hit(s,q)!==null)
+  regRows=(regRel?(l=>{ const w=q.split(/\s+/).filter(Boolean), ph=w.join(' '), sc=new Map(l.map(s=>{ const ti=(s.title||'').toLowerCase(), fl=firstLine(s).toLowerCase(); const t=ti.startsWith(ph)?1:fl.startsWith(ph)?2:(ti.includes(ph)||fl.includes(ph))?3:w.every(x=>(ti+' '+fl).includes(x))?4:5; return [s.id,[t,-relScore(s,q)]]; })); return l.sort((a,b)=>sc.get(a.id)[0]-sc.get(b.id)[0]||sc.get(a.id)[1]-sc.get(b.id)[1]||(a.title||'').localeCompare(b.title||'','no')); }):sortRows)(S.songs.filter(s=>hit(s,q)!==null)
     .filter(s=>!ft||(ft==='__none'?!(s.tags||[]).length:(s.tags||[]).includes(ft)))
     .filter(s=>!fb||(fb==='__none'?!s.book:s.book===fb))
     .filter(s=>!fa||(fa==='act'?!s.arch:!!s.arch))
