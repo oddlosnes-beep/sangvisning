@@ -135,6 +135,17 @@ main{grid-template-columns:1.3fr 1fr 1.3fr}
 #rTab td input:focus{outline:2px solid var(--acc);outline-offset:-2px;background:var(--bg)}
 #rTab td input[type=checkbox],#rTab th input{width:auto;margin:0 8px}
 #rTab td.ro{padding:6px 8px;color:var(--mute);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Regnearklook: tettere rader, mindre skrift, rutenett og uthevet aktiv celle */
+#rTab{font-size:13px;line-height:1.2}
+#rTab td,#rTab th{border-right:1px solid var(--line)}#rTab td:last-child,#rTab th:last-child{border-right:0}
+#rTab th{padding:4px 6px;font-size:11px;background:var(--bg)}
+#rTab td input:not([type=checkbox]){padding:2px 6px;font-size:13px;height:23px;box-sizing:border-box}
+#rTab td.ro{padding:0 6px;font-size:13px;height:23px;line-height:23px}
+#rTab td input[type=checkbox],#rTab th input[type=checkbox]{margin:0 0 0 10px;width:14px;height:14px;vertical-align:middle}
+#rTab tbody tr:hover td{background:var(--accbg)}
+#rTab tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--panel) 60%,var(--bg))}
+#rTab tbody tr.sel td,#rTab tbody tr:hover td{background:var(--accbg)}
+#rTab td input:focus{outline:2px solid var(--acc);outline-offset:-2px;background:var(--panel)}
 [hidden]{display:none!important}
 .slide.pv{border-color:var(--acc)}
 .slide{position:relative}
