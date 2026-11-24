@@ -378,7 +378,7 @@ header button,header .btn{min-height:30px}
     <select id="rWhoF"><option value="words">Tekstforfatter</option><option value="music">Komponist</option><option value="authors">Annet opphav</option><option value="copyright">Opphavsrett</option></select><input id="rWho" list="dlPeople" placeholder="Navn …"><button id="rSetWho">Sett på valgte</button></span><span class="sp"></span><span class="bgrp"><button id="rArc" title="Skjuler valgte sanger fra biblioteket. De slettes ikke, og kan hentes tilbake når som helst.">🗄 Flytt til arkiv</button><button id="rUnarc" title="Henter valgte sanger tilbake fra arkivet">↩ Hent tilbake</button></span><button id="rTagSug" title="Leser alle sangtekstene og foreslår emner som Nåde, Påske og Lovsang. Du godkjenner før noe lagres.">🏷 Foreslå emner</button><button id="rFix" title="Flytter «T: … M: …» fra Annet opphav og ut av versene over i tekstforfatter og komponist, og fjerner dobbel tittel">🧹 Rett opp kreditlinjer og dobbel tittel</button><button id="rDelSongs" title="Sletter alle avkryssede sanger fra biblioteket" style="color:#d6334a">🗑 Slett valgte sanger</button></div>
   <div id="rWrap"><table id="rTab"></table></div>
   <div id="rPrev" hidden></div>
-  <datalist id="dlTags"></datalist><datalist id="dlBooks"></datalist>
+  <datalist id="dlTags"></datalist><datalist id="dlTagCell"></datalist><datalist id="dlBooks"></datalist>
 </dialog>
 <dialog id="drDlg" style="width:min(640px,96vw)">
   <div class="rh"><h2 style="margin:0;font-size:16px">Sanger fra mobil</h2><span class="sp"></span><button id="drClose" class="pri">Lukk</button></div>
@@ -1732,11 +1732,21 @@ function regRender(){
   const ed=(val,fn,list,req)=>{
     const td=document.createElement('td'), inp=document.createElement('input'); inp.value=val;
     // Forslagslisten kobles til først når cellen tas i bruk (1400 sanger × 3 lister ble for tregt), men før klikket slik at listen åpner seg
-    if(list){ const lk=()=>{ if(!inp.hasAttribute('list')) inp.setAttribute('list',list); }; ['pointerenter','pointerdown','focus'].forEach(ev=>inp.addEventListener(ev,lk)); }
+    if(list==='tags'){
+      // Kategorier: forslag på samme måte som tekstforfatter, men flere kan stå i cellen (komma mellom). Hvert forslag er hele teksten med den nye kategorien lagt til.
+      const upd=()=>{ const v=inp.value, i=v.lastIndexOf(','), tl=allTags(); let pre=v.slice(0,i+1), tok=v.slice(i+1).trim().toLowerCase();
+        if(tl.some(t=>t.toLowerCase()===tok)){ pre=v.trim()+', '; tok=''; } else if(pre) pre=pre.replace(/\s*$/,' ');
+        const have=new Set(v.split(',').map(x=>x.trim().toLowerCase()).filter(Boolean));
+        $('dlTagCell').replaceChildren(...tl.filter(t=>!have.has(t.toLowerCase())&&(!tok||t.toLowerCase().includes(tok))).slice(0,60).map(t=>new Option(pre+t))); };
+      const lk=()=>{ upd(); if(!inp.hasAttribute('list')) inp.setAttribute('list','dlTagCell'); };
+      ['pointerenter','pointerdown','focus'].forEach(ev=>inp.addEventListener(ev,lk)); inp.addEventListener('input',()=>{ upd(); inp._t=true; });
+    } else if(list){ const lk=()=>{ if(!inp.hasAttribute('list')) inp.setAttribute('list',list); }; ['pointerenter','pointerdown','focus'].forEach(ev=>inp.addEventListener(ev,lk)); inp.addEventListener('input',()=>{ inp._t=true; }); }
+    if(list){ ['focus','blur','change'].forEach(ev=>inp.addEventListener(ev,()=>{ inp._t=false; })); }
     inp.onchange=()=>{ const v=inp.value.trim(); if(req&&!v){ inp.value=val; return; } fn(v); save(); render(); fillFilters(); };
     // Piltaster som i et regneark: opp/ned bytter rad, venstre/høyre bytter celle når markøren står ved kanten
     inp.onkeydown=e=>{
       const k=e.key; if(e.ctrlKey||e.altKey||e.metaKey) return;
+      if(inp._t&&(k==='ArrowDown'||k==='ArrowUp')) return; // mens du skriver i en celle med forslag, velger piltastene blant forslagene
       const tr=td.parentElement, ci=[...tr.children].indexOf(td);
       const cell=(row,c)=>row&&row.children[c]&&row.children[c].querySelector('input:not([type=checkbox])');
       const to=t=>{ if(!t) return false; e.preventDefault(); t.focus(); t.select(); return true; };
@@ -1768,7 +1778,7 @@ function regRender(){
     const ro=document.createElement('td'); ro.className='ro'; ro.textContent=(s.arch?'🗄 ':'')+firstLine(s); ro.title='Klikk for å lese hele teksten'; ro.onclick=()=>regPreview(s.id);
     tr.append(c0, ed(s.number||'',v=>{s.number=v;}), ed(s.book||'',v=>{s.book=v;},'dlBooks'),
       ed(s.title,v=>{s.title=v;},null,true), ed(s.words||'',v=>{s.words=v;},'dlPeople'), ed(s.music||'',v=>{s.music=v;},'dlPeople'), ed(s.authors||'',v=>{s.authors=v;},'dlPeople'), ro,
-      ed((s.tags||[]).join(', '),v=>{s.tags=v.split(',').map(x=>x.trim()).filter(Boolean);}));
+      ed((s.tags||[]).join(', '),v=>{s.tags=v.split(',').map(x=>x.trim()).filter(Boolean);},'tags'));
     return tr;
   };
   if(regIO){ regIO.disconnect(); regIO=null; }
