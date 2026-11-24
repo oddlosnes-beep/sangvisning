@@ -386,7 +386,7 @@ header button,header .btn{min-height:30px}
   <div class="rh"><b id="rSel" class="hint"></b><span id="rBulkHint" class="hint">Huk av sanger i tabellen for å redigere flere om gangen (shift-klikk velger en rekke).</span><span id="rBulk" style="display:none">
     <input id="rTag" list="dlTags" placeholder="Kategori …"><button id="rAdd">Legg til på valgte</button><button id="rDel">Fjern fra valgte</button>
     <input id="rBook" list="dlBooks" placeholder="Bok …"><button id="rSetBook">Sett bok på valgte</button>
-    <select id="rWhoF"><option value="words">Tekstforfatter</option><option value="music">Komponist</option><option value="authors">Annet opphav</option><option value="copyright">Opphavsrett</option></select><input id="rWho" list="dlPeople" placeholder="Navn …"><button id="rSetWho">Sett på valgte</button></span><span class="sp"></span><span class="bgrp"><button id="rArc" title="Skjuler valgte sanger fra biblioteket. De slettes ikke, og kan hentes tilbake når som helst.">🗄 Flytt til arkiv</button><button id="rUnarc" title="Henter valgte sanger tilbake fra arkivet">↩ Hent tilbake</button></span><button id="rTagSug" title="Leser alle sangtekstene og foreslår emner som Nåde, Påske og Lovsang. Du godkjenner før noe lagres.">🏷 Foreslå emner</button><button id="rFix" title="Flytter «T: … M: …» fra Annet opphav og ut av versene over i tekstforfatter og komponist, og fjerner dobbel tittel">🧹 Rett opp kreditlinjer og dobbel tittel</button><button id="rDelSongs" title="Sletter alle avkryssede sanger fra biblioteket" style="color:#d6334a">🗑 Slett valgte sanger</button></div>
+    <select id="rWhoF"><option value="words">Tekstforfatter</option><option value="music">Komponist</option><option value="authors">Annet opphav</option><option value="copyright">Opphavsrett</option></select><input id="rWho" list="dlPeople" placeholder="Navn …"><button id="rSetWho">Sett på valgte</button></span><span class="sp"></span><span class="bgrp"><button id="rArc" title="Skjuler valgte sanger fra biblioteket. De slettes ikke, og kan hentes tilbake når som helst.">🗄 Flytt til arkiv</button><button id="rUnarc" title="Henter valgte sanger tilbake fra arkivet">↩ Hent tilbake</button></span><button id="rCats" title="Gi kategorier nytt navn, slå dem sammen eller slett dem">🏷 Kategorier …</button><button id="rTagSug" title="Leser alle sangtekstene og foreslår emner som Nåde, Påske og Lovsang. Du godkjenner før noe lagres.">🏷 Foreslå emner</button><button id="rFix" title="Flytter «T: … M: …» fra Annet opphav og ut av versene over i tekstforfatter og komponist, og fjerner dobbel tittel">🧹 Rett opp kreditlinjer og dobbel tittel</button><button id="rDelSongs" title="Sletter alle avkryssede sanger fra biblioteket" style="color:#d6334a">🗑 Slett valgte sanger</button></div>
   <div id="rWrap"><table id="rTab"></table></div>
   <div id="rPrev" hidden></div>
   <datalist id="dlTags"></datalist><datalist id="dlTagCell"></datalist><datalist id="dlBooks"></datalist>
@@ -617,6 +617,12 @@ header button,header .btn{min-height:30px}
   <div id="shFind" hidden><input id="shQ" placeholder="Søk i adresselista …"><button id="shClr" type="button" title="Fjerner alle valgte adresser fra feltet">Fjern valg</button></div><div id="shBook" hidden></div><div id="shBookHint" class="hint" style="margin:2px 0 0" hidden>Trykk på en adresse for å velge den eller velge den bort. × fjerner den fra lista.</div>
   <div id="shMsg" class="hint" style="margin:2px 0 0"></div>
   <p class="hint" style="margin:6px 0 0">E-posten sendes fra kontoen som er satt opp under Innstillinger → E-post (<a href="#" id="shSet">åpne e-postoppsett</a>). Ingenting her legges i bruksloggen. Det gjør du med «Logg møtet» under møteplanen.</p>
+</dialog>
+<dialog id="ctDlg" style="width:min(640px,96vw)">
+  <div class="rh"><h2 style="margin:0;font-size:16px">Kategorier</h2><span class="sp"></span><button id="ctClose">Lukk</button></div>
+  <p class="hint" style="margin:6px 0">Skriv et nytt navn og trykk Enter for å gi kategorien nytt navn på alle sangene. Bruker du et navn som finnes fra før, slås de to sammen. 🗑 fjerner kategorien fra alle sangene. Sangene slettes ikke.</p>
+  <input id="ctQ" type="search" placeholder="Søk i kategorier" style="width:100%;margin:0 0 6px">
+  <div id="ctList" style="max-height:60vh;overflow:auto"></div>
 </dialog>
 <dialog id="dbDlg" style="width:min(720px,96vw)">
   <div class="rh"><h2 style="margin:0;font-size:16px">Usikre sanger: første linje gjentas</h2><span class="sp"></span><button id="dbClose">Lukk</button></div>
@@ -2912,6 +2918,35 @@ $('rFix').onclick=$('impFix').onclick=()=>{
   const d=dupDoubts();
   if(d.length) dbOpen(d); else if(!n&&!au.n) $('libHint').textContent='Fant ingen sanger som trenger opprydding.';
 };
+// ---- Kategorier: nytt navn, sammenslåing og sletting ----
+function ctCounts(){ const m=new Map(); for(const s of S.songs) for(const t of (s.tags||[])){ const k=t.toLowerCase(); const e=m.get(k)||{name:t,n:0}; e.n++; m.set(k,e); } return [...m.values()].sort((a,b)=>a.name.localeCompare(b.name,'no')); }
+function ctRender(){
+  const q=$('ctQ').value.trim().toLowerCase(), L=$('ctList'); L.replaceChildren();
+  const rows=ctCounts().filter(c=>!q||c.name.toLowerCase().includes(q));
+  if(!rows.length){ const e=document.createElement('div'); e.className='hint'; e.style.padding='10px'; e.textContent=q?'Ingen kategorier passer.':'Ingen kategorier ennå.'; L.append(e); return; }
+  for(const c of rows){
+    const r=document.createElement('div'); r.style.cssText='display:flex;gap:6px;align-items:center;padding:2px 0';
+    const inp=document.createElement('input'); inp.value=c.name; inp.style.cssText='flex:1;min-width:0';
+    const n=document.createElement('span'); n.className='hint'; n.style.cssText='flex:none;width:76px;text-align:right'; n.textContent=c.n+(c.n===1?' sang':' sanger');
+    const del=document.createElement('button'); del.textContent='🗑'; del.title='Fjern kategorien fra alle sangene'; del.style.color='#d6334a';
+    inp.onkeydown=e=>{ if(e.key==='Enter') inp.blur(); if(e.key==='Escape'){ inp.value=c.name; inp.blur(); } };
+    inp.onchange=()=>{ const nv=inp.value.trim().replace(/,/g,' ').replace(/\s+/g,' ');
+      if(!nv||nv===c.name){ inp.value=c.name; return; }
+      const exist=ctCounts().find(x=>x.name.toLowerCase()===nv.toLowerCase()&&x.name.toLowerCase()!==c.name.toLowerCase());
+      const target=exist?exist.name:nv;
+      if(exist&&!confirm('«'+exist.name+'» finnes fra før ('+exist.n+' sanger). Slå «'+c.name+'» sammen med den?')){ inp.value=c.name; return; }
+      let ch=0; for(const s of S.songs){ if(!(s.tags||[]).some(t=>t.toLowerCase()===c.name.toLowerCase())) continue;
+        const out=[]; for(const t of s.tags){ const x=t.toLowerCase()===c.name.toLowerCase()?target:t; if(!out.some(o=>o.toLowerCase()===x.toLowerCase())) out.push(x); } s.tags=out; ch++; }
+      save(); render(); fillFilters(); try{ regRender(); }catch(e){} ctRender(); $('libHint').textContent='«'+c.name+'» heter nå «'+target+'» på '+ch+' sanger.'; };
+    del.onclick=()=>{ if(!confirm('Fjerne kategorien «'+c.name+'» fra '+c.n+(c.n===1?' sang':' sanger')+'?\nSangene slettes ikke, bare kategorien.')) return;
+      for(const s of S.songs) s.tags=(s.tags||[]).filter(t=>t.toLowerCase()!==c.name.toLowerCase());
+      save(); render(); fillFilters(); try{ regRender(); }catch(e){} ctRender(); $('libHint').textContent='Kategorien «'+c.name+'» er fjernet fra '+c.n+' sanger.'; };
+    r.append(inp,n,del); L.append(r);
+  }
+}
+$('rCats').onclick=()=>{ $('ctQ').value=''; ctRender(); $('ctDlg').showModal(); };
+$('ctQ').oninput=ctRender;
+$('ctClose').onclick=()=>$('ctDlg').close();
 const BK_RF=/^(?:refreng|refrain|refr|ref|chorus)\b\.?\s*(\d{1,2})?\s*(?:\(?\s*x\s*(\d)\s*\)?)?\s*(:)?\s*(.*)$/i;
 function bkBlocks(lines){
   const blocks=[]; let cur=[]; const push=()=>{ if(cur.length) blocks.push({l:cur}); cur=[]; };
